@@ -5,6 +5,12 @@ work in progress!
 [Metadata Source Plugin] ISFDB3 - Version 1.0.0 - 01-31-2022
 
 Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
+This database provides title and publication records (1:n) and series records with a bunch of information (covers, artists, translations, prices, notes, ...), compiled by volunteers.
+
+An web search form is under http://www.isfdb.org/cgi-bin/adv_search_menu.cgi
+There is also an web api under http://www.isfdb.org/wiki/index.php/Web_API, but this is not in use yet by the plugin, because the interface only supplies a subset of the data.
+
+Background:
 
 This is a fork of Adrianna Pińska's ISFDB2. For more information see https://github.com/confluence/isfdb2-calibre
 
@@ -32,33 +38,29 @@ v.1.0.0 01-31-2022
 - Matching title and publication not only by title, but also by publication list in title record 
 
 
-Features:
+Explanations:
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-Als Beispiel für Merge nehmen:
-
+Workaround for Calibre's too strict merge method:
+Calibre merge all books with the same author and the same title regardless of different other data.
+Example from Calibre's log:
+---
 Running identify query with parameters: 
 {'title': 'The Stars My Destination', 'authors': ['Alfred Bester'], 'identifiers': {}, 'timeout': 30} 
-Using plugins: ISFDB3 (3, 0, ) 
+
+
+Using plugins: ISFDB3 (1, 0, 0) 
 The log from individual plugins is below 
 
-****************************** ISFDB3 (3, 0, 3) ****************************** 
+****************************** ISFDB3 (1, 0, 1) ****************************** 
 Found 37 results 
 Downloading from ISFDB3 took 15.561829328536987 
 
 isfdb2: 9 results
+
+as extreme example:
+In the vault
+isfdb2: 1 title and 0 publications
+isfdb3: 2 titles and 95 publications
 
 
 Guards! Guards!
