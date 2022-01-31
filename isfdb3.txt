@@ -1,3 +1,51 @@
+work in progress!
+
+
+
+[Metadata Source Plugin] ISFDB3 - Version 1.0.0 - 01-31-2022
+
+Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
+
+This is a fork of Adrianna Pińska's ISFDB2. For more information see https://github.com/confluence/isfdb2-calibre
+
+In mid 2021 I forked the codebase and make some changes and addition to the code.
+Adriana contacted me and wrote: 
+"Hello! I haven't worked on this for a while, but I intend to get back to it (I still haven't finished cataloguing my library!). 
+When I do I will go through your code and see if I can merge some of the features. I would first probably pull it into a separate branch and eliminate some of the conflicts (e.g. restore the original subdirectory structure, eliminate the committed IDE project files, etc.). I will make further comments in this PR when I get around to doing this. :)
+I don't mind if this plugin is submitted to the plugin repository -- but I am not active on the Mobileread forums, so I am unlikely to do this anytime soon. You are welcome to! If you decide to submit your forked version, please change the name (to isfdb3-calibre?), to make it clear that it's not the same plugin and may have slightly different behaviour."
+
+So I have created the plugin isfdb3 an submitted it to the plugin repository.
+
+Main changes compared to isfdb2 (and first history):
+
+v.1.0.0 01-31-2022
+- Change char encoding from utf-8 to iso-8859-1 (as isfdb.org uses) for search strings to avoid notfound errors für non-ASCII chars (e. g. german umlauts)
+- Add additional identifiers from ISFDB: DNB, OCLC/WorldCat
+- Modify method "clean_downloaded_metadata()": Fixcase title and author(s) only when language is english
+- Series and series_index from publishing page
+- Fechting information from the series page
+- Adding config file (not active yet)
+- Option for combine series and sub-series names 
+- Workaround for Calibre's too strict merge method on same title/author(s) by adding sequence number to title field
+- Workarounds for not Calibre's float format compatible series numbers (61/62, roman numbers)
+- Convert language field text to Calibre's language code
+- Matching title and publication not only by title, but also by publication list in title record 
+
+
+Features:
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Als Beispiel für Merge nehmen:
 
@@ -20,9 +68,6 @@ isfdb2: 4 results
 
 
 
-[Metadata Source Plugin] ISFDB3 - Version 1.0.0 - 11-23-2021
-
-Downloads metadata and covers from ISFDB
 
 
 Features:
@@ -63,24 +108,10 @@ Die Markierung (pub# n) muss manuell oder per Abfrage entfernt werden.
 
 Version History:
 
-v.3.0.1 06-12-2021
-- Series and series_index from publishing page
-- Add identifiers: DNB, OCLC/WorldCat
-- clean_downloaded_metadata(): Fixcase title and author(s) only when language is english
-- Adding config file (not active yet)
-- Search options in config
-- Option for combine series and sub-series names
-- iso-8859-1 char encoding (as ISFDB web site uses) for search string to avoid notfound errors für non-ASCII chars (e. g. german umlauts)
-- Workaround for Calibre's too strict merge method on same title/author(s) by adding sequence number to title field
-- Workaround for not Calibre's float format compatible series numbers (e. g. # 61/62)
-- Convert language field text to Calibre's language code
-
 
 Installation:
 
 
 How to report Bugs and suggestions:
 
-
-Paypal Donations:
 
