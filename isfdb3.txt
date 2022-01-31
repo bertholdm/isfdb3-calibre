@@ -1,0 +1,86 @@
+
+Als Beispiel für Merge nehmen:
+
+Running identify query with parameters: 
+{'title': 'The Stars My Destination', 'authors': ['Alfred Bester'], 'identifiers': {}, 'timeout': 30} 
+Using plugins: ISFDB3 (3, 0, ) 
+The log from individual plugins is below 
+
+****************************** ISFDB3 (3, 0, 3) ****************************** 
+Found 37 results 
+Downloading from ISFDB3 took 15.561829328536987 
+
+isfdb2: 9 results
+
+
+Guards! Guards!
+Terry Pratchett
+isfdb3: 32 results
+isfdb2: 4 results
+
+
+
+[Metadata Source Plugin] ISFDB3 - Version 1.0.0 - 11-23-2021
+
+Downloads metadata and covers from ISFDB
+
+
+Features:
+
+- Korrekte Behandlung von Umlauten (Codierung der Website ist iso, nicht utf). Beispiel: "Großeinsatz Morgenröte" wird nicht gefunden
+
+title list has 2 title records (in isfdb2 there are merged!):
+http://www.isfdb.org/cgi-bin/title.cgi?2946687 -> pub http://www.isfdb.org/cgi-bin/pl.cgi?868274
+http://www.isfdb.org/cgi-bin/title.cgi?41896 -> a bunch of pubs!
+
+
+Planned Features:
+
+Quelle: 
+Puclication Record: http://www.isfdb.org/cgi-bin/pl.cgi?756102
+Title Record: http://www.isfdb.org/cgi-bin/title.cgi?2675342
+Series Record: http://www.isfdb.org/cgi-bin/pe.cgi?57638
+
+Catalog ID: Charr05  (in pub record)
+Webpages: wiki.rendhark-universe.net (in pub record)
+
+
+Find series in contents (pub record):
+Chapbook Title: Herrscher und Sklaven • chapbook by Konrad Schaef [as by Conrad Shepherd]
+Contents (view Concise Listing)
+5 • Herrscher und Sklaven • [Forschungsraumer Charr • 5] • novella by Konrad Schaef [as by Conrad Shepherd]
+
+
+ToDo:
+
+- Using of isfdb web api: http://www.isfdb.org/wiki/index.php/Web_API
+
+
+Limitations:
+
+Die Markierung (pub# n) muss manuell oder per Abfrage entfernt werden.
+
+
+Version History:
+
+v.3.0.1 06-12-2021
+- Series and series_index from publishing page
+- Add identifiers: DNB, OCLC/WorldCat
+- clean_downloaded_metadata(): Fixcase title and author(s) only when language is english
+- Adding config file (not active yet)
+- Search options in config
+- Option for combine series and sub-series names
+- iso-8859-1 char encoding (as ISFDB web site uses) for search string to avoid notfound errors für non-ASCII chars (e. g. german umlauts)
+- Workaround for Calibre's too strict merge method on same title/author(s) by adding sequence number to title field
+- Workaround for not Calibre's float format compatible series numbers (e. g. # 61/62)
+- Convert language field text to Calibre's language code
+
+
+Installation:
+
+
+How to report Bugs and suggestions:
+
+
+Paypal Donations:
+
