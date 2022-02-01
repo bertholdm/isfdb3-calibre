@@ -22,9 +22,8 @@ I don't mind if this plugin is submitted to the plugin repository -- but I am no
 
 So I have created the plugin isfdb3 an submitted it to the plugin repository.
 
-Main changes compared to isfdb2 (and first history):
+Main changes compared to isfdb2:
 
-v.1.0.0 01-31-2022
 - Change char encoding from utf-8 to iso-8859-1 (as isfdb.org uses) for search strings to avoid notfound errors für non-ASCII chars (e. g. german umlauts)
 - Add additional identifiers from ISFDB: DNB, OCLC/WorldCat
 - Modify method "clean_downloaded_metadata()": Fixcase title and author(s) only when language is english
@@ -109,6 +108,9 @@ Die Markierung (pub# n) muss manuell oder per Abfrage entfernt werden.
 
 
 Version History:
+
+v.1.0.0 01-31-2022
+- Initial release
 
 
 Installation:
