@@ -1228,7 +1228,6 @@ class Series(Record):
                 series_tags = html_line.split("Series Tags:", 1)[1].strip()
                 log.info('series_tags={0}'.format(series_tags))
                 # fantasy (3), horror (3), necromancers (1), sword and sorcery (1), heroic fantasy (1)
-                # ToDo: Split at comma and remove counts
                 series_tags_clean = re.sub('\([0-9]*\)]', '', series_tags)
                 properties["series_tags"] = [x.strip() for x in series_tags_clean.split(',')]
                 log.info('properties["series_tags"]={0}'.format(properties["series_tags"]))
