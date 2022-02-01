@@ -455,11 +455,11 @@ class ISFDB3(Source):
             author = ' '.join(author_tokens)
             title_tokens = self.get_title_tokens(title, strip_joiners=False, strip_subtitle=True)
             title = ' '.join(title_tokens)
-            log.info('Searching with author={0}, title=={1}.'.format(author, title))
+            log.info('Searching with author={0}, title={1}.'.format(author, title))
 
-            ########################################
+            ###################################################
             # 3a. Search with title and author(s) for titles  #
-            ########################################
+            ###################################################
 
             # If we still haven't found enough results, also search *titles* by title and author
             if len(matches) < self.prefs["max_results"] and self.prefs["search_titles"]:
@@ -467,6 +467,7 @@ class ISFDB3(Source):
                 # Fetch a title list
                 query = TitleList.url_from_title_and_author(title, author, log)
                 # log.info('query={0} '.format(query))
+                # The title list contains a language col
                 stubs = TitleList.from_url(self.browser, query, timeout, log, self.prefs)
                 log.info('{0} stubs found with TitleList.from_url().'.format(len(stubs)))
 
@@ -523,9 +524,9 @@ class ISFDB3(Source):
                     log.info(_('Abort is set.'))
                     return
 
-            ########################################
-            # 3b. Search with title and author(s) for publications  #
-            ########################################
+            ########################################################
+            # 3b. Search with title and author(s) for publications #
+            ########################################################
 
             # ToDo: Why not instead use the publication ids in titlelist, digged out by workers?
 
@@ -535,8 +536,8 @@ class ISFDB3(Source):
 
                 query = PublicationsList.url_from_title_and_author(title, author, log)
                 stubs = PublicationsList.from_url(self.browser, query, timeout, log, self.prefs)
-                # For the title "In the Vault" by "H. P. Lovecraft" no publications are found by< title.
-                # Although the story shows up in 95 publications, these have other titles (magazine title, anthology title, ...)
+                # For the title "In the Vault" by "H. P. Lovecraft" no publications are found by title.
+                # Although the story shows up in 95 publications, but these have other titles (magazine title, anthology title, ...)
                 if stubs is None:
                     log.info('No publications found with title and author(s) search for »{0}« by {1}.'.format(title, author))
 

@@ -68,7 +68,9 @@ class SearchResults(ISFDBObject):
 
     @classmethod
     def url_from_params(cls, params, log):
-        # log.info("*** Enter SearchResults.url_from_params()")
+
+        log.info("*** Enter SearchResults.url_from_params()")
+
         # return cls.URL + urlencode(params)  # Default encoding is utf-8, but ISFDB site is on iso-8859-1 (Latin-1)
         # Example original title with german umlaut: "Überfall vom achten Planeten"
         # Default urlencode() encodes:
@@ -81,7 +83,7 @@ class SearchResults(ISFDBObject):
         try:
             return cls.URL + urlencode(params, encoding='iso-8859-1')
         except UnicodeEncodeError as e:
-            log.error('Error while encoding {0}: {1}.'.format(params, e))
+            log.error_(('Error while encoding {0}: {1}.').format(params, e))
             encoded_params = urlencode(params, encoding='iso-8859-1', errors='replace')
             encoded_params = encoded_params.split('%3F')[0][
                              :-1]  # cut the search string (? is the encoding replae char)
@@ -93,6 +95,7 @@ class SearchResults(ISFDBObject):
 
 
 class PublicationsList(SearchResults):
+
     TYPE = "Publication"
 
     @classmethod
@@ -147,7 +150,9 @@ class PublicationsList(SearchResults):
                 "CONJUNCTION_1": "AND",
             })
 
-        return cls.url_from_params(params, log)
+        url = cls.url_from_params(params, log)
+        log.info('url={0}.'.format(url))
+        return url  # cls.url_from_params(params, log)
 
     @classmethod
     def from_url(cls, browser, url, timeout, log, prefs):
@@ -195,6 +200,7 @@ class PublicationsList(SearchResults):
         # ToDo
 
 
+
         root = cls.root_from_url(browser, url, timeout, log)
 
         # Get rid of tooltips
@@ -231,6 +237,10 @@ class TitleList(SearchResults):
 
     @classmethod
     def url_from_exact_title_author_and_type(cls, title, author, ttype, log):
+
+        log.info("*** Enter TitleList.url_from_exact_title_author_and_type().")
+        log.info("title={0}, author={1}, ttype={2}".format(title, author, ttype))
+
         if author != '':
             params = {
                 "USE_1": "title_title",
@@ -262,10 +272,16 @@ class TitleList(SearchResults):
                 "TYPE": cls.TYPE,
             }
 
-        return cls.url_from_params(params, log)
+        url = cls.url_from_params(params, log)
+        log.info('url={0}.'.format(url))
+        return url  # cls.url_from_params(params, log)
 
     @classmethod
     def url_from_title_and_author(cls, title, author, log):
+
+        log.info("*** Enter TitleList.url_from_title_and_author().")
+        log.info("title={0}, author={1}".format(title, author))
+
         field = 0
 
         params = {
@@ -295,7 +311,9 @@ class TitleList(SearchResults):
                 "CONJUNCTION_1": "AND",
             })
 
-        return cls.url_from_params(params, log)
+        url = cls.url_from_params(params, log)
+        log.info('url={0}.'.format(url))
+        return url  # cls.url_from_params(params, log)
 
     @classmethod
     def from_url(cls, browser, url, timeout, log, prefs):
@@ -324,7 +342,11 @@ class TitleList(SearchResults):
         for row in rows:
             log.info('row={0}'.format(row.xpath('.')[0].text_content()))
             if not row.xpath('td'):
-                continue  # header
+                continue  # ignore header
+
+            # Filter languages
+            if row.xpath('td[4]')[0].text_content() not in ('English', prefs['languages']):
+                continue  # ignore language
 
             title_stubs.append(Title.stub_from_search(row, log))
 
@@ -1203,9 +1225,13 @@ class Series(Record):
                 log.info('properties["main_series"]={0}'.format(properties["main_series"]))
                 break
             if 'Series Tags:' in html_line:  # check for series tags, if any
-                properties["series_tags"] = html_line.split("Series Tags:", 1)[1].strip()
+                series_tags = html_line.split("Series Tags:", 1)[1].strip()
+                log.info('series_tags={0}'.format(series_tags))
+                # fantasy (3), horror (3), necromancers (1), sword and sorcery (1), heroic fantasy (1)
+                # ToDo: Split at comma and remove counts
+                series_tags_clean = re.sub('\([0-9]*\)]', '', series_tags)
+                properties["series_tags"] = [x.strip() for x in series_tags_clean.split(',')]
                 log.info('properties["series_tags"]={0}'.format(properties["series_tags"]))
-                # ToDo: Split at comma
                 break
             if 'Notes:' in html_line:  # check for series notes, if any
                 properties["series_notes"] = html_line.split("Notes:", 1)[1].strip()
