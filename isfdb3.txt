@@ -5,7 +5,7 @@ work in progress!
 [Metadata Source Plugin] ISFDB3 - Version 1.0.0 - 01-31-2022
 
 Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
-This database provides title and publication records (1:n) and series records with a bunch of information (covers, artists, translations, prices, notes, ...), compiled by volunteers.
+This database provides among other tables for titles (titles) and publications (pubs; connected m:n by table pub_content) and series records with a bunch of information (covers, artists, translations, prices, notes, ...), compiled by volunteers.
 
 A web search form is available under http://www.isfdb.org/cgi-bin/adv_search_menu.cgi
 There is also a web API under http://www.isfdb.org/wiki/index.php/Web_API, but this is not in use yet by the plugin, because the interface only supplies a subset of the data.
