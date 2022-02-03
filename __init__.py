@@ -479,7 +479,7 @@ class ISFDB3(Source):
             title_tokens = self.get_title_tokens(title, strip_joiners=False, strip_subtitle=True)
             title = ' '.join(title_tokens)
             if self.prefs['log_level'] in ('DEBUG', 'INFO'):
-                log.info_(('Searching with author={0}, title={1}.').format(author, title))
+                log.info(_('Searching with author={0}, title={1}.').format(author, title))
 
             ###################################################
             # 3a. Search with title and author(s) for titles  #
@@ -895,7 +895,7 @@ class Worker(Thread):
             # Avoid Calibre's default title and/or author(s) merge behavior by distinguish titles
             if pub.get("isfdb"):
                 # If title has already a 'title #' qualifier, remove it
-                stripped_title = re.sub(r'.* \(title #[0-9]*\).*', '', mi.title).strip()
+                stripped_title = re.sub(r' \(title #[0-9]*\)', '', mi.title).strip()
                 if self.prefs['log_level'] in ('DEBUG'):
                     self.log.debug('mi.title={0}, stripped_title={1}'.format(mi.title, stripped_title))
                 mi.title = stripped_title + ' (pub #' + str(pub.get("isfdb")) + ')'
