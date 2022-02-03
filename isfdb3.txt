@@ -41,6 +41,14 @@ Explanations:
 
 Workaround for Calibre's too strict merge method:
 Calibre merge all books with the same author and the same title regardless of different other data.
+(
+def merge_metadata_results(self, merge_on_identifiers=False):
+        '''
+        Merge results with identical title and authors or an identical
+        identifier
+        '''
+https://github.com/kovidgoyal/calibre/blob/master/src/calibre/ebooks/metadata/sources/identify.py
+)
 Example from Calibre's log:
 ---
 Running identify query with parameters: 
@@ -96,7 +104,8 @@ ToDo:
 
 Limitations:
 
-Die Markierung (pub# n) muss manuell oder per Abfrage entfernt werden.
+- Die Markierung (title# or pub# n) muss manuell oder per Abfrage entfernt werden.
+- Since there is no language field in publication records, only in title records, following the publication numbers in a title list may show up publications not desired languages.
 
 
 Version History:

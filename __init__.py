@@ -4,6 +4,7 @@ import gettext
 import time
 from queue import Queue, Empty
 from threading import Thread
+import re
 
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
@@ -54,16 +55,6 @@ class ISFDB3(Source):
     # Set config values
     # import calibre_plugins.isfdb3.config as cfg
 
-    '''
-    :param name: The name of this option. Must be a valid python identifier
-    :param type_: The type of this option, one of ('number', 'string',
-                    'bool', 'choices')
-    :param default: The default value for this option
-    :param label: A short (few words) description of this option
-    :param desc: A longer description of this option
-    :param choices: A dict of possible values, used only if type='choices'.
-    dict is of the form {key:human readable label, ...}
-    '''
     LANGUAGES = {
         'Afrikaans': 'afr',
         'Albanian': 'alb',
@@ -224,6 +215,18 @@ class ISFDB3(Source):
         'Klingon': 'tlh',
     }
 
+    REVERSELANGUAGES = {}
+    for k, v in LANGUAGES.items():
+        REVERSELANGUAGES[v] = k
+
+    '''
+    :param name: The name of this option. Must be a valid python identifier
+    :param type_: The type of this option, one of ('number', 'string', 'bool', 'choices')
+    :param default: The default value for this option
+    :param label: A short (few words) description of this option
+    :param desc: A longer description of this option
+    :param choices: A dict of possible values, used only if type='choices'. dict is of the form {key:human readable label, ...}
+    '''
     options = (
         Option(
             'max_results',
@@ -286,12 +289,21 @@ class ISFDB3(Source):
         Option(
             'languages',
             'choices',
-            'German',
+            'ger',
             _('Languages'),
             _('Choose one or more of the languages for information about translations, if provided.'),
-            LANGUAGES,
-            #{'German': 'ger', 'Spanish': 'spa', 'French': 'fre'}
+            REVERSELANGUAGES,
+            #{'ger': 'German', 'spa': 'Spanish', 'fre': 'French'}
         ),
+        Option(
+            'log_level',
+            'choices',
+            'INFO',
+            _('Logging level.'),
+            _('ERROR = only error messages, DEBUG: all logging messages.'),
+            {'ERROR': 'ERROR', 'INFO': 'INFO', 'DEBUG': 'DEBUG'},
+            # {10: 'ERROR', 30: 'WARNING', 20: 'INFO', 10: 'DEBUG'},
+        )
     )
 
     def __init__(self, *args, **kwargs):
@@ -381,11 +393,14 @@ class ISFDB3(Source):
         ISBN and then for title and author.
         '''
 
-        # log.info('*** Enter ISFDB3.identify().')
-        # log.info('abort={0}'.format(abort))
-        # log.info('title={0}'.format(title))
-        # log.info('authors={0}'.format(authors))
-        # log.info('identifiers={0}'.format(identifiers))
+        log.info('log_level={0}'.format(self.prefs['log_level']))
+
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug('*** Enter ISFDB3.identify().')
+            log.debug('abort={0}'.format(abort))
+            log.debug('title={0}'.format(title))
+            log.debug('authors={0}'.format(authors))
+            log.debug('identifiers={0}'.format(identifiers))
 
         matches = set()
 
@@ -395,7 +410,8 @@ class ISFDB3(Source):
 
         # If we have an ISFDB ID, or a title ID, we use it to construct the publication URL directly
         book_url_tuple = self.get_book_url(identifiers)
-        log.info('book_url_tuple={0}'.format(book_url_tuple))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.info('book_url_tuple={0}'.format(book_url_tuple))
 
         if book_url_tuple:
             id_type, id_val, url = book_url_tuple
@@ -830,7 +846,10 @@ class Worker(Thread):
 
             # Avoid Calibre's default title and/or author(s) merge behavior by distinguish titles
             if pub.get("isfdb"):
-                mi.title = mi.title + ' (pub #' + str(pub.get("isfdb")) + ')'
+                # If title has already a 'title #' qualifier, remove it
+                stripped_title = re.sub(r'.* \(Title #[0-9]*\).*', '', mi.title).strip()
+                self.log.info('mi.title={0}, stripped_title={1}'.format(mi.title, stripped_title))
+                mi.title = stripped_title + ' (pub #' + str(pub.get("isfdb")) + ')'
                 self.log.info('Adding book publication id to avoid merging: {0}'.format(mi.title))
 
             # TODO: do we actually want / need this?

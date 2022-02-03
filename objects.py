@@ -10,6 +10,7 @@ from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.config import JSONConfig
 from lxml import etree
 from lxml.html import fromstring, tostring
+from lxml import etree
 
 _ = gettext.gettext
 load_translations()
@@ -436,11 +437,12 @@ class Publication(Record):
         # OCLC/WorldCat: 312705060
 
         for detail_node in detail_nodes:
+            log.info('detail_node={0}'.format(etree.tostring(detail_node)))
             section = detail_node[0].text_content().strip().rstrip(':')
             if section[:7] == 'Notes: ':  # if accidentally stripped in notes itself
                 section = section[:5]
 
-            # log.info('section={0}'.format(section))
+            log.info('section={0}'.format(section))
             # try:
             #     log.info('text content={0}'.format(detail_node[1].text_content().strip()))
             # except IndexError:
@@ -485,12 +487,16 @@ class Publication(Record):
                 elif section == 'Pub. Series':
                     # If series is a url, open series page and search for "Sub-series of:"
                     # http://www.isfdb.org/cgi-bin/pe.cgi?45706
-                    # Scan series record
                     properties["series"] = ''
                     # if ISFDB3.prefs["combine_series"]:
                     # url = detail_node[1].xpath('//a[contains(text(), "' + detail_node[1].text_content().strip() + '")]/@href')  # get all urs
-                    series_url = str(detail_node[1].xpath('./@href')[0])
-                    # log.info('url={0}'.format(series_url))
+                    try:
+                        series_url = str(detail_node.xpath('./@href')[0])
+                    except IndexError:
+                        # url is embedded in a tooltip div:  //*[@id="content"]/div[1]/ul/li[5]/div/a
+                        series_url = str(detail_node.xpath('./div/@href')[0])
+                    log.info('series_url={0}'.format(series_url))
+                    # Scan series record
                     properties["series"] = Series.from_url(browser, series_url, timeout, log, prefs)
                     if properties["series"] == '':
                         properties["series"] = detail_node.xpath('a')[0].text_content().strip()
