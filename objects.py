@@ -116,8 +116,9 @@ class PublicationsList(SearchResults):
     @classmethod
     def url_from_title_and_author(cls, title, author, log):
 
-        log.info("*** Enter PublicationsList.url_from_title_and_author().")
-        log.info("title={0}, author={1}".format(title, author))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug("*** Enter PublicationsList.url_from_title_and_author().")
+            log.debug("title={0}, author={1}".format(title, author))
 
         # TODO support adding price or date as a supplementary field
         # bertholdm: Metadata plugins are not able to write user defined fields.
@@ -152,14 +153,16 @@ class PublicationsList(SearchResults):
             })
 
         url = cls.url_from_params(params, log)
-        log.info('url={0}.'.format(url))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug('url={0}.'.format(url))
         return url  # cls.url_from_params(params, log)
 
     @classmethod
     def from_url(cls, browser, url, timeout, log, prefs):
 
-        log.info('*** Enter PublicationsList.from_url().')
-        log.info('url={0}'.format(url))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug('*** Enter PublicationsList.from_url().')
+            log.debug('url={0}'.format(url))
 
         publication_stubs = []
 
@@ -185,16 +188,18 @@ class PublicationsList(SearchResults):
 
             publication_stubs.append(Publication.stub_from_search(row, log))
 
-        log.info("Parsed publications from url %r. Found %d publications." % (url, len(publication_stubs)))
-        log.info('publication_stubs={0}'.format(publication_stubs))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug("Parsed publications from url %r. Found %d publications." % (url, len(publication_stubs)))
+            log.debug('publication_stubs={0}'.format(publication_stubs))
 
         return publication_stubs
 
     @classmethod
     def from_publication_ids(cls, browser, pub_ids, timeout, log, prefs):
 
-        log.info('*** Enter PublicationsList.from_publication_ids().')
-        log.info('pub_ids={0}'.format(pub_ids))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug('*** Enter PublicationsList.from_publication_ids().')
+            log.debug('pub_ids={0}'.format(pub_ids))
 
         publication_stubs = []
 
@@ -218,14 +223,16 @@ class PublicationsList(SearchResults):
         rows = root.xpath('//div[@id="main"]/table/tr')
 
         for row in rows:
-            # log.info('row={0}'.format(row.xpath('.')[0].text_content()))
+            if self.prefs['log_level'] in ('DEBUG'):
+                log.debug('row={0}'.format(row.xpath('.')[0].text_content()))
             if not row.xpath('td'):
                 continue  # header
 
             publication_stubs.append(Publication.stub_from_search(row, log))
 
-        log.info("Parsed publications from url %r. Found %d publications." % (url, len(publication_stubs)))
-        log.info('publication_stubs={0}'.format(publication_stubs))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug("Parsed publications from url %r. Found %d publications." % (url, len(publication_stubs)))
+            log.debug('publication_stubs={0}'.format(publication_stubs))
 
         return publication_stubs
 
@@ -239,8 +246,9 @@ class TitleList(SearchResults):
     @classmethod
     def url_from_exact_title_author_and_type(cls, title, author, ttype, log):
 
-        log.info("*** Enter TitleList.url_from_exact_title_author_and_type().")
-        log.info("title={0}, author={1}, ttype={2}".format(title, author, ttype))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug("*** Enter TitleList.url_from_exact_title_author_and_type().")
+            log.debug("title={0}, author={1}, ttype={2}".format(title, author, ttype))
 
         if author != '':
             params = {
@@ -274,14 +282,16 @@ class TitleList(SearchResults):
             }
 
         url = cls.url_from_params(params, log)
-        log.info('url={0}.'.format(url))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug('url={0}.'.format(url))
         return url  # cls.url_from_params(params, log)
 
     @classmethod
     def url_from_title_and_author(cls, title, author, log):
 
-        log.info("*** Enter TitleList.url_from_title_and_author().")
-        log.info("title={0}, author={1}".format(title, author))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug("*** Enter TitleList.url_from_title_and_author().")
+            log.debug("title={0}, author={1}".format(title, author))
 
         field = 0
 
@@ -313,15 +323,17 @@ class TitleList(SearchResults):
             })
 
         url = cls.url_from_params(params, log)
-        log.info('url={0}.'.format(url))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug('url={0}.'.format(url))
         return url  # cls.url_from_params(params, log)
 
     @classmethod
     def from_url(cls, browser, url, timeout, log, prefs):
 
-        log.info('*** Enter TitleList.from_url().')
-        log.info('url={0}'.format(url))
-        # http://www.isfdb.org/cgi-bin/adv_search_results.cgi?ORDERBY=title_title&START=0&TYPE=Title&USE_1=title_title&OPERATOR_1=contains&TERM_1=In+The+Vault&USE_2=author_canonical&OPERATOR_2=contains&TERM_2=H.+P.+Lovecraft&CONJUNCTION_1=AND
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug('*** Enter TitleList.from_url().')
+            log.debug('url={0}'.format(url))
+            # http://www.isfdb.org/cgi-bin/adv_search_results.cgi?ORDERBY=title_title&START=0&TYPE=Title&USE_1=title_title&OPERATOR_1=contains&TERM_1=In+The+Vault&USE_2=author_canonical&OPERATOR_2=contains&TERM_2=H.+P.+Lovecraft&CONJUNCTION_1=AND
 
         title_stubs = []
 
@@ -341,7 +353,8 @@ class TitleList(SearchResults):
         rows = root.xpath('//div[@id="main"]/form/table/tr')
 
         for row in rows:
-            log.info('row={0}'.format(row.xpath('.')[0].text_content()))
+            if self.prefs['log_level'] in ('DEBUG'):
+                log.debug('row={0}'.format(row.xpath('.')[0].text_content()))
             if not row.xpath('td'):
                 continue  # ignore header
 
@@ -351,10 +364,11 @@ class TitleList(SearchResults):
 
             title_stubs.append(Title.stub_from_search(row, log))
 
-        log.info("Parsing titles from url %r. Found %d titles." % (url, len(title_stubs)))
-        log.info('title_stubs={0}'.format(title_stubs))
-        # [{'title': 'In the Vault', 'url': 'http://www.isfdb.org/cgi-bin/title.cgi?41896', 'authors': ['H. P. Lovecraft']},
-        # {'title': 'In the Vault', 'url': 'http://www.isfdb.org/cgi-bin/title.cgi?2946687', 'authors': ['H. P. Lovecraft']}]
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug("Parsing titles from url %r. Found %d titles." % (url, len(title_stubs)))
+            log.debug('title_stubs={0}'.format(title_stubs))
+            # [{'title': 'In the Vault', 'url': 'http://www.isfdb.org/cgi-bin/title.cgi?41896', 'authors': ['H. P. Lovecraft']},
+            # {'title': 'In the Vault', 'url': 'http://www.isfdb.org/cgi-bin/title.cgi?2946687', 'authors': ['H. P. Lovecraft']}]
 
         return title_stubs
 
@@ -374,8 +388,6 @@ class Publication(Record):
         'DNB': ["dnb", "Deutsche Nationalbibliothek", "http://d-nb.info/"],
         'OCLC/WorldCat': ["oclc-worldcat", "Online Computer Library Center", "http://www.worldcat.org/oclc/"],
     }
-
-    # BOOK_PUB_NO = 0  # Add a serial pubno to workaround Calibre's too strict merge method
 
     @classmethod
     def url_from_id(cls, isfdb_id):
@@ -402,8 +414,9 @@ class Publication(Record):
     @classmethod
     def from_url(cls, browser, url, timeout, log, prefs):
 
-        log.info('*** Enter Publication.from_url().')
-        # log.info('url={0}'.format(url))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug('*** Enter Publication.from_url().')
+            log.debug('url={0}'.format(url))
 
         properties = {}
         properties["isfdb"] = cls.id_from_url(url)
@@ -437,16 +450,13 @@ class Publication(Record):
         # OCLC/WorldCat: 312705060
 
         for detail_node in detail_nodes:
-            log.info('detail_node={0}'.format(etree.tostring(detail_node)))
+            if self.prefs['log_level'] in ('DEBUG'):
+                log.debug('detail_node={0}'.format(etree.tostring(detail_node)))
             section = detail_node[0].text_content().strip().rstrip(':')
             if section[:7] == 'Notes: ':  # if accidentally stripped in notes itself
                 section = section[:5]
-
-            log.info('section={0}'.format(section))
-            # try:
-            #     log.info('text content={0}'.format(detail_node[1].text_content().strip()))
-            # except IndexError:
-            #     pass
+            if self.prefs['log_level'] in ('DEBUG'):
+                log.debug('section={0}'.format(section))
 
             try:
                 if section == 'Publication':
@@ -495,7 +505,8 @@ class Publication(Record):
                     except IndexError:
                         # url is embedded in a tooltip div:  //*[@id="content"]/div[1]/ul/li[5]/div/a
                         series_url = str(detail_node.xpath('./div/@href')[0])
-                    log.info('series_url={0}'.format(series_url))
+                    if self.prefs['log_level'] in ('DEBUG'):
+                        log.debug('series_url={0}'.format(series_url))
                     # Scan series record
                     properties["series"] = Series.from_url(browser, series_url, timeout, log, prefs)
                     if properties["series"] == '':
@@ -543,13 +554,15 @@ class Publication(Record):
                         else:
                             properties["notes"] = properties["notes"] + '<br />' + \
                                                   sanitize_comments_html(tostring(notes_nodes[0], method='html'))
-                        # log.info('properties["notes"]={0}'.format(properties["notes"]))
+                        if self.prefs['log_level'] in ('DEBUG'):
+                            log.debug('properties["notes"]={0}'.format(properties["notes"]))
 
                 elif section == 'External IDs':
                     sub_detail_nodes = detail_node.xpath('ul/li')
                     for sub_detail_node in sub_detail_nodes:
-                        # log.info(sub_detail_node[0].text_content())  # short catalog name
-                        # log.info(sub_detail_node[1].text_content())  # catalog number
+                        if self.prefs['log_level'] in ('DEBUG'):
+                            log.debug(sub_detail_node[0].text_content())  # short catalog name
+                            log.debug(sub_detail_node[1].text_content())  # catalog number
                         if sub_detail_node[0].text_content() in cls.EXTERNAL_IDS:
                             properties[cls.EXTERNAL_IDS[sub_detail_node[0].text_content()][0]] = \
                                 sub_detail_node[1].text_content()
@@ -578,20 +591,20 @@ class Publication(Record):
                     properties["isfdb-title"] = Title.id_from_url(title_url)
 
             except Exception as e:
-                log.exception('Error parsing section %r for url: %r. Error: %r' % (section, url, e))
+                log.exception(_('Error parsing section %r for url: %r. Error: %r') % (section, url, e))
 
         try:
             contents_node = root.xpath('//div[@class="ContentBox"][2]/ul')
             if contents_node:
                 properties["comments"] = sanitize_comments_html(tostring(contents_node[0], method='html'))
         except Exception as e:
-            log.exception('Error parsing comments for url: %r. Error: %r' % (url, e))
+            log.exception(_('Error parsing comments for url: %r. Error: %r') % (url, e))
 
         combined_comments = ''
         for k in sorted(properties):
             if k in ['synopsis', 'comments', 'notes', 'series_number_notes', 'user_rating', 'webpage', 'cover']:
                 combined_comments = combined_comments + properties[k] + '<br />'
-        properties["comments"] = combined_comments + _('Source: ') + url
+        properties["comments"] = combined_comments + _('Source for publication metadata: ') + url
         # ToDo: show series url
 
         # no series info was found in ContentBox #1, so look in ContenBox #2:
@@ -610,24 +623,28 @@ class Publication(Record):
                 # if ISFDB3.prefs["combine_series"]:
                 # If series is a url, open series page and search for "Sub-series of:"
                 series_url = str(root.xpath('//*[@id="content"]/div[2]/a[2]/@href')[0])
-                # log.info('url={0}'.format(series_url))
+                if self.prefs['log_level'] in ('DEBUG'):
+                    log.debug('url={0}'.format(series_url))
                 properties["series"] = Series.from_url(browser, series_url, timeout, log, prefs)
                 if properties["series"] == '':
                     properties["series"] = root.xpath('//*[@id="content"]/div[2]/a[2]')[0].text_content().strip()
-                # log.info('properties["series"]={0}'.format(properties["series"]))
+                if self.prefs['log_level'] in ('DEBUG'):
+                    log.debug('properties["series"]={0}'.format(properties["series"]))
                 if '#' in properties["title"]:
                     match = re.search('#(\d+)', properties["title"], re.IGNORECASE)
                     properties["series_index"] = int("".join(filter(str.isdigit, match.group(1))))
-                    # log.info('properties["series_index"]={0}'.format(properties["series_index"]))
+                    if self.prefs['log_level'] in ('DEBUG'):
+                        log.debug('properties["series_index"]={0}'.format(properties["series_index"]))
             except (IndexError, KeyError):
-                log.info(_('No series found at all.'))
+                if self.prefs['log_level'] in ('DEBUG', 'INFO'):
+                    log.info(_('No series found at all.'))
 
         try:
             img_src = root.xpath('//div[@id="content"]//table/tr[1]/td[1]/a/img/@src')
             if img_src:
                 properties["cover_url"] = img_src[0]
         except Exception as e:
-            log.exception('Error parsing cover for url: %r. Error: %r' % (url, e))
+            log.exception(_('Error parsing cover for url: %r. Error: %r') % (url, e))
 
         # Workaround to avoid merging publications with eeh same title and author(s) by Calibre's default behavior
         # Publication.BOOK_PUB_NO = Publication.BOOK_PUB_NO + 1
@@ -659,12 +676,13 @@ class TitleCovers(Record):
             tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
 
         covers = root.xpath('//div[@id="main"]/a/img/@src')
-        # log.info("Parsed covers from url %r. Found %d covers." % (url, len(covers)))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug("Parsed covers from url %r. Found %d covers." % (url, len(covers)))
         return covers
 
 
 class Title(Record):
-    # title record -> publication record (1:n)
+    # title record -> publication record(s) (m:n)
 
     URL = 'http://www.isfdb.org/cgi-bin/title.cgi?'
 
@@ -847,8 +865,6 @@ class Title(Record):
         'Klingon': 'tlh',
     }
 
-    # BOOK_TITLE_NO = 0  # Add a serial titleno to workaround Calibre's too strict merge method
-
     @classmethod
     def url_from_id(cls, isfdb_title_id):
         return cls.URL + isfdb_title_id
@@ -860,13 +876,15 @@ class Title(Record):
     @classmethod
     def stub_from_search(cls, row, log):
 
-        log.info('*** Enter Title.stub_from_search().')
-        log.info('row={0}'.format(row.xpath('.')[0].text_content()))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug('*** Enter Title.stub_from_search().')
+            log.debug('row={0}'.format(row.xpath('.')[0].text_content()))
 
         properties = {}
 
         if row is None:
-            log.error(_('Title.stub_from_search(): row is None.'))
+            if self.prefs['log_level'] in ('DEBUG', 'INFO', 'ERROR'):
+                log.error(_('Title.stub_from_search(): row is None.'))
             return properties
 
         try:
@@ -880,7 +898,8 @@ class Title(Record):
             properties["title"] = row.xpath('td[5]/div/a/text()')[0]
             properties["url"] = row.xpath('td[5]/div/a/@href')[0]
             properties["date"] = row.xpath('td[1]')[0].text_content()
-        # log.info('properties["title"]={0}, properties["url"]={1}.'.format(properties["title"], properties["url"]))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug('properties["title"]={0}, properties["url"]={1}.'.format(properties["title"], properties["url"]))
 
         try:
             properties["authors"] = [a.text_content() for a in row.xpath('td[6]/a')]
@@ -897,8 +916,9 @@ class Title(Record):
     @classmethod
     def from_url(cls, browser, url, timeout, log, prefs):
 
-        # log.info('*** Enter Title.from_url().')
-        # log.info('url={0}'.format(url))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug('*** Enter Title.from_url().')
+            log.debug('url={0}'.format(url))
 
         properties = {}
         properties["isfdb-title"] = cls.id_from_url(url)
@@ -924,19 +944,20 @@ class Title(Record):
         detail_nodes.append(detail_node)
 
         for detail_node in detail_nodes:
-            # log.info('detail_node[0]={0}.'.format(etree.tostring(detail_node[0], method='html', with_tail=False)))
-            # try:
-            #     log.info('detail_node[1]={0}.'.format(etree.tostring(detail_node[1], method='html', with_tail=False)))
-            # except:
-            #     pass
+            if self.prefs['log_level'] in ('DEBUG'):
+                log.debug('detail_node={0}'.format(etree.tostring(detail_node)))
             section = detail_node[0].text_content().strip().rstrip(':')
+            if self.prefs['log_level'] in ('DEBUG'):
+                log.debug('section={0}'.format(section))
             section_text_content = detail_node[0].tail.strip()
             if section_text_content == '':
                 try:
                     section_text_content = detail_node[1].xpath('text()')  # extract link text
                 except Exception as e:
-                    log.info('Error: {0}.'.format(e))
-            # log.info('section={0}, section_text_content={1}.'.format(section, section_text_content))
+                    if self.prefs['log_level'] in ('DEBUG', 'INFO', 'ERROR'):
+                        log.error('Error: {0}.'.format(e))
+            if self.prefs['log_level'] in ('DEBUG'):
+                log.debug('section={0}, section_text_content={1}.'.format(section, section_text_content))
             try:
                 if section == 'Title':
                     properties["title"] = detail_node[0].tail.strip()
@@ -984,8 +1005,9 @@ class Title(Record):
                     properties["pubdate"] = datetime.datetime(year, month, day, 2, 0, 0)
 
                 elif section == 'Series':
-                    log.info('Section "Series" found: {0}'.format(detail_node[0].tail.strip()))
-                    log.info('Section "Series" found: {0}'.format(detail_node[1].text_content().strip()))
+                    if self.prefs['log_level'] in ('DEBUG'):
+                        log.debug('Section "Series" found: {0}'.format(detail_node[0].tail.strip()))
+                        log.debug('Section "Series" found: {0}'.format(detail_node[1].text_content().strip()))
                     # If series is a url, open series page and search for "Sub-series of:"
                     # http://www.isfdb.org/cgi-bin/pe.cgi?45706
                     # Scan series record
@@ -994,19 +1016,24 @@ class Title(Record):
                     if properties["series"] == '':
                         properties["series"] = detail_node[1].text_content().strip()
                         url = str(detail_node[1].xpath('./@href')[0])
-                        log.info('Properties "Series" is a url: {0} - {1}'.format(properties["series"], url))
+                        if self.prefs['log_level'] in ('DEBUG'):
+                            log.debug('Properties "Series" is a url: {0} - {1}'.format(properties["series"], url))
                         properties["series"] = Series.from_url(browser, url, timeout, log, prefs)
-                        log.info('Properties "Series"={0}'.format(properties["series"]))
+                        if self.prefs['log_level'] in ('DEBUG'):
+                            log.debug('Properties "Series"={0}'.format(properties["series"]))
 
                     log.info('Properties "Series"={0}'.format(properties["series"]))
                     if properties["series"] == '':
                         properties["series"] = detail_node[1].text_content().strip()
-                        log.info('Properties "Series"={0}'.format(properties["series"]))
+                        if self.prefs['log_level'] in ('DEBUG'):
+                            log.debug('Properties "Series"={0}'.format(properties["series"]))
 
                 elif section == 'Series Number':
-                    log.info('Section "Series Number" found: {0}'.format(detail_node[0].tail.strip()))
+                    if self.prefs['log_level'] in ('DEBUG'):
+                        log.debug('Section "Series Number" found: {0}'.format(detail_node[0].tail.strip()))
                     if properties["series"] != '':
-                        log.info(_('Series is: "{0}". Now searching series index in "{1}"'.format(properties["series"], detail_node[0].tail.strip())))
+                        if self.prefs['log_level'] in ('DEBUG', 'INFO'):
+                            log.info(_('Series is: "{0}". Now searching series index in "{1}"'.format(properties["series"], detail_node[0].tail.strip())))
                         if detail_node[0].tail.strip() == '':
                             properties["series_index"] = 0.0
                         elif '/' in detail_node[0].tail:
@@ -1018,7 +1045,8 @@ class Title(Record):
                                 _("Reported number was {0} and was reduced to a Calibre compatible format."). \
                                     format(detail_node[0].tail)
                         elif is_roman_numeral(detail_node[0].tail.strip()):
-                            # log.info('Roman literal found:{0}'.format(detail_node[0].tail.strip()))
+                            if self.prefs['log_level'] in ('DEBUG'):
+                                log.debug('Roman literal found:{0}'.format(detail_node[0].tail.strip()))
                             # Calibre accepts only float format compatible arabic numbers, not roman numerals e. g. "IV"
                             # http://www.isfdb.org/cgi-bin/pl.cgi?243949
                             properties["series_index"] = roman_to_int(detail_node[0].tail.strip())
@@ -1033,12 +1061,15 @@ class Title(Record):
                                     _("Could not convert {0} to a Calibre compatible format.<br />"). \
                                     format(detail_node[0].tail.strip())
                                 properties["series_index"] = 0.0
-                                log.error('"Could not convert {0} to a Calibre compatible format.<br />"'.format(detail_node[0].tail.strip()))
-                        log.info('properties["series_index"]={0}'.format(properties["series_index"]))
+                                if self.prefs['log_level'] in ('DEBUG', 'INFO', 'ERROR'):
+                                    log.error('"Could not convert {0} to a Calibre compatible format.<br />"'.format(detail_node[0].tail.strip()))
+                        if self.prefs['log_level'] in ('DEBUG'):
+                            log.debug('properties["series_index"]={0}'.format(properties["series_index"]))
 
                 elif section == 'Webpages':
                     properties["webpages"] = str(detail_node[1].xpath('./@href')[0])
-                    # log.info('properties["webpages"]={0}'.format(properties["webpages"]))
+                    if self.prefs['log_level'] in ('DEBUG'):
+                        log.debug('properties["webpages"]={0}'.format(properties["webpages"]))
 
                 elif section == 'Language':
                     properties["language"] = detail_node[0].tail.strip()
@@ -1079,7 +1110,8 @@ class Title(Record):
                             tag = a.text_content().strip()
                             if tag != "Add Tags":
                                 properties["tags"].append(tag)
-                                # log.info('tag "{0}" added.'.format(tag))
+                                if self.prefs['log_level'] in ('DEBUG'):
+                                    log.debug('tag "{0}" added.'.format(tag))
 
                 elif section == 'Variant Title of':
                     if "notes" not in properties:
@@ -1088,12 +1120,12 @@ class Title(Record):
                         properties["notes"] = properties["notes"] + '<br />' + 'Variant Title of ' + detail_node[0].tail.strip()
 
             except Exception as e:
-                log.exception('Error parsing section %r for url: %r. Error: %r' % (section, url, e))
+                log.exception(_('Error parsing section %r for url: %r. Error: %r') % (section, url, e))
 
         if 'comments' in properties:
-            properties["comments"] = properties["comments"] + '<br />' + _('Source: ') + url
+            properties["comments"] = properties["comments"] + '<br />' + _('Source for title metadata: ') + url
         else:
-            properties["comments"] = '<br />' + _('Source: ') + url
+            properties["comments"] = '<br />' + _('Source for title metadata: ') + url
 
         # Save all publication ids for this title
         publication_links = root.xpath('//a[contains(@href, "/pl.cgi?")]/@href')
@@ -1108,8 +1140,9 @@ class Series(Record):
 
     @classmethod
     def root_from_url(cls, browser, url, timeout, log):
-        # log.info('*** Enter Series.root_from_url().')
-        # log.info('url={0}'.format(url))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug('*** Enter Series.root_from_url().')
+            log.debug('url={0}'.format(url))
         response = browser.open_novisit(url, timeout=timeout)
         raw = response.read()
         # Parses an XML document or fragment from a string. Returns the root node (or the result returned by a parser target).
@@ -1129,8 +1162,9 @@ class Series(Record):
     @classmethod
     def from_url(cls, browser, url, timeout, log, prefs):
 
-        log.info('*** Enter Series.from_url().')
-        log.info('url={0}'.format(url))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug('*** Enter Series.from_url().')
+            log.debug('url={0}'.format(url))
 
         properties = {}
         # ToDo: if series in properties:
@@ -1152,7 +1186,8 @@ class Series(Record):
             tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
 
         detail_nodes = root.xpath('//div[@id="content"]/div[@class="ContentBox"][1]/ul/li')
-        log.info('Found {0} detail_nodes.'.format(len(detail_nodes)))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug('Found {0} detail_nodes.'.format(len(detail_nodes)))
 
         # Series record of title records looks like:
         # Series: Discworld                    Series Record # 186
@@ -1214,7 +1249,8 @@ class Series(Record):
                     series_candidate = html_line.split(series_caption, 1)[1].strip()
                     idx = series_captions.index(series_caption)
                     properties["series"] = series_candidate.split(series_record_captions[idx], 1)[0].strip()
-                    log.info('properties["series"]={0}'.format(properties["series"]))
+                    if self.prefs['log_level'] in ('DEBUG'):
+                        log.debug('properties["series"]={0}'.format(properties["series"]))
                     # series_candidate = html_line.split(series_caption, 1)[1].strip()
                     # idx = series_captions.index(series_caption)
                     # series_candidate = series_candidate.split(series_record_captions[idx], 1)[0].strip()
@@ -1228,23 +1264,28 @@ class Series(Record):
                     break
             if 'Sub-series of:' in html_line:  # check for main series, if any
                 properties["main_series"] = html_line.split("Sub-series of:", 1)[1].strip()
-                log.info('properties["main_series"]={0}'.format(properties["main_series"]))
+                if self.prefs['log_level'] in ('DEBUG'):
+                    log.debug('properties["main_series"]={0}'.format(properties["main_series"]))
                 break
             if 'Series Tags:' in html_line:  # check for series tags, if any
                 series_tags = html_line.split("Series Tags:", 1)[1].strip()
-                log.info('series_tags={0}'.format(series_tags))
+                if self.prefs['log_level'] in ('DEBUG'):
+                    log.debug('series_tags={0}'.format(series_tags))
                 # fantasy (3), horror (3), necromancers (1), sword and sorcery (1), heroic fantasy (1)
                 series_tags_clean = re.sub('\([0-9]*\)]', '', series_tags)
                 properties["series_tags"] = [x.strip() for x in series_tags_clean.split(',')]
-                log.info('properties["series_tags"]={0}'.format(properties["series_tags"]))
+                if self.prefs['log_level'] in ('DEBUG'):
+                    log.debug('properties["series_tags"]={0}'.format(properties["series_tags"]))
                 break
             if 'Notes:' in html_line:  # check for series notes, if any
                 properties["series_notes"] = html_line.split("Notes:", 1)[1].strip()
-                log.info('properties["series_notes"]={0}'.format(properties["series_notes"]))
+                if self.prefs['log_level'] in ('DEBUG'):
+                    log.debug('properties["series_notes"]={0}'.format(properties["series_notes"]))
                 break
             if 'Webpages:' in html_line:  # check for series webpages, if any
                 properties["series_webpages"] = html_line.split("Webpages:", 1)[1].strip()
-                log.info('properties["series_webpages"]={0}'.format(properties["series_webpages"]))
+                if self.prefs['log_level'] in ('DEBUG'):
+                    log.debug('properties["series_webpages"]={0}'.format(properties["series_webpages"]))
                 # ToDo: Extract URL
                 break
 
@@ -1256,7 +1297,8 @@ class Series(Record):
                 full_series = properties["main_series"] + prefs["combine_series_with"] + properties["series"]
             else:
                 full_series = properties["main_series"]
-        log.info('full_series={0}'.format(full_series))
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug('full_series={0}'.format(full_series))
         return full_series
 
 
