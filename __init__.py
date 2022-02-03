@@ -393,7 +393,10 @@ class ISFDB3(Source):
         ISBN and then for title and author.
         '''
 
-        log.info('log_level={0}'.format(self.prefs['log_level']))
+        log.info(' ')
+        log.info('*' * 20)
+        log.info('isfdb3 is starting...')
+        log.info('Log level is {0}.'.format(self.prefs['log_level']))
 
         if self.prefs['log_level'] in ('DEBUG'):
             log.debug('*** Enter ISFDB3.identify().')
@@ -444,7 +447,7 @@ class ISFDB3(Source):
             # Fall back to non-ISBN catalog ID -- ISFDB uses the same field for both.
             if isbn or catalog_id:
                 # Fetching publications
-                query = PublicationsList.url_from_isbn(isbn or catalog_id, log)
+                query = PublicationsList.url_from_isbn(isbn or catalog_id, log, self.prefs)
                 stubs = PublicationsList.from_url(self.browser, query, timeout, log, self.prefs)
 
                 for stub in stubs:
@@ -489,7 +492,7 @@ class ISFDB3(Source):
             if len(matches) < self.prefs["max_results"] and self.prefs["search_titles"]:
                 # title=In The Vault, author=H. P. Lovecraft
                 # Fetch a title list
-                query = TitleList.url_from_title_and_author(title, author, log)
+                query = TitleList.url_from_title_and_author(title, author, log, self.prefs)
                 # The title list contains a language col
                 stubs = TitleList.from_url(self.browser, query, timeout, log, self.prefs)
                 if self.prefs['log_level'] in ('DEBUG'):
@@ -565,7 +568,7 @@ class ISFDB3(Source):
             # If we haven't reached the maximum number of results, also search by title and author
             if len(matches) < self.prefs["max_results"] and self.prefs["search_publications"]:
 
-                query = PublicationsList.url_from_title_and_author(title, author, log)
+                query = PublicationsList.url_from_title_and_author(title, author, log, self.prefs)
                 stubs = PublicationsList.from_url(self.browser, query, timeout, log, self.prefs)
                 # For the title "In the Vault" by "H. P. Lovecraft" no publications are found by title.
                 # Although the story shows up in 95 publications, but these have other titles (magazine title, anthology title, ...)
@@ -752,7 +755,7 @@ class Worker(Thread):
                     author = pub["author_string"]
                     ttype = pub["type"]
 
-                    query = TitleList.url_from_exact_title_author_and_type(title, author, ttype, self.log)
+                    query = TitleList.url_from_exact_title_author_and_type(title, author, ttype, self.log, self.prefs)
                     stubs = TitleList.from_url(self.browser, query, self.timeout, self.log, self.prefs)
 
                     title_ids = [Title.id_from_url(t["url"]) for t in stubs]
