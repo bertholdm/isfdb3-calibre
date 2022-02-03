@@ -573,18 +573,23 @@ class Publication(Record):
                 elif section == 'External IDs':
                     sub_detail_nodes = detail_node.xpath('ul/li')
                     for sub_detail_node in sub_detail_nodes:
+                        if prefs['log_level'] in ('DEBUG'):
+                            log.debug('sub_detail_node={0}'.format(etree.tostring(sub_detail_node)))
                         short_catalog_name = sub_detail_node[0].text_content()
+                        if prefs['log_level'] in ('DEBUG'):
+                            log.debug('short_catalog_name={0}'.format(short_catalog_name))
                         try:
                             # catalog number is a link
-                            log.debug(sub_detail_node[1].text_content())  # catalog number
+                            catalog_number = sub_detail_node[1].text_content().strip()  # catalog number
                         except IndexError:
                             # catalog number is not a link
-                            catalog_number = sub_detail_node[0].text_content()  # catalog number
-                        if sub_detail_node[0].text_content() in cls.EXTERNAL_IDS:
-                            properties[cls.EXTERNAL_IDS[sub_detail_node[0].text_content()][0]] = \
-                                sub_detail_node[1].text_content()
+                            # //*[@id="content"]/div[1]/table/tbody/tr/td[2]/ul/li[12]/ul/li[2]/text()
+                            # Reginald-1: 00166
+                            catalog_number = sub_detail_node.xpath('.')[0].text_content().split(short_catalog_name + ": ")[1].strip()
                         if prefs['log_level'] in ('DEBUG'):
-                            log.debug(sub_detail_node[0].text_content())  # short catalog name
+                            log.debug('catalog_number={0}'.format(catalog_number))
+                        if short_catalog_name in cls.EXTERNAL_IDS:
+                            properties[short_catalog_name] = catalog_number
 
                 elif section == 'Date':
                     date_text = detail_node[0].tail.strip()
