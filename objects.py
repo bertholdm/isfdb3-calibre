@@ -393,6 +393,7 @@ class Publication(Record):
     EXTERNAL_IDS = {
         'DNB': ["dnb", "Deutsche Nationalbibliothek", "http://d-nb.info/"],
         'OCLC/WorldCat': ["oclc-worldcat", "Online Computer Library Center", "http://www.worldcat.org/oclc/"],
+        # ToDo: there are more...
     }
 
     @classmethod
@@ -507,10 +508,14 @@ class Publication(Record):
                     # if ISFDB3.prefs["combine_series"]:
                     # url = detail_node[1].xpath('//a[contains(text(), "' + detail_node[1].text_content().strip() + '")]/@href')  # get all urs
                     try:
-                        series_url = str(detail_node.xpath('./@href')[0])
+                        # series_url = str(detail_node.xpath('./@href')[0])
+                        series_url = str(detail_node.xpath('./@href')[1])
+                        # series_url = str(detail_node.xpath('./@href'))
                     except IndexError:
                         # url is embedded in a tooltip div:  //*[@id="content"]/div[1]/ul/li[5]/div/a
-                        series_url = str(detail_node.xpath('./div/@href')[0])
+                        # series_url = str(detail_node.xpath('./div/@href')[0])
+                        series_url = str(detail_node.xpath('./div/@href')[1])
+                        # series_url = str(detail_node.xpath('./div/@href'))
                     if prefs['log_level'] in ('DEBUG'):
                         log.debug('series_url={0}'.format(series_url))
                     # Scan series record
@@ -568,12 +573,18 @@ class Publication(Record):
                 elif section == 'External IDs':
                     sub_detail_nodes = detail_node.xpath('ul/li')
                     for sub_detail_node in sub_detail_nodes:
-                        if prefs['log_level'] in ('DEBUG'):
-                            log.debug(sub_detail_node[0].text_content())  # short catalog name
+                        short_catalog_name = sub_detail_node[0].text_content()
+                        try:
+                            # catalog number is a link
                             log.debug(sub_detail_node[1].text_content())  # catalog number
+                        except IndexError:
+                            # catalog number is not a link
+                            catalog_number = sub_detail_node[0].text_content()  # catalog number
                         if sub_detail_node[0].text_content() in cls.EXTERNAL_IDS:
                             properties[cls.EXTERNAL_IDS[sub_detail_node[0].text_content()][0]] = \
                                 sub_detail_node[1].text_content()
+                        if prefs['log_level'] in ('DEBUG'):
+                            log.debug(sub_detail_node[0].text_content())  # short catalog name
 
                 elif section == 'Date':
                     date_text = detail_node[0].tail.strip()
@@ -953,7 +964,11 @@ class Title(Record):
 
         for detail_node in detail_nodes:
             if prefs['log_level'] in ('DEBUG'):
-                log.debug('detail_node={0}'.format(etree.tostring(detail_node)))
+                if len(detail_node) > 0:
+                    for ni in range(len(detail_node) - 1):
+                        log.debug('detail_node={0}'.format(etree.tostring(detail_node[ni])))
+                else:
+                    log.debug('detail_node={0}'.format(etree.tostring(detail_node)))
             section = detail_node[0].text_content().strip().rstrip(':')
             if prefs['log_level'] in ('DEBUG'):
                 log.debug('section={0}'.format(section))
