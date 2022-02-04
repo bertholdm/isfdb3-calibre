@@ -14,6 +14,8 @@ Background:
 
 This is a fork of Adrianna Pińska's ISFDB2. For more information see https://github.com/confluence/isfdb2-calibre
 
+Adriana explained her plugin herself in a YouTube video: »Custom metadata plugins for Caliber: cataloging an old paper library« (https://www.youtube.com/watch?v=UF6HAn5-YD0).
+
 In mid 2021 I forked the codebase and make some changes and additions to the code.
 Adriana contacted me and wrote: 
 "Hello! I haven't worked on this for a while, but I intend to get back to it (I still haven't finished cataloguing my library!). 
@@ -23,7 +25,14 @@ You are welcome to! If you decide to submit your forked version, please change t
 
 So I have created the plugin isfdb3 and submitted it to the plugin repository at mobileread.
 
-Main changes compared to isfdb2:
+Main Changes
+Die Hauptunterschiede zu ISFDB2 sind die unterschiedliche Suchstrategie für Veröffentlichungen und die Behandlung von gleichnamigen Titeln.
+Beispiel für a) In the vault
+Beispiel für b) K. H. Scheer
+
+
+
+Other changes compared to isfdb2:
 
 - Change char encoding from utf-8 to iso-8859-1 (as isfdb.org uses) for search strings to avoid none matches for non-ASCII chars (german umlauts)
 - Add additional identifiers found in ISFDB: DNB, OCLC/WorldCat

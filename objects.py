@@ -508,20 +508,19 @@ class Publication(Record):
                     # if ISFDB3.prefs["combine_series"]:
                     # url = detail_node[1].xpath('//a[contains(text(), "' + detail_node[1].text_content().strip() + '")]/@href')  # get all urs
                     try:
-                        # series_url = str(detail_node.xpath('./@href')[0])
-                        series_url = str(detail_node.xpath('./@href')[1])
-                        # series_url = str(detail_node.xpath('./@href'))
+                        # In most cases, the series name is a link
+                        # b'<li>\n  <b>Pub. Series:</b> <a href="http://www.isfdb.org/cgi-bin/pubseries.cgi?9408" dir="ltr">World\'s Best Science Fiction</a>\n</li>'
+                        # //*[@id="content"]/div[1]/table/tbody/tr/td[2]/ul/li[6]/a
+                        series_url = detail_node.xpath('./a/@href')[0]
                     except IndexError:
                         # url is embedded in a tooltip div:  //*[@id="content"]/div[1]/ul/li[5]/div/a
-                        # series_url = str(detail_node.xpath('./div/@href')[0])
-                        series_url = str(detail_node.xpath('./div/@href')[1])
-                        # series_url = str(detail_node.xpath('./div/@href'))
+                        series_url = detail_node.xpath('./div/a/@href')[0]
                     if prefs['log_level'] in ('DEBUG'):
                         log.debug('series_url={0}'.format(series_url))
                     # Scan series record
                     properties["series"] = Series.from_url(browser, series_url, timeout, log, prefs)
                     if properties["series"] == '':
-                        properties["series"] = detail_node.xpath('a')[0].text_content().strip()
+                        properties["series"] = detail_node.xpath('a')[0].text_content().strip()  # Fallback
 
                 elif section == 'Pub. Series #':
                     if properties["series"] != '':
