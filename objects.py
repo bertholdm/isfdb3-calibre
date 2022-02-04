@@ -656,7 +656,7 @@ class Publication(Record):
                 if '#' in properties["title"]:
                     match = re.search('#(\d+)', properties["title"], re.IGNORECASE)
                     properties["series_index"] = int("".join(filter(str.isdigit, match.group(1))))
-                    if self.prefs['log_level'] in ('DEBUG'):
+                    if prefs['log_level'] in ('DEBUG'):
                         log.debug('properties["series_index"]={0}'.format(properties["series_index"]))
             except (IndexError, KeyError):
                 if prefs['log_level'] in ('DEBUG', 'INFO'):
@@ -699,7 +699,7 @@ class TitleCovers(Record):
             tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
 
         covers = root.xpath('//div[@id="main"]/a/img/@src')
-        if self.prefs['log_level'] in ('DEBUG'):
+        if prefs['log_level'] in ('DEBUG'):
             log.debug("Parsed covers from url %r. Found %d covers." % (url, len(covers)))
         return covers
 

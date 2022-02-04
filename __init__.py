@@ -634,6 +634,10 @@ class ISFDB3(Source):
         cached_url = self.get_cached_cover_url(identifiers)
         title_id = identifiers.get("isfdb-title")
 
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug('*** Enter download_cover().')
+            log.debug("cached_url={0}, title_id={1}.".format(cached_url, title_id))
+
         if not cached_url and not title_id:
             if self.prefs['log_level'] in ('DEBUG', 'INFO'):
                 log.info(_("Not enough information. Running identify."))
@@ -684,6 +688,9 @@ class ISFDB3(Source):
 
         if abort.is_set():
             return
+
+        if self.prefs['log_level'] in ('DEBUG'):
+            log.debug("Going to download covers from {0}.".format(urls))
 
         self.download_multiple_covers(title, authors, urls, get_best_cover, timeout, result_queue, abort, log)
 
