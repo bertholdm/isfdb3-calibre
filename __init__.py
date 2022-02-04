@@ -291,7 +291,7 @@ class ISFDB3(Source):
             'choices',
             'ger',
             _('Languages'),
-            _('Choose one or more of the languages for information about translations, if provided.'),
+            _('Choose one language to filter titles. English is ever set.'),
             REVERSELANGUAGES,
             #{'ger': 'German', 'spa': 'Spanish', 'fre': 'French'}
         ),
