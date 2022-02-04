@@ -1,7 +1,3 @@
-work in progress!
-
-
-
 [Metadata Source Plugin] ISFDB3 - Version 1.0.0 - 01-31-2022
 
 Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
@@ -73,7 +69,8 @@ There are a lot of to do's (and suggestions?).
 
 - Notify the ISFDB Catalog ID (in pub record)
 - Notify referenced webpages (in pub record)
-- Find series in contents (pub record):
+- Find series in contents (pub record)
+- Note translations in comment
 
 Limitations:
 

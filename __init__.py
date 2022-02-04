@@ -284,7 +284,7 @@ class ISFDB3(Source):
             'bool',
             True,
             _('Note translations in comments.'),
-            _('Choosing this option will set information and links to isfdb pages with translations in the indicates language(s), if privided.')
+            _('Choosing this option will set information and links to ISFDB pages with translations in the indicatet language(s), if privided.')
         ),
         Option(
             'languages',

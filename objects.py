@@ -1171,7 +1171,7 @@ class Title(Record):
                         properties["notes"] = properties["notes"] + '<br />' + 'Variant Title of ' + detail_node[0].tail.strip()
 
             except Exception as e:
-                log.exception(_('Error parsing section %r for url: %r. Error: %r') % (section, url, e))
+                log.exception(_('Error parsing section {0} for url: {1}. Error: {2}').format(section, url, e))
 
         if 'comments' in properties:
             properties["comments"] = properties["comments"] + '<br />' + _('Source for title metadata: ') + url
@@ -1181,7 +1181,6 @@ class Title(Record):
         # Save all publication ids for this title
         publication_links = root.xpath('//a[contains(@href, "/pl.cgi?")]/@href')
         properties["publications"] = [Publication.id_from_url(l) for l in publication_links]
-        # ToDo: Where is used this info to fetch the pub info?
 
         return properties
 
