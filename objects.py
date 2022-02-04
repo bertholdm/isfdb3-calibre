@@ -192,7 +192,7 @@ class PublicationsList(SearchResults):
             if not row.xpath('td'):
                 continue  # header
 
-            publication_stubs.append(Publication.stub_from_search(row, log))
+            publication_stubs.append(Publication.stub_from_search(row, log, prefs))
 
         if prefs['log_level'] in ('DEBUG'):
             log.debug("Parsed publications from url %r. Found %d publications." % (url, len(publication_stubs)))
@@ -234,7 +234,7 @@ class PublicationsList(SearchResults):
             if not row.xpath('td'):
                 continue  # header
 
-            publication_stubs.append(Publication.stub_from_search(row, log))
+            publication_stubs.append(Publication.stub_from_search(row, log, prefs))
 
         if prefs['log_level'] in ('DEBUG'):
             log.debug("Parsed publications from url %r. Found %d publications." % (url, len(publication_stubs)))
@@ -405,17 +405,32 @@ class Publication(Record):
         return re.search('(\d+)$', url).group(1)
 
     @classmethod
-    def stub_from_search(cls, row, log):
+    def stub_from_search(cls, row, log, prefs):
+
+        if prefs['log_level'] in ('DEBUG'):
+            log.debug('*** Enter Publication.stub_from_search().')
+            log.debug('row={0}'.format(etree.tostring(row)))
+
         properties = {}
+
         try:
             properties["title"] = row.xpath('td[1]/a')[0].text_content()  # If title is linked
             properties["url"] = row.xpath('td[1]/a/@href')[0]
         except IndexError:
-            properties["title"] = row.xpath('td[1]')[0].text_content()  # If title is not linked
-            properties["url"] = None
+            try:
+                properties["title"] = row.xpath('td[1]/div/a')[0].text_content()  # If title is in tooltip div
+                properties["url"] = row.xpath('td[1]/div/a/@href')[0]
+            except IndexError:
+                properties["title"] = row.xpath('td[1]')[0].text_content()  # If title is not linked
+                properties["url"] = None
+
         properties["authors"] = [a.text_content() for a in row.xpath('td[3]/a')]
         # Display publications in Calibre GUI in ascending order by date
         properties["pub_year"] = row.xpath('td[2]')[0].text_content().strip()[:4]
+
+        if prefs['log_level'] in ('DEBUG'):
+            log.debug('properties={0}'.format(properties))
+
         return properties
 
     @classmethod

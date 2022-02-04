@@ -28,7 +28,9 @@ So I have created the plugin isfdb3 and submitted it to the plugin repository at
 Main Changes
 Die Hauptunterschiede zu ISFDB2 sind die unterschiedliche Suchstrategie für Veröffentlichungen und die Behandlung von gleichnamigen Titeln.
 Beispiel für a) In the vault
-Beispiel für b) K. H. Scheer
+Beispiel für b) K. H. Scheer: Expedition: 6 pubs (1961 - 1980)
+
+Merge: As a drawback, the qualifier is to be deleted manually or with a search and replace regex.
 
 
 
