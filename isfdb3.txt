@@ -5,18 +5,22 @@ work in progress!
 [Metadata Source Plugin] ISFDB3 - Version 1.0.0 - 01-31-2022
 
 Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
-This database provides among other tables for titles (titles) and publications (pubs; connected m:n by table pub_content) and series records with a bunch of information (covers, artists, translations, prices, notes, ...), compiled by volunteers.
+
+The ISFDB:
+
+This database provides a lot of data for sf titles and publications (covers, artists, translations, prices, notes, ...) and references to other sources, compiled by volunteers.
 
 A web search form is available under http://www.isfdb.org/cgi-bin/adv_search_menu.cgi
 There is also a web API under http://www.isfdb.org/wiki/index.php/Web_API, but this is not in use yet by the plugin, because the interface only supplies a subset of the data.
 
+The data model distincts between titles and publications (connected m:n) and the database has also tables for series, translations, covers, ... A dump for MySQL is available under http://www.isfdb.org/wiki/index.php/ISFDB_Downloads.
+
 Background:
 
-This is a fork of Adrianna Pińska's ISFDB2. For more information see https://github.com/confluence/isfdb2-calibre
+This plugin is a fork of Adrianna Pińska's ISFDB2. For more information see https://github.com/confluence/isfdb2-calibre
+Adriana explained the very clever structure of her plugin herself in a YouTube video: »Custom metadata plugins for Caliber: cataloging an old paper library« (https://www.youtube.com/watch?v=UF6HAn5-YD0).
 
-Adriana explained her plugin herself in a YouTube video: »Custom metadata plugins for Caliber: cataloging an old paper library« (https://www.youtube.com/watch?v=UF6HAn5-YD0).
-
-In mid 2021 I forked the codebase and make some changes and additions to the code.
+In mid 2021 I forked the codebase and make some changes and additions to the code for my needs.
 Adriana contacted me and wrote: 
 "Hello! I haven't worked on this for a while, but I intend to get back to it (I still haven't finished cataloguing my library!). 
 When I do I will go through your code and see if I can merge some of the features. (...)
@@ -25,111 +29,65 @@ You are welcome to! If you decide to submit your forked version, please change t
 
 So I have created the plugin isfdb3 and submitted it to the plugin repository at mobileread.
 
-Main Changes
-Die Hauptunterschiede zu ISFDB2 sind die unterschiedliche Suchstrategie für Veröffentlichungen und die Behandlung von gleichnamigen Titeln.
-Beispiel für a) In the vault
-Beispiel für b) K. H. Scheer: Expedition: 6 pubs (1961 - 1980)
+Main changes compared to ISFDB2:
 
-Merge: As a drawback, the qualifier is to be deleted manually or with a search and replace regex.
+1) Different search strategy for publications
+2) No mixing of identical titles
 
+to 1): ISFDB2 searches publications (if no id is available) with the specified title and author. Publications are only found if they can be found with the same search term as the title (i.e. have the same name).
+ISFDB3 uses the list of publications in the title record and follows the links. It also finds publications that contain the title (usually a short story) but have a different name, i.e. anthologies, magazines, ...
+Extreme Example: H. P. Lovecraft, In the Vault. ISFDB2 finds one title and no publications, ISFDB3 95 publications.
 
-
-Other changes compared to isfdb2:
-
-- Change char encoding from utf-8 to iso-8859-1 (as isfdb.org uses) for search strings to avoid none matches for non-ASCII chars (german umlauts)
-- Add additional identifiers found in ISFDB: DNB, OCLC/WorldCat
-- Modify method "clean_downloaded_metadata()": Fixcase title and author(s) only when language is english
-- Series and series_index from publishing page
-- Fechting information from the series page
-- Adding config file (not active yet)
-- Option for combine series and sub-series names 
-- Workaround for Calibre's too strict merge method on same title/author(s) by adding sequence number to title field
-- Workarounds for not Calibre's float format compatible series numbers (61/62, roman numbers)
-- Convert language field text to Calibre's language code
-- Matching title and publication not only by title, but also by publication list in title record 
-
-Explanations:
-
-Workaround for Calibre's too strict merge method:
-Calibre merge all books with the same author and the same title regardless of different other data.
-(
+to 2): Calibre's default behavior merges titles and publicatications with the same author and title in one result, regardless of other dates (publication date, series, publisher, ...).
+Calibre merge all books with the same author and the same title regardless of different other data:
+---
 def merge_metadata_results(self, merge_on_identifiers=False):
         '''
         Merge results with identical title and authors or an identical
         identifier
         '''
-https://github.com/kovidgoyal/calibre/blob/master/src/calibre/ebooks/metadata/sources/identify.py
-)
-Example from Calibre's log:
 ---
-Running identify query with parameters: 
-{'title': 'The Stars My Destination', 'authors': ['Alfred Bester'], 'identifiers': {}, 'timeout': 30} 
+(https://github.com/kovidgoyal/calibre/blob/master/src/calibre/ebooks/metadata/sources/identify.py)
 
+ISFDB3 qualifies titles with the ISFDB id to preserve all search results.
+Example: K. H. Scheer, Expedition. The title was published six times in the years 1961 - 1980, in different series and adaptations. ISFDB2 returns only one publication, ISFDB3 all.
+Other example:
+title list has two title records (in ISFDB2 there are merged to one):
+title record one: http://www.isfdb.org/cgi-bin/title.cgi?2946687 -> pub record http://www.isfdb.org/cgi-bin/pl.cgi?868274
+title record two: http://www.isfdb.org/cgi-bin/title.cgi?41896 -> a lot of pub recordss!
 
-Using plugins: ISFDB3 (1, 0, 0) 
-The log from individual plugins is below 
+Als Nachteil muss der Qualifizierer manuell oder mit einem Suchen-und-Ersetzen-Regex gelöscht werden.
 
-****************************** ISFDB3 (1, 0, 1) ****************************** 
-Found 37 results 
-Downloading from ISFDB3 took 15.561829328536987 
----
-isfdb2: 9 results
+Other changes compared to ISFDB2:
 
-as extreme example:
-H. P. Lovecraft, In the vault
-isfdb2: 1 title and 0 publications
-isfdb3: 2 titles and 95 publications
+- Changes character encoding in GET parameters (search strings) from utf-8 to iso-8859-1 to avoid none matches for non-ASCII chars (for example german umlauts). The database data itself are in utf-8.
+- Adds additional identifiers found in ISFDB. Currently: DNB and OCLC/WorldCat (more on request).
+- Modifies the method "clean_downloaded_metadata()": Fixcase title and author(s) only when the title language is english.
+- Gets additional info about series hierarchy from the series page. Option for combine main series and series names 
+- Workarounds for not Calibre's float format compatible series numbers (61/62, roman numbers)
+- Converts language field text in the isfdb to Calibre's language code
 
+Planned Features / ToDo's:
 
+There are a lot of to do's (and suggestions?).
 
-Features:
-
-- Korrekte Behandlung von Umlauten (Codierung der Website ist iso, nicht utf). Beispiel: "Großeinsatz Morgenröte" wird nicht gefunden
-
-title list has 2 title records (in isfdb2 there are merged!):
-http://www.isfdb.org/cgi-bin/title.cgi?2946687 -> pub http://www.isfdb.org/cgi-bin/pl.cgi?868274
-http://www.isfdb.org/cgi-bin/title.cgi?41896 -> a bunch of pubs!
-
-
-Planned Features:
-
-Quelle: 
-Puclication Record: http://www.isfdb.org/cgi-bin/pl.cgi?756102
-Title Record: http://www.isfdb.org/cgi-bin/title.cgi?2675342
-Series Record: http://www.isfdb.org/cgi-bin/pe.cgi?57638
-
-Catalog ID: Charr05  (in pub record)
-Webpages: wiki.rendhark-universe.net (in pub record)
-
-
-Find series in contents (pub record):
-Chapbook Title: Herrscher und Sklaven • chapbook by Konrad Schaef [as by Conrad Shepherd]
-Contents (view Concise Listing)
-5 • Herrscher und Sklaven • [Forschungsraumer Charr • 5] • novella by Konrad Schaef [as by Conrad Shepherd]
-
-
-ToDo:
-
-- Using of isfdb web api: http://www.isfdb.org/wiki/index.php/Web_API
-
-
+- Notify the ISFDB Catalog ID (in pub record)
+- Notify referenced webpages (in pub record)
+- Find series in contents (pub record):
 
 Limitations:
 
-- Die Markierung (title# or pub# n) muss manuell oder per Abfrage entfernt werden.
-- Since there is no language field in publication records, only in title records, following the publication numbers in a title list may show up publications not desired languages.
-  However, the publications list in the title page has a button »Not displaying translations«, so some research is already meeded.
-
+- Since there is no language field in publication records, only in title records, following the publication linkss in a title list may show up publications in not desired languages. However, the publications list in the title page has a button »Not displaying translations«, so some research is already meeded.
 
 Version History:
 
 v.1.0.0 01-31-2022
 - Initial release
 
-
 Installation:
+As other Calibre plugins.
 
-
-How to report Bugs and suggestions:
+How to report bugs and suggestions:
+In this threat.
 
 
