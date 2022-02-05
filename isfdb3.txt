@@ -1,4 +1,4 @@
-[Metadata Source Plugin] ISFDB3 - Version 1.0.0 - 01-31-2022
+[Metadata Source Plugin] ISFDB3 - Version 1.0.1 - 02-05-2022
 
 Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
 
@@ -34,7 +34,7 @@ to 1): ISFDB2 searches publications (if no id is available) with the specified t
 ISFDB3 uses the list of publications in the title record and follows the links. It also finds publications that contain the title (usually a short story) but have a different name, i.e. anthologies, magazines, ...
 Extreme Example: H. P. Lovecraft, In the Vault. ISFDB2 finds one title and no publications, ISFDB3 95 publications.
 
-to 2): Calibre's default behavior merges titles and publicatications with the same author and title in one result, regardless of other dates (publication date, series, publisher, ...).
+to 2): Calibre's default behavior merges titles and publicatications with the same author and title in one result, regardles of other dates (publication date, series, publisher, ...).
 Calibre merge all books with the same author and the same title regardless of different other data:
 ---
 def merge_metadata_results(self, merge_on_identifiers=False):
@@ -52,7 +52,7 @@ title list has two title records (in ISFDB2 there are merged to one):
 title record one: http://www.isfdb.org/cgi-bin/title.cgi?2946687 -> pub record http://www.isfdb.org/cgi-bin/pl.cgi?868274
 title record two: http://www.isfdb.org/cgi-bin/title.cgi?41896 -> a lot of pub recordss!
 
-Als Nachteil muss der Qualifizierer manuell oder mit einem Suchen-und-Ersetzen-Regex gelöscht werden.
+As a drawback, the qualifier has to be deleted manually or with a search-and-replace regex.
 
 Other changes compared to ISFDB2:
 
@@ -78,13 +78,18 @@ Limitations:
 
 Version History:
 
-v.1.0.0 01-31-2022
+v1.0.0 01-31-2022
 - Initial release
+v1.0.1 02-05-2022
+- Small typo: none vs. None
 
 Installation:
-As other Calibre plugins.
+
+Download the attached zip file and install the plugin as described in the Introduction to plugins thread (https://www.mobileread.com/forums/showthread.php?t=118680).
+The plugin is also available in Calibre's Plugin Updater.
 
 How to report bugs and suggestions:
-In this threat.
+
+If you find any issues please report them in this thread or on Github: https://github.com/bertholdm/isfdb3-calibre.
 
 

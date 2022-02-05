@@ -36,7 +36,13 @@ class ISFDB3(Source):
     name = 'ISFDB3'
     description = _('Downloads metadata and covers from ISFDB (http://www.isfdb.org/)')
     author = 'Michael Detambel - Forked from Adrianna Pińska\'s ISFDB2 (https://github.com/confluence/isfdb2-calibre)'
-    version = (1, 0, 0)  # Changes in forked version: see changelog
+    version = (1, 0, 1)  # Changes in forked version: see changelog
+
+    # Changelog
+    # v1.0.0 - 01-31-2022
+    # - Initial release
+    # v1.0.1 - 02-05-2022
+    # - Small typo: none vs. None
 
     minimum_calibre_version = (5, 0, 0)
     can_get_multiple_covers = True

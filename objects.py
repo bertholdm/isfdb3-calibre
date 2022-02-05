@@ -533,7 +533,7 @@ class TitleList(SearchResults):
             # Filter languages
             if prefs['log_level'] in ('DEBUG'):
                 log.debug('prefs[languages]={0}'.format(prefs['languages']))
-            if prefs['languages'] is not none:
+            if prefs['languages'] is not None:
                 if row.xpath('td[4]')[0].text_content() not in ('English', get_language_name(prefs['languages'])):
                     continue  # ignore language
 
