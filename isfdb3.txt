@@ -83,7 +83,7 @@ v1.0.1 02-05-2022
 - Small typo: none vs. None
 v1.0.2 02-06-2022
 - Parse error for dictionary LANGUAGES (moved from class to module scope)
-- Typo in logging method (calling translate method)
+- Typo in calling translate method
 
 Installation:
 
