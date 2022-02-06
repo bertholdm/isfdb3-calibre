@@ -1128,7 +1128,7 @@ class Title(Record):
                     # Both Calibre and ISFDB use ISO 639-2 language codes,
                     # but in the ISFDB web page only the language names are shown
                     try:
-                        properties["language"] = cls.LANGUAGES[properties["language"]]
+                        properties["language"] = LANGUAGES[properties["language"]]
                     except KeyError:
                         pass
 
