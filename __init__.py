@@ -45,6 +45,7 @@ class ISFDB3(Source):
     # - Small typo: none vs. None
     # v1.0.2 02-06-2022
     # - Parse error for dictionary LANGUAGES (moved from class to module scope)
+    # - Typo in logging method (calling translate method)
 
     minimum_calibre_version = (5, 0, 0)
     can_get_multiple_covers = True
