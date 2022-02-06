@@ -254,10 +254,12 @@ class SearchResults(ISFDBObject):
         try:
             return cls.URL + urlencode(params, encoding='iso-8859-1')
         except UnicodeEncodeError as e:
-            log.error_(('Error while encoding {0}: {1}.').format(params, e))
+            # unicode character in search string. Example: Unicode-Zeichen „’“ (U+2019, Right Single Quotation Mark)
+            log.error(_('Error while encoding {0}: {1}.').format(params, e))
             encoded_params = urlencode(params, encoding='iso-8859-1', errors='replace')
-            encoded_params = encoded_params.split('%3F')[0][
-                             :-1]  # cut the search string (? is the encoding replae char)
+            # cut the search string before the non-iso-8859-1 character (? is the encoding replae char)
+            encoded_params = encoded_params.split('%3F')[0]
+            log.info(_('Truncate the search string at the error position and search with the substring: {0}.').format(encoded_params))
             return cls.URL + encoded_params
 
     @classmethod
