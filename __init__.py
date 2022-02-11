@@ -36,7 +36,7 @@ class ISFDB3(Source):
     name = 'ISFDB3'
     description = _('Downloads metadata and covers from ISFDB (http://www.isfdb.org/)')
     author = 'Michael Detambel - Forked from Adrianna Pińska\'s ISFDB2 (https://github.com/confluence/isfdb2-calibre)'
-    version = (1, 0, 2)  # Changes in forked version: see changelog
+    version = (1, 0, 3)  # Changes in forked version: see changelog
 
     # Changelog
     # v1.0.0 - 01-31-2022
@@ -46,6 +46,8 @@ class ISFDB3(Source):
     # v1.0.2 02-06-2022
     # - Parse error for dictionary LANGUAGES (moved from class to module scope)
     # - Typo in calling translate method
+    # v1.0.3 02-10-2022
+    # - Optimized title/pub merge: Cache title id for all pub ids in author/title search (analig search with ISBN)
 
     minimum_calibre_version = (5, 0, 0)
     can_get_multiple_covers = True
@@ -421,6 +423,7 @@ class ISFDB3(Source):
         ##############################################
 
         # If we have an ISFDB ID, or a title ID, we use it to construct the publication URL directly
+
         book_url_tuple = self.get_book_url(identifiers)
         if self.prefs['log_level'] in ('DEBUG'):
             log.debug('book_url_tuple={0}'.format(book_url_tuple))
@@ -431,6 +434,8 @@ class ISFDB3(Source):
                 matches.add((url, 0))  # most relevant
                 if self.prefs['log_level'] in ('DEBUG'):
                     log.debug('Add match: id_type={0}, id_val={1}, url={2}.'.format(id_type, id_val, url))
+
+            # ToDo: If only a title id is found, fetch all linked pub ids and put in matches
 
             # If we have a publication id and a title id, cache the title id
             isfdb_id = identifiers.get('isfdb', None)
@@ -543,19 +548,28 @@ class ISFDB3(Source):
                         if self.prefs['log_level'] in ('DEBUG'):
                             log.debug('stub_with_pubs after Title.from_url()={0}'.format(stub_with_pubs))
                         # stub one delivers:
-                        # {'isfdb-title': '2946687', 'title': 'In the Vault', 'authors': ['H. P. Lovecraft'], 'pubdate': datetime.datetime(2018, 1, 1, 2, 0), 'type': 'SHORTFICTION', 'tags': ['short fiction'], 'language': 'eng', 'comments': '<br />Quelle: http://www.isfdb.org/cgi-bin/title.cgi?2946687', 'publications': ['868274']}
+                        # {'isfdb-title': '2946687', 'title': 'In the Vault', 'authors': ['H. P. Lovecraft'],
+                        # 'pubdate': datetime.datetime(2018, 1, 1, 2, 0), 'type': 'SHORTFICTION', 'tags': ['short fiction'],
+                        # 'language': 'eng', 'comments': '<br />Quelle: http://www.isfdb.org/cgi-bin/title.cgi?2946687',
+                        # 'publications': ['868274']}
                         # stub two delivers:
-                        # {'isfdb-title': '41896', 'title': 'In the Vault', 'authors': ['H. P. Lovecraft'], 'pubdate': datetime.datetime(1925, 11, 1, 2, 0), 'type': 'SHORTFICTION', 'tags': ['short fiction', 'short story', 'horror', 'cemetery', 'thriller'], 'length': 'short story', 'webpages': 'http://en.wikipedia.org/wiki/In_the_Vault', 'language': 'eng', 'comments': '<br />Quelle: http://www.isfdb.org/cgi-bin/title.cgi?41896', 'publications': ['706981', '61879', '273106', '618032', '44960', '359388', '618034', '297445', '297440', '367691', '302799', '309509', '18059', '11658', '38934', '145971', '282647', '248690', '306035', '237633', '120561', '282648', '591894', '237637', '564083', '609374', '282649', '309179', '264815', '682730', '423983', '396460', '824200', '416243', '359195', '38935', '789800', '391376', '35792', '282521', '282721', '282522', '308779', '601355', '170301', '185181', '35793', '359410', '282722', '303253', '78446', '65445', '277217', '64078', '567162', '791582', '555987', '379243', '325738', '287198', '249955', '446578', '293057', '356003', '332409', '374550', '469219', '570586', '463546', '531112', '529150', '593595', '774732', '579248', '623804', '623778', '648278', '776874', '776870', '666333', '765111', '779323', '745178', '805986', '806173', '239285', '288973', '352022', '431714', '506197', '511485', '514714', '560685', '855800', '706744', '708866']}
+                        # {'isfdb-title': '41896', 'title': 'In the Vault', 'authors': ['H. P. Lovecraft'],
+                        # 'pubdate': datetime.datetime(1925, 11, 1, 2, 0), 'type': 'SHORTFICTION', 'tags': ['short fiction', 'short story', 'horror', 'cemetery', 'thriller'],
+                        # 'length': 'short story', 'webpages': 'http://en.wikipedia.org/wiki/In_the_Vault', 'language': 'eng',
+                        # 'comments': '<br />Quelle: http://www.isfdb.org/cgi-bin/title.cgi?41896',
+                        # 'publications': ['706981', '61879', '273106', '618032', '44960', '359388', '618034', '297445', '297440', '367691', '302799', '309509', '18059', '11658', '38934', '145971', '282647', '248690', '306035', '237633', '120561', '282648', '591894', '237637', '564083', '609374', '282649', '309179', '264815', '682730', '423983', '396460', '824200', '416243', '359195', '38935', '789800', '391376', '35792', '282521', '282721', '282522', '308779', '601355', '170301', '185181', '35793', '359410', '282722', '303253', '78446', '65445', '277217', '64078', '567162', '791582', '555987', '379243', '325738', '287198', '249955', '446578', '293057', '356003', '332409', '374550', '469219', '570586', '463546', '531112', '529150', '593595', '774732', '579248', '623804', '623778', '648278', '776874', '776870', '666333', '765111', '779323', '745178', '805986', '806173', '239285', '288973', '352022', '431714', '506197', '511485', '514714', '560685', '855800', '706744', '708866']}
                         # Fetching all linked pub records
                         if self.prefs['log_level'] in ('DEBUG', 'INFO'):
                             log.info(_('Fetching all linked pub records...'))
                         for pubno in stub_with_pubs['publications']:
-                            url = Publication.url_from_id(pubno)
+                            # We have a publication id and a title id, so cache the title id
+                            self.cache_publication_id_to_title_id(pubno, stub_with_pubs['isfdb-title'])
                             # If the title found in isfdb's title record is identical to the metadata title,
                             # promote this title record
                             relevance = 2
                             if stripped(stub["title"]) == stripped(title):
                                 relevance = 0
+                            url = Publication.url_from_id(pubno)
                             matches.add((url, relevance))
                             if self.prefs['log_level'] in ('DEBUG'):
                                 log.debug('Add match from publications list: {0}.'.format(url))
@@ -570,8 +584,6 @@ class ISFDB3(Source):
             ########################################################
             # 3b. Search with title and author(s) for publications #
             ########################################################
-
-            # ToDo: Why not instead use the publication ids in titlelist, digged out by workers?
 
             # Why this? (bertholdm)
             # If we haven't reached the maximum number of results, also search by title and author
@@ -611,6 +623,8 @@ class ISFDB3(Source):
             if self.prefs['log_level'] in ('DEBUG', 'INFO'):
                 log.info('Abort is set.')
             return
+
+        # See: ToDo: In case id field has title id: fetch all linked pub ids and put in matches list (above)
 
         if self.prefs['log_level'] in ('DEBUG', 'INFO'):
             log.info(_('Matches found (URL, relevance): {0}.').format(matches))
@@ -724,7 +738,7 @@ class Worker(Thread):
     def run(self):
 
         if self.prefs['log_level'] in ('DEBUG'):
-            self.log.debug('*** Enter Worker.run().')
+            self.log.debug('*** Enter Worker.run()')
 
         # ToDo:
         # why not this approach for search with title and/or author(s):
@@ -741,6 +755,7 @@ class Worker(Thread):
             if self.prefs['log_level'] in ('DEBUG', 'INFO'):
                 self.log.info(_('Worker parsing ISFDB url: %r') % self.url)
 
+            start = time.time()
             pub = {}
 
             if Publication.is_type_of(self.url):
@@ -749,16 +764,16 @@ class Worker(Thread):
                 pub = Publication.from_url(self.browser, self.url, self.timeout, self.log, self.prefs)
                 if self.prefs['log_level'] in ('DEBUG'):
                     self.log.debug("pub after Publication.from_url()={0}".format(pub))
-                # {'isfdb': '675613', 'title': 'Die Hypno-Sklaven', 'authors': ['Kurt Mahr'], 'author_string': 'Kurt Mahr', 'pubdate': datetime.datetime(1975, 6, 3, 2, 0), 'isfdb-catalog': 'TA199', 'publisher': 'Pabel-Moewig', 'series': 'Terra Astra', 'series_index': 199, 'type': 'CHAPBOOK', 'dnb': '1140457357', 'comments': '
+                    # {'isfdb': '675613', 'title': 'Die Hypno-Sklaven', 'authors': ['Kurt Mahr'], 'author_string': 'Kurt Mahr',
+                    # 'pubdate': datetime.datetime(1975, 6, 3, 2, 0), isfdb-catalog': 'TA199',
+                    # ''publisher': 'Pabel-Moewig', 'series': 'Terra Astra', 'series_index': 199,
+                    # 'type': 'CHAPBOOK', 'dnb': '1140457357', 'comments': '...
 
                 title_id = self.plugin.cached_publication_id_to_title_id(pub["isfdb"])
-                if self.prefs['log_level'] in ('DEBUG'):
-                    self.log.debug("title_id={0}".format(title_id))
-
                 if not title_id and "isfdb-title" in pub:
                     title_id = pub["isfdb-title"]
-                    if self.prefs['log_level'] in ('DEBUG'):
-                        self.log.debug("title_id={0}".format(title_id))
+                if self.prefs['log_level'] in ('DEBUG'):
+                    self.log.debug("title_id={0}".format(title_id))
 
                 if not title_id:
                     if self.prefs['log_level'] in ('DEBUG', 'INFO'):
@@ -821,10 +836,25 @@ class Worker(Thread):
                 if self.prefs['log_level'] in ('DEBUG'):
                     self.log.debug('pub after Title.from_url()={0}'.format(pub))
                 # run one delivers:
-                # {'isfdb-title': '2946687', 'title': 'In the Vault', 'authors': ['H. P. Lovecraft'], 'pubdate': datetime.datetime(2018, 1, 1, 2, 0), 'type': 'SHORTFICTION', 'tags': ['short fiction'], 'language': 'eng', 'comments': '<br />Quelle: http://www.isfdb.org/cgi-bin/title.cgi?2946687', 'publications': ['868274']}
+                # {'isfdb-title': '2946687', 'title': 'In the Vault', 'authors': ['H. P. Lovecraft'],
+                # 'pubdate': datetime.datetime(2018, 1, 1, 2, 0), 'type': 'SHORTFICTION', 'tags': ['short fiction'],
+                # 'language': 'eng', 'comments': '<br />Quelle: http://www.isfdb.org/cgi-bin/title.cgi?2946687',
+                # 'publications': ['868274']}
                 # run two delivers:
-                # {'isfdb-title': '41896', 'title': 'In the Vault', 'authors': ['H. P. Lovecraft'], 'pubdate': datetime.datetime(1925, 11, 1, 2, 0), 'type': 'SHORTFICTION', 'tags': ['short fiction', 'short story', 'horror', 'cemetery', 'thriller'], 'length': 'short story', 'webpages': 'http://en.wikipedia.org/wiki/In_the_Vault', 'language': 'eng', 'comments': '<br />Quelle: http://www.isfdb.org/cgi-bin/title.cgi?41896', 'publications': ['706981', '61879', '273106', '618032', '44960', '359388', '618034', '297445', '297440', '367691', '302799', '309509', '18059', '11658', '38934', '145971', '282647', '248690', '306035', '237633', '120561', '282648', '591894', '237637', '564083', '609374', '282649', '309179', '264815', '682730', '423983', '396460', '824200', '416243', '359195', '38935', '789800', '391376', '35792', '282521', '282721', '282522', '308779', '601355', '170301', '185181', '35793', '359410', '282722', '303253', '78446', '65445', '277217', '64078', '567162', '791582', '555987', '379243', '325738', '287198', '249955', '446578', '293057', '356003', '332409', '374550', '469219', '570586', '463546', '531112', '529150', '593595', '774732', '579248', '623804', '623778', '648278', '776874', '776870', '666333', '765111', '779323', '745178', '805986', '806173', '239285', '288973', '352022', '431714', '506197', '511485', '514714', '560685', '855800', '706744', '708866']}
-                # ToDo: What do we now with the 'publications' key id's list?
+                # {'isfdb-title': '41896', 'title': 'In the Vault', 'authors': ['H. P. Lovecraft'],
+                # 'pubdate': datetime.datetime(1925, 11, 1, 2, 0), 'type': 'SHORTFICTION', 'tags': ['short fiction', 'short story', 'horror', 'cemetery', 'thriller'],
+                # 'length': 'short story', 'webpages': 'http://en.wikipedia.org/wiki/In_the_Vault',
+                # 'language': 'eng', 'comments': '<br />Quelle: http://www.isfdb.org/cgi-bin/title.cgi?41896',
+                # 'publications': ['706981', '61879', '273106', '618032', '44960', '359388', '618034', '297445', '297440',
+                # '367691', '302799', '309509', '18059', '11658', '38934', '145971', '282647', '248690', '306035', '237633',
+                # '120561', '282648', '591894', '237637', '564083', '609374', '282649', '309179', '264815', '682730',
+                # '423983', '396460', '824200', '416243', '359195', '38935', '789800', '391376', '35792', '282521',
+                # '282721', '282522', '308779', '601355', '170301', '185181', '35793', '359410', '282722', '303253',
+                # '78446', '65445', '277217', '64078', '567162', '791582', '555987', '379243', '325738', '287198', '249955',
+                # '446578', '293057', '356003', '332409', '374550', '469219', '570586', '463546', '531112', '529150',
+                # '593595', '774732', '579248', '623804', '623778', '648278', '776874', '776870', '666333', '765111',
+                # '779323', '745178', '805986', '806173', '239285', '288973', '352022', '431714', '506197', '511485',
+                # '514714', '560685', '855800', '706744', '708866']}
 
             else:
                 if self.prefs['log_level'] in ('DEBUG', 'INFO', 'ERROR'):
@@ -929,10 +959,15 @@ class Worker(Thread):
             # self.log.info('Finally formatted metadata={0}'.format(mi))
             # self.log.info(''.join([char * 20 for char in '#']))
             self.result_queue.put(mi)
+            end = time.time()
+            if self.prefs['log_level'] in ('DEBUG'):
+                self.log.debug('Elapsed time: {0}'.format(end - start))
 
         except Exception as e:
             if self.prefs['log_level'] in ('DEBUG', 'INFO', 'ERROR', 'EXCEPTION'):
                 self.log.exception(_('Worker failed to fetch and parse url %r with error %r') % (self.url, e))
+            if self.prefs['log_level'] in ('DEBUG'):
+                self.log.debug('Elapsed time: {0}'.format(end - start))
 
 
 if __name__ == '__main__':  # tests

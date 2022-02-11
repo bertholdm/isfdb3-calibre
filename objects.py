@@ -622,11 +622,19 @@ class Publication(Record):
         for tooltip in root.xpath('//span[@class="tooltiptext tooltipnarrow tooltipright"]'):
             tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
 
-        # Records with a cover image
+        # Records with a cover image (most pages)
+        # //*[@id="content"]/div[1]/table/tr/td[2]/ul
         detail_nodes = root.xpath('//div[@id="content"]//td[@class="pubheader"]/ul/li')
-        # Records without a cover image
+        # Records without a cover image (a few pages)
+        # //*[@id="content"]/div[1]/ul
         if not detail_nodes:
-            detail_nodes = root.xpath('//div[@id="content"]/div/ul/li')  # no table (on records with no image)
+            if prefs['log_level'] in ('DEBUG'):
+                log.debug('This is a pub page without cover.')
+            detail_nodes = root.xpath('//div[@id="content"]/div[@class="ContentBox"]/ul/li')  # no table (on records with no image)
+
+        if not detail_nodes:
+            if prefs['log_level'] in ('DEBUG', 'INFO'):
+                log.debug('Still no content found.')
 
         # Publication: R. U. R. (Rossum's Universal Robots): A Play in Three Acts and an EpiloguePublication Record # 622668 [Edit] [Edit History]
         # Author: Karel Čapek?

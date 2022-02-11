@@ -1,4 +1,4 @@
-[Metadata Source Plugin] ISFDB3 - Version 1.0.2 - 02-06-2022
+[Metadata Source Plugin] ISFDB3 - Version 1.0.3 - 02-10-2022
 
 Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
 
@@ -53,6 +53,8 @@ title record two: http://www.isfdb.org/cgi-bin/title.cgi?41896 -> a lot of pub r
 
 As a drawback, the qualifier has to be deleted manually or with a search-and-replace regex.
 
+Note for searching by title and author: Since the search uses the keyword "contains", the title and author name may be shortened. This is always recommended when the spelling is in doubt ("Clark Ashton Smith" vs. "C.A. Smith" or "Eliteeinheit Luna Port" vs. "Eliteeinheit Lunaport").
+
 Other changes compared to ISFDB2:
 
 - Changes character encoding in GET parameters (search strings) from utf-8 to iso-8859-1 to avoid none matches for non-ASCII chars (for example german umlauts). The database data itself are in utf-8.
@@ -84,6 +86,8 @@ v1.0.1 02-05-2022
 v1.0.2 02-06-2022
 - Parse error for dictionary LANGUAGES (moved from class to module scope)
 - Typo in calling translate method
+v1.0.3 02-10-2022
+- Optimized title/pub merge: Cache title id for all pub ids in author/title search (analig search with ISBN)
 
 Installation:
 
