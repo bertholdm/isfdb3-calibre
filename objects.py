@@ -10,7 +10,6 @@ from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.config import JSONConfig
 from lxml import etree
 from lxml.html import fromstring, tostring
-from lxml import etree
 
 # From the ISFDB Database (ISO-639-2-Codes, same as Calibre uses)
 LANGUAGES = {
@@ -178,15 +177,18 @@ load_translations()
 
 prefs = JSONConfig('plugins/ISFDB3')
 
+
 def get_language_name(search_code):
     for language_name, language_code in LANGUAGES.items():
         if language_code == search_code:
             return language_name
 
+
 def is_roman_numeral(numeral):
     numeral = {c for c in numeral.upper()}
     validRomanNumerals = {c for c in "MDCLXVI"}
     return not numeral - validRomanNumerals
+
 
 # def is_roman_numeral(numeral):
 #     pattern = re.compile(r"^M{0,3}(CM|CD|D?C{0,3})?(XC|XL|L?X{0,3})?(IX|IV|V?I{0,3})?$", re.VERBOSE)
@@ -221,7 +223,6 @@ def roman_to_int(numeral):
 class ISFDBObject(object):
     @classmethod
     def root_from_url(cls, browser, url, timeout, log, prefs):
-
         if prefs['log_level'] in ('DEBUG'):
             log.debug('*** Enter ISFDBObject.root_from_url().')
             log.debug('url={0}'.format(url))
@@ -259,7 +260,8 @@ class SearchResults(ISFDBObject):
             encoded_params = urlencode(params, encoding='iso-8859-1', errors='replace')
             # cut the search string before the non-iso-8859-1 character (? is the encoding replae char)
             encoded_params = encoded_params.split('%3F')[0]
-            log.info(_('Truncate the search string at the error position and search with the substring: {0}.').format(encoded_params))
+            log.info(_('Truncate the search string at the error position and search with the substring: {0}.').format(
+                encoded_params))
             return cls.URL + encoded_params
 
     @classmethod
@@ -268,7 +270,6 @@ class SearchResults(ISFDBObject):
 
 
 class PublicationsList(SearchResults):
-
     TYPE = "Publication"
 
     @classmethod
@@ -378,8 +379,6 @@ class PublicationsList(SearchResults):
         publication_stubs = []
 
         # ToDo
-
-
 
         root = cls.root_from_url(browser, url, timeout, log, prefs)
 
@@ -630,7 +629,8 @@ class Publication(Record):
         if not detail_nodes:
             if prefs['log_level'] in ('DEBUG'):
                 log.debug('This is a pub page without cover.')
-            detail_nodes = root.xpath('//div[@id="content"]/div[@class="ContentBox"]/ul/li')  # no table (on records with no image)
+            detail_nodes = root.xpath(
+                '//div[@id="content"]/div[@class="ContentBox"]/ul/li')  # no table (on records with no image)
 
         if not detail_nodes:
             if prefs['log_level'] in ('DEBUG', 'INFO'):
@@ -719,7 +719,10 @@ class Publication(Record):
                 elif section == 'Pub. Series #':
                     if properties["series"] != '':
                         if prefs['log_level'] in ('DEBUG', 'INFO'):
-                            log.info(_('Series is: "{0}". Now searching series index in "{1}"'.format(properties["series"], detail_node[0].tail.strip())))
+                            log.info(
+                                _('Series is: "{0}". Now searching series index in "{1}"'.format(properties["series"],
+                                                                                                 detail_node[
+                                                                                                     0].tail.strip())))
                         if detail_node[0].tail.strip() == '':
                             properties["series_index"] = 0.0
                         elif '/' in detail_node[0].tail:
@@ -740,7 +743,8 @@ class Publication(Record):
                                     format(detail_node[0].tail.strip())
                         else:
                             try:
-                                properties["series_index"] = int("".join(filter(str.isdigit, detail_node[0].tail.strip())))
+                                properties["series_index"] = int(
+                                    "".join(filter(str.isdigit, detail_node[0].tail.strip())))
                             except ValueError:
                                 properties["series_number_notes"] = \
                                     _("Could not convert {0} to a Calibre compatible format.<br />"). \
@@ -778,7 +782,8 @@ class Publication(Record):
                             # catalog number is not a link
                             # //*[@id="content"]/div[1]/table/tbody/tr/td[2]/ul/li[12]/ul/li[2]/text()
                             # Reginald-1: 00166
-                            catalog_number = sub_detail_node.xpath('.')[0].text_content().split(short_catalog_name + ": ")[1].strip()
+                            catalog_number = \
+                            sub_detail_node.xpath('.')[0].text_content().split(short_catalog_name + ": ")[1].strip()
                         if prefs['log_level'] in ('DEBUG'):
                             log.debug('catalog_number={0}'.format(catalog_number))
                         if short_catalog_name in cls.EXTERNAL_IDS:
@@ -1096,7 +1101,10 @@ class Title(Record):
                         log.debug('Section "Series Number" found: {0}'.format(detail_node[0].tail.strip()))
                     if properties["series"] != '':
                         if prefs['log_level'] in ('DEBUG', 'INFO'):
-                            log.info(_('Series is: "{0}". Now searching series index in "{1}"'.format(properties["series"], detail_node[0].tail.strip())))
+                            log.info(
+                                _('Series is: "{0}". Now searching series index in "{1}"'.format(properties["series"],
+                                                                                                 detail_node[
+                                                                                                     0].tail.strip())))
                         if detail_node[0].tail.strip() == '':
                             properties["series_index"] = 0.0
                         elif '/' in detail_node[0].tail:
@@ -1115,17 +1123,19 @@ class Title(Record):
                             properties["series_index"] = roman_to_int(detail_node[0].tail.strip())
                             properties["series_number_notes"] = \
                                 _("Reported number was the roman numeral {0} and was converted to a Calibre compatible format.<br />"). \
-                                format(detail_node[0].tail.strip())
+                                    format(detail_node[0].tail.strip())
                         else:
                             try:
-                                properties["series_index"] = int("".join(filter(str.isdigit, detail_node[0].tail.strip())))
+                                properties["series_index"] = int(
+                                    "".join(filter(str.isdigit, detail_node[0].tail.strip())))
                             except ValueError:
                                 properties["series_number_notes"] = \
                                     _("Could not convert {0} to a Calibre compatible format.<br />"). \
-                                    format(detail_node[0].tail.strip())
+                                        format(detail_node[0].tail.strip())
                                 properties["series_index"] = 0.0
                                 if prefs['log_level'] in ('DEBUG', 'INFO', 'ERROR'):
-                                    log.error('"Could not convert {0} to a Calibre compatible format.<br />"'.format(detail_node[0].tail.strip()))
+                                    log.error('"Could not convert {0} to a Calibre compatible format.<br />"'.format(
+                                        detail_node[0].tail.strip()))
                         if prefs['log_level'] in ('DEBUG'):
                             log.debug('properties["series_index"]={0}'.format(properties["series_index"]))
 
@@ -1180,7 +1190,8 @@ class Title(Record):
                     if "notes" not in properties:
                         properties["notes"] = 'Variant Title of ' + detail_node[0].tail.strip()
                     else:
-                        properties["notes"] = properties["notes"] + '<br />' + 'Variant Title of ' + detail_node[0].tail.strip()
+                        properties["notes"] = properties["notes"] + '<br />' + 'Variant Title of ' + detail_node[
+                            0].tail.strip()
 
             except Exception as e:
                 log.exception(_('Error parsing section {0} for url: {1}. Error: {2}').format(section, url, e))
@@ -1339,7 +1350,10 @@ class Series(Record):
                 properties["series_tags"] = [x.strip() for x in series_tags_clean.split(',')]
                 if prefs['log_level'] in ('DEBUG'):
                     log.debug('properties["series_tags"]={0}'.format(properties["series_tags"]))
-                properties["tags"].append(properties["series_tags"])
+                if "tags" in properties:
+                    properties["tags"].append(properties["series_tags"])
+                else:
+                    properties["tags"] = properties["series_tags"]
                 break
             if 'Notes:' in html_line:  # check for series notes, if any
                 properties["series_notes"] = html_line.split("Notes:", 1)[1].strip()
@@ -1478,4 +1492,3 @@ class ISFDBWebAPI(object):
         # ultiple records.
 
         #
-
