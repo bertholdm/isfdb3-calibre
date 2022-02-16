@@ -819,7 +819,8 @@ class Publication(Record):
 
         combined_comments = ''
         for k in sorted(properties):
-            if k in ['synopsis', 'comments', 'notes', 'series_number_notes', 'user_rating', 'webpage', 'cover']:
+            if k in ['synopsis', 'comments', 'notes', 'series_notes', 'series_number_notes', 'user_rating', 'webpage',
+                     'series_webpages', 'cover']:
                 combined_comments = combined_comments + properties[k] + '<br />'
         properties["comments"] = combined_comments + _('Source for publication metadata: ') + url
         # ToDo: show series url
@@ -852,6 +853,7 @@ class Publication(Record):
                     properties["series_index"] = int("".join(filter(str.isdigit, match.group(1))))
                     if prefs['log_level'] in ('DEBUG'):
                         log.debug('properties["series_index"]={0}'.format(properties["series_index"]))
+                properties["comments"] = combined_comments + _('Source for series metadata: ') + series_url
             except (IndexError, KeyError):
                 if prefs['log_level'] in ('DEBUG', 'INFO'):
                     log.info(_('No series found at all.'))
@@ -1337,6 +1339,7 @@ class Series(Record):
                 properties["series_tags"] = [x.strip() for x in series_tags_clean.split(',')]
                 if prefs['log_level'] in ('DEBUG'):
                     log.debug('properties["series_tags"]={0}'.format(properties["series_tags"]))
+                properties["tags"].append(properties["series_tags"])
                 break
             if 'Notes:' in html_line:  # check for series notes, if any
                 properties["series_notes"] = html_line.split("Notes:", 1)[1].strip()

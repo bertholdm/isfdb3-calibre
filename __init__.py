@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 import gettext
+import re
 import time
 from queue import Queue, Empty
 from threading import Thread
-import re
 
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
@@ -48,6 +48,9 @@ class ISFDB3(Source):
     # - Typo in calling translate method
     # v1.0.3 02-10-2022
     # - Optimized title/pub merge: Cache title id for all pub ids in author/title search (analig search with ISBN)
+    # v1.1.0 02-16-2022
+    # - Configuration for unwanted tags / Remove duplicates in tags
+    # - Erroneously series source link in comment, not source links for titles and pubs
 
     minimum_calibre_version = (5, 0, 0)
     can_get_multiple_covers = True
@@ -291,6 +294,13 @@ class ISFDB3(Source):
             _('String to concatenate series und sub-series in the series field. Examples: "." (Calibre sort character), " | ", ...')
         ),
         Option(
+            'unwanted_tags',
+            'string',
+            '',
+            _('Unwanted Tags'),
+            _('Comma-seperated list of tags to ignore.')
+        ),
+        Option(
             'note_translations',
             'bool',
             True,
@@ -304,7 +314,7 @@ class ISFDB3(Source):
             _('Languages'),
             _('Choose one language to filter titles. English is ever set.'),
             REVERSELANGUAGES,
-            #{'ger': 'German', 'spa': 'Spanish', 'fre': 'French'}
+            # {'ger': 'German', 'spa': 'Spanish', 'fre': 'French'}
         ),
         Option(
             'log_level',
@@ -595,7 +605,9 @@ class ISFDB3(Source):
                 # Although the story shows up in 95 publications, but these have other titles (magazine title, anthology title, ...)
                 if stubs is None:
                     if self.prefs['log_level'] in ('DEBUG', 'INFO'):
-                        log.info(_('No publications found with title and author(s) search for »{0}« by {1}.').format(title, author))
+                        log.info(
+                            _('No publications found with title and author(s) search for »{0}« by {1}.').format(title,
+                                                                                                                author))
 
                 # Sort stubs in ascending order by pub year
                 sorted_stubs = sorted(stubs, key=lambda k: k['pub_year'])
@@ -606,7 +618,7 @@ class ISFDB3(Source):
                 for stub in sorted_stubs:
                     relevance = 2
                     if stripped(stub["title"]) == stripped(title):
-                        relevance = 0 # this is the exact title
+                        relevance = 0  # this is the exact title
                     if stub["url"] is not None:
                         matches.add((stub["url"], relevance))
                         if self.prefs['log_level'] in ('DEBUG'):
@@ -632,7 +644,8 @@ class ISFDB3(Source):
         if self.prefs['log_level'] in ('DEBUG', 'INFO'):
             log.info(_('Starting workers...'))
 
-        workers = [Worker(m_url, result_queue, self.browser, log, m_rel, self, self.prefs, timeout) for (m_url, m_rel) in matches]
+        workers = [Worker(m_url, result_queue, self.browser, log, m_rel, self, self.prefs, timeout) for (m_url, m_rel)
+                   in matches]
 
         for w in workers:
             w.start()
@@ -778,7 +791,7 @@ class Worker(Thread):
                 if not title_id:
                     if self.prefs['log_level'] in ('DEBUG', 'INFO'):
                         self.log.info(
-                        _("Could not find title ID in original metadata or on publication page. Searching for title."))
+                            _("Could not find title ID in original metadata or on publication page. Searching for title."))
                     if "author_string" not in pub:
                         self.log.error(_('Warning: pub["author_string"] is not set.'))
                         pub["author_string"] = ''
@@ -893,6 +906,11 @@ class Worker(Thread):
 
             # Fill object mi with data from metadata source, digged aout in objects.py
 
+            # Remove unwanted tags from tag list
+            unwanted_tags = [x.strip() for x in self.prefs['unwanted_tags'].split(',')]
+            pub["tags"] = [x for x in unwanted_tags if x not in unwanted_tags]
+            # Remove duplicates from tag list
+            pub["tags"] = list(dict.fromkeys(pub["tags"]))
             # for attr in ("publisher", "pubdate", "comments", "series", "series_index", "tags"):
             for attr in ("publisher", "pubdate", "comments", "series", "series_index", "tags", "language"):
                 if attr in pub:
@@ -958,6 +976,7 @@ class Worker(Thread):
             self.plugin.clean_downloaded_metadata(mi)
             # self.log.info('Finally formatted metadata={0}'.format(mi))
             # self.log.info(''.join([char * 20 for char in '#']))
+            # Put metadata in Calibre's result queue
             self.result_queue.put(mi)
             end = time.time()
             if self.prefs['log_level'] in ('DEBUG'):

@@ -51,7 +51,7 @@ title list has two title records (in ISFDB2 there are merged to one):
 title record one: http://www.isfdb.org/cgi-bin/title.cgi?2946687 -> pub record http://www.isfdb.org/cgi-bin/pl.cgi?868274
 title record two: http://www.isfdb.org/cgi-bin/title.cgi?41896 -> a lot of pub records!
 
-As a drawback, the qualifier has to be deleted manually or with a search-and-replace regex.
+As a drawback, the qualifier has to be deleted manually or with a search-and-replace regex. And another: You probably need to increase the runtime for the plugin ("Configure Metadata Download" button).
 
 Note for searching by title and author: Since the search uses the keyword "contains", the title and author name may be shortened. This is always recommended when the spelling is in doubt ("Clark Ashton Smith" vs. "C.A. Smith" or "Eliteeinheit Luna Port" vs. "Eliteeinheit Lunaport").
 
