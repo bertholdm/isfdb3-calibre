@@ -415,9 +415,9 @@ class ISFDB3(Source):
         '''
 
         log.info(' ')
-        log.info('*' * 20)
-        log.info('isfdb3 is starting...')
-        log.info('Log level is {0}.'.format(self.prefs['log_level']))
+        log.info('*' * 40)
+        log.info(_('ISFDB3 is starting...'))
+        log.info(_('Log level is {0}.').format(self.prefs['log_level']))
 
         if self.prefs['log_level'] in ('DEBUG'):
             log.debug('*** Enter ISFDB3.identify().')
@@ -426,11 +426,7 @@ class ISFDB3(Source):
             log.debug('authors={0}'.format(authors))
             log.debug('identifiers={0}'.format(identifiers))
 
-        matches = set()
-
-        ##############################################
-        # 1. Search with publication id or title id  #
-        ##############################################
+        matches = set()  # A tuple of (page url, relevance)
 
         # If we have an ISFDB ID, or a title ID, we use it to construct the publication URL directly
 
@@ -439,7 +435,12 @@ class ISFDB3(Source):
             log.debug('book_url_tuple={0}'.format(book_url_tuple))
 
         if book_url_tuple:
-            id_type, id_val, url = book_url_tuple
+
+            ##############################################
+            # 1. Search with publication id or title id  #
+            ##############################################
+
+            id_type, id_val, url = book_url_tuple  # page type (title, pub, series), isfdb id, page url
             if url is not None:
                 matches.add((url, 0))  # most relevant
                 if self.prefs['log_level'] in ('DEBUG'):
@@ -447,7 +448,7 @@ class ISFDB3(Source):
 
             # ToDo: If only a title id is found, fetch all linked pub ids and put in matches
 
-            # If we have a publication id and a title id, cache the title id
+            # If we have a publication id ('isfdb) and a title id (isfdb-title), cache the title id
             isfdb_id = identifiers.get('isfdb', None)
             title_id = identifiers.get('isfdb-title', None)
             if self.prefs['log_level'] in ('DEBUG'):
@@ -455,6 +456,7 @@ class ISFDB3(Source):
             if isfdb_id and title_id:
                 self.cache_publication_id_to_title_id(isfdb_id, title_id)
         else:
+
             if abort.is_set():
                 if self.prefs['log_level'] in ('DEBUG', 'INFO'):
                     log.info(_('Abort is set.'))
@@ -508,9 +510,9 @@ class ISFDB3(Source):
             if self.prefs['log_level'] in ('DEBUG', 'INFO'):
                 log.info(_('Searching with author={0}, title={1}.').format(author, title))
 
-            ###################################################
-            # 3a. Search with title and author(s) for titles  #
-            ###################################################
+            ##################################################
+            # 3a. Search with title and author(s) for titles #
+            ##################################################
 
             # If we still haven't found enough results, also search *titles* by title and author
             if len(matches) < self.prefs["max_results"] and self.prefs["search_titles"]:
@@ -586,10 +588,10 @@ class ISFDB3(Source):
                             if len(matches) >= self.prefs["max_results"]:
                                 break
 
-                if abort.is_set():
-                    if self.prefs['log_level'] in ('DEBUG', 'INFO'):
-                        log.info(_('Abort is set.'))
-                    return
+            if abort.is_set():
+                if self.prefs['log_level'] in ('DEBUG', 'INFO'):
+                    log.info(_('Abort is set.'))
+                return
 
             ########################################################
             # 3b. Search with title and author(s) for publications #
@@ -829,11 +831,15 @@ class Worker(Thread):
                         # Publication: Best S.F. Stories from New Worlds / Publication Record # 35921
                         # Publication: The Best SF Stories from New Worlds / Publication Record # 275065
 
+                        if "series" in tit:
+                            if "series" not in pub:
+                                pub["series"] = tit["series"]
+
                         tit.update(pub)
                         pub = tit
                         if self.prefs['log_level'] in ('DEBUG'):
                             self.log.debug('pub={0}'.format(pub))
-                        break
+                        break  # exact title for publication found, so quit the title loop
 
                     if self.prefs['log_level'] in ('DEBUG', 'INFO'):
                         self.log.info(_("This is not the correct title."))
