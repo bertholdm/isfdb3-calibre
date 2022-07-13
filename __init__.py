@@ -36,7 +36,7 @@ class ISFDB3(Source):
     name = 'ISFDB3'
     description = _('Downloads metadata and covers from ISFDB (http://www.isfdb.org/)')
     author = 'Michael Detambel - Forked from Adrianna Pińska\'s ISFDB2 (https://github.com/confluence/isfdb2-calibre)'
-    version = (1, 0, 3)  # Changes in forked version: see changelog
+    version = (1, 1, 1)  # Changes in forked version: see changelog
 
     # Changelog
     # v1.0.0 - 01-31-2022
@@ -51,6 +51,8 @@ class ISFDB3(Source):
     # v1.1.0 02-16-2022
     # - Configuration for unwanted tags / Remove duplicates in tags
     # - Erroneously series source link in comment, not source links for titles and pubs
+    # v1.1.1 07-13-2022
+    # - Advanced search now only for logged in users. Fallback to simple search
 
     minimum_calibre_version = (5, 0, 0)
     can_get_multiple_covers = True
@@ -773,7 +775,7 @@ class Worker(Thread):
             start = time.time()
             pub = {}
 
-            if Publication.is_type_of(self.url):
+            if Publication.is_type_of(self.url, self.log, self.prefs):
                 if self.prefs['log_level'] in ('DEBUG', 'INFO'):
                     self.log.info(_("This url is a Publication."))
                 pub = Publication.from_url(self.browser, self.url, self.timeout, self.log, self.prefs)
@@ -848,7 +850,7 @@ class Worker(Thread):
                     if self.prefs['log_level'] in ('DEBUG', 'INFO'):
                         self.log.info(_("We could not find a title record for this publication."))
 
-            elif Title.is_type_of(self.url):
+            elif Title.is_type_of(self.url, self.log, self.prefs):
                 if self.prefs['log_level'] in ('DEBUG', 'INFO'):
                     self.log.info(_("This url is a Title."))
                 pub = Title.from_url(self.browser, self.url, self.timeout, self.log, self.prefs)
