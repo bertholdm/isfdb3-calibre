@@ -1148,6 +1148,9 @@ class Publication(Record):
             # <a href="http://www.isfdb.org/cgi-bin/pe.cgi?48353" dir="ltr">Utopia-Science-Fiction-Magazin</a>
             # <a href="http://www.isfdb.org/cgi-bin/ea.cgi?302325" dir="ltr">Bert Horsley</a>
             # Scan series record
+
+            # ToDo: This makes unwanted series entries (series name = author name)?
+
             properties["series"] = ''
             try:
                 # if ISFDB3.prefs["combine_series"]:
@@ -1155,6 +1158,9 @@ class Publication(Record):
                 series_url = str(root.xpath('//*[@id="content"]/div[2]/a[2]/@href')[0])
                 if prefs['log_level'] in ('DEBUG'):
                     log.debug('url={0}'.format(series_url))
+                # http://www.isfdb.org/cgi-bin/ea.cgi?249
+                if '/ea.cgi?' in series_url:
+                    raise KeyError  # url leads to a author page
                 properties["series"] = Series.from_url(browser, series_url, timeout, log, prefs)
                 if properties["series"] == '':
                     properties["series"] = root.xpath('//*[@id="content"]/div[2]/a[2]')[0].text_content().strip()
@@ -1604,6 +1610,12 @@ class Series(Record):
         full_series = ''
 
         root = Series.root_from_url(browser, url, timeout, log, prefs)
+
+        # Is this a author record?
+        if 'Author Record #' in etree.tostring(root, encoding='utf8', method='xml').decode():
+            if prefs['log_level'] in ('DEBUG'):
+                log.debug('This is a author record page, no series page. Quit.')
+            return ''
 
         # Get rid of tooltips
         for tooltip in root.xpath('//sup[@class="mouseover"]'):
