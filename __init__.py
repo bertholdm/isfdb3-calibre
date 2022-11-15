@@ -36,7 +36,7 @@ class ISFDB3(Source):
     name = 'ISFDB3'
     description = _('Downloads metadata and covers from ISFDB (http://www.isfdb.org/)')
     author = 'Michael Detambel - Forked from Adrianna Pińska\'s ISFDB2 (https://github.com/confluence/isfdb2-calibre)'
-    version = (1, 1, 1)  # Changes in forked version: see changelog
+    version = (1, 1, 3)  # Changes in forked version: see changelog
 
     # Changelog
     # v1.0.0 - 01-31-2022
@@ -52,7 +52,11 @@ class ISFDB3(Source):
     # - Configuration for unwanted tags / Remove duplicates in tags
     # - Erroneously series source link in comment, not source links for titles and pubs
     # v1.1.1 07-13-2022
-    # - Advanced search now only for logged in users. Fallback to simple search
+    # - Advanced search is now only for logged in users. Fallback to simple search
+    # v1.1.2 07-14-2022
+    # - Comparing author in simple search case insensitive
+    # v1.1.3 11-15-2022
+    # - In simple search, to filter authors from title list, unquote the author's name from url (convert percent encoded characters back)
 
     minimum_calibre_version = (5, 0, 0)
     can_get_multiple_covers = True
@@ -501,78 +505,42 @@ class ISFDB3(Source):
             if self.prefs['log_level'] in ('DEBUG', 'INFO'):
                 log.info(_('No id(s) given. Trying a search with title and author(s).'))
 
-            def stripped(s):
-                return "".join(c.lower() for c in s if c.isalpha() or c.isspace())
-
-            authors = authors or []
-            author_tokens = self.get_author_tokens(authors, only_first_author=True)
-            author = ' '.join(author_tokens)
-            title_tokens = self.get_title_tokens(title, strip_joiners=False, strip_subtitle=True)
-            title = ' '.join(title_tokens)
-            if self.prefs['log_level'] in ('DEBUG', 'INFO'):
-                log.info(_('Searching with author={0}, title={1}.').format(author, title))
-
-            ##################################################
-            # 3a. Search with title and author(s) for titles #
-            ##################################################
-
-            # If we still haven't found enough results, also search *titles* by title and author
-            if len(matches) < self.prefs["max_results"] and self.prefs["search_titles"]:
-                # title=In The Vault, author=H. P. Lovecraft
-                # Fetch a title list
-                query = TitleList.url_from_title_and_author(title, author, log, self.prefs)
-                # The title list contains a language col
+            # Keyword search for magazines?
+            # Title:The Magazine of Fantasy and Science Fiction Year:1955 Month:03 Week: Vol:8 No:3
+            possible_keywords = ['Title:', 'Year:', 'Month:', 'Week:', 'Vol:', 'No:']
+            found_keywords = []
+            for x in possible_keywords:
+                if x in title:
+                    found_keywords.append(x)
+            if any(found_keywords):
+                # Special search for magazine
+                query = TitleList.url_from_title_with_keywords(title, found_keywords, log, self.prefs)
                 stubs = TitleList.from_url(self.browser, query, timeout, log, self.prefs)
                 if self.prefs['log_level'] in ('DEBUG'):
                     log.debug('{0} stubs found with TitleList.from_url().'.format(len(stubs)))
-
                 # Sort stubs in ascending order by title date
                 sorted_stubs = sorted(stubs, key=lambda k: k['date'])
                 if self.prefs['log_level'] in ('DEBUG'):
                     log.debug('sorted_stubs from TitleList.from_url(): {0}.'.format(sorted_stubs))
-                    # [{'title': 'In the Vault', 'url': 'http://www.isfdb.org/cgi-bin/title.cgi?41896', 'authors': ['H. P. Lovecraft']},
-                    # {'title': 'In the Vault', 'url': 'http://www.isfdb.org/cgi-bin/title.cgi?2946687', 'authors': ['H. P. Lovecraft']}]
-
                 for stub in sorted_stubs:
-                    # log.info('stub={0}'.format(stub))
-                    # If the title found in isfdb's title record is identical to the metadata title,
-                    # promote this title record
                     relevance = 2
                     if stripped(stub["title"]) == stripped(title):
                         relevance = 0
-
                     if self.prefs['log_level'] in ('DEBUG'):
                         log.debug('stub["url"]={0}.'.format(stub["url"]))
-                    # Workaround for:
-                    # titlelist.from_url 'http://www.isfdb.org/cgi-bin/adv_search_results.cgi?ORDERBY=title_title&START=0&TYPE=Title&USE_1=title_title&OPERATOR_1=contains&TERM_1=Der+Sternenj%E4ger&USE_2=author_canonical&OPERATOR_2=contains&TERM_2=Kurt+Brand&CONJUNCTION_1=AND'. Found 2 titles.
-                    # matches={('http://www.isfdb.org/cgi-bin/title.cgi?1816860', 0), ('http://www.isfdb.org/cgi-bin/title.cgi?1816862', 0), (None, 0)}
                     if stub["url"] is not None:
                         matches.add((stub["url"], relevance))
                         if self.prefs['log_level'] in ('DEBUG'):
                             log.debug('Add match from title list: {0}.'.format(stub["url"]))
                         if len(matches) >= self.prefs["max_results"]:
                             break
-
                         ######################################################################
                         # Fetch all linked pub records for this title,                       #
                         # even if the book title is not identical with the publication title #
                         ######################################################################
-
                         stub_with_pubs = Title.from_url(self.browser, stub["url"], timeout, log, self.prefs)
                         if self.prefs['log_level'] in ('DEBUG'):
                             log.debug('stub_with_pubs after Title.from_url()={0}'.format(stub_with_pubs))
-                        # stub one delivers:
-                        # {'isfdb-title': '2946687', 'title': 'In the Vault', 'authors': ['H. P. Lovecraft'],
-                        # 'pubdate': datetime.datetime(2018, 1, 1, 2, 0), 'type': 'SHORTFICTION', 'tags': ['short fiction'],
-                        # 'language': 'eng', 'comments': '<br />Quelle: http://www.isfdb.org/cgi-bin/title.cgi?2946687',
-                        # 'publications': ['868274']}
-                        # stub two delivers:
-                        # {'isfdb-title': '41896', 'title': 'In the Vault', 'authors': ['H. P. Lovecraft'],
-                        # 'pubdate': datetime.datetime(1925, 11, 1, 2, 0), 'type': 'SHORTFICTION', 'tags': ['short fiction', 'short story', 'horror', 'cemetery', 'thriller'],
-                        # 'length': 'short story', 'webpages': 'http://en.wikipedia.org/wiki/In_the_Vault', 'language': 'eng',
-                        # 'comments': '<br />Quelle: http://www.isfdb.org/cgi-bin/title.cgi?41896',
-                        # 'publications': ['706981', '61879', '273106', '618032', '44960', '359388', '618034', '297445', '297440', '367691', '302799', '309509', '18059', '11658', '38934', '145971', '282647', '248690', '306035', '237633', '120561', '282648', '591894', '237637', '564083', '609374', '282649', '309179', '264815', '682730', '423983', '396460', '824200', '416243', '359195', '38935', '789800', '391376', '35792', '282521', '282721', '282522', '308779', '601355', '170301', '185181', '35793', '359410', '282722', '303253', '78446', '65445', '277217', '64078', '567162', '791582', '555987', '379243', '325738', '287198', '249955', '446578', '293057', '356003', '332409', '374550', '469219', '570586', '463546', '531112', '529150', '593595', '774732', '579248', '623804', '623778', '648278', '776874', '776870', '666333', '765111', '779323', '745178', '805986', '806173', '239285', '288973', '352022', '431714', '506197', '511485', '514714', '560685', '855800', '706744', '708866']}
-                        # Fetching all linked pub records
                         if self.prefs['log_level'] in ('DEBUG', 'INFO'):
                             log.info(_('Fetching all linked pub records...'))
                         for pubno in stub_with_pubs['publications']:
@@ -590,57 +558,150 @@ class ISFDB3(Source):
                             if len(matches) >= self.prefs["max_results"]:
                                 break
 
-            if abort.is_set():
+            else:
+
+                def stripped(s):
+                    return "".join(c.lower() for c in s if c.isalpha() or c.isspace())
+
+                authors = authors or []
+                author_tokens = self.get_author_tokens(authors, only_first_author=True)
+                author = ' '.join(author_tokens)
+                title_tokens = self.get_title_tokens(title, strip_joiners=False, strip_subtitle=True)
+                title = ' '.join(title_tokens)
                 if self.prefs['log_level'] in ('DEBUG', 'INFO'):
-                    log.info(_('Abort is set.'))
-                return
+                    log.info(_('Searching with author={0}, title={1}.').format(author, title))
 
-            ########################################################
-            # 3b. Search with title and author(s) for publications #
-            ########################################################
+                ##################################################
+                # 3a. Search with title and author(s) for titles #
+                ##################################################
 
-            # Why this? (bertholdm)
-            # If we haven't reached the maximum number of results, also search by title and author
-            if len(matches) < self.prefs["max_results"] and self.prefs["search_publications"]:
+                # If we still haven't found enough results, also search *titles* by title and author
+                if len(matches) < self.prefs["max_results"] and self.prefs["search_titles"]:
+                    # title=In The Vault, author=H. P. Lovecraft
+                    # Fetch a title list
+                    query = TitleList.url_from_title_and_author(title, author, log, self.prefs)
+                    # The title list contains a language col
+                    stubs = TitleList.from_url(self.browser, query, timeout, log, self.prefs)
+                    if self.prefs['log_level'] in ('DEBUG'):
+                        log.debug('{0} stubs found with TitleList.from_url().'.format(len(stubs)))
 
-                query = PublicationsList.url_from_title_and_author(title, author, log, self.prefs)
-                stubs = PublicationsList.from_url(self.browser, query, timeout, log, self.prefs)
-                # For the title "In the Vault" by "H. P. Lovecraft" no publications are found by title.
-                # Although the story shows up in 95 publications, but these have other titles (magazine title, anthology title, ...)
-                if stubs is None:
-                    if self.prefs['log_level'] in ('DEBUG', 'INFO'):
-                        log.info(
-                            _('No publications found with title and author(s) search for »{0}« by {1}.').format(title,
-                                                                                                                author))
+                    # Sort stubs in ascending order by title date
+                    sorted_stubs = sorted(stubs, key=lambda k: k['date'])
+                    if self.prefs['log_level'] in ('DEBUG'):
+                        log.debug('sorted_stubs from TitleList.from_url(): {0}.'.format(sorted_stubs))
+                        # [{'title': 'In the Vault', 'url': 'http://www.isfdb.org/cgi-bin/title.cgi?41896', 'authors': ['H. P. Lovecraft']},
+                        # {'title': 'In the Vault', 'url': 'http://www.isfdb.org/cgi-bin/title.cgi?2946687', 'authors': ['H. P. Lovecraft']}]
 
-                # Sort stubs in ascending order by pub year
-                sorted_stubs = sorted(stubs, key=lambda k: k['pub_year'])
-                if self.prefs['log_level'] in ('DEBUG'):
-                    log.debug('sorted_stubs from PublicationsList.from_url(): {0}.'.format(sorted_stubs))
+                    for stub in sorted_stubs:
+                        # log.info('stub={0}'.format(stub))
+                        # If the title found in isfdb's title record is identical to the metadata title,
+                        # promote this title record
+                        relevance = 2
+                        if stripped(stub["title"]) == stripped(title):
+                            relevance = 0
 
-                # for stub in stubs:
-                for stub in sorted_stubs:
-                    relevance = 2
-                    if stripped(stub["title"]) == stripped(title):
-                        relevance = 0  # this is the exact title
-                    if stub["url"] is not None:
-                        matches.add((stub["url"], relevance))
                         if self.prefs['log_level'] in ('DEBUG'):
-                            log.debug('Add match: {0}.'.format(stub["url"]))
-                        if len(matches) >= self.prefs["max_results"]:
-                            break
+                            log.debug('stub["url"]={0}.'.format(stub["url"]))
+                        # Workaround for:
+                        # titlelist.from_url 'http://www.isfdb.org/cgi-bin/adv_search_results.cgi?ORDERBY=title_title&START=0&TYPE=Title&USE_1=title_title&OPERATOR_1=contains&TERM_1=Der+Sternenj%E4ger&USE_2=author_canonical&OPERATOR_2=contains&TERM_2=Kurt+Brand&CONJUNCTION_1=AND'. Found 2 titles.
+                        # matches={('http://www.isfdb.org/cgi-bin/title.cgi?1816860', 0), ('http://www.isfdb.org/cgi-bin/title.cgi?1816862', 0), (None, 0)}
+                        if stub["url"] is not None:
+                            matches.add((stub["url"], relevance))
+                            if self.prefs['log_level'] in ('DEBUG'):
+                                log.debug('Add match from title list: {0}.'.format(stub["url"]))
+                            if len(matches) >= self.prefs["max_results"]:
+                                break
 
-            if abort.is_set():
-                if self.prefs['log_level'] in ('DEBUG', 'INFO'):
-                    log.info(_('Abort is set.'))
-                return
+                            ######################################################################
+                            # Fetch all linked pub records for this title,                       #
+                            # even if the book title is not identical with the publication title #
+                            ######################################################################
 
-        if abort.is_set():
-            if self.prefs['log_level'] in ('DEBUG', 'INFO'):
-                log.info('Abort is set.')
-            return
+                            stub_with_pubs = Title.from_url(self.browser, stub["url"], timeout, log, self.prefs)
+                            if self.prefs['log_level'] in ('DEBUG'):
+                                log.debug('stub_with_pubs after Title.from_url()={0}'.format(stub_with_pubs))
+                            # stub one delivers:
+                            # {'isfdb-title': '2946687', 'title': 'In the Vault', 'authors': ['H. P. Lovecraft'],
+                            # 'pubdate': datetime.datetime(2018, 1, 1, 2, 0), 'type': 'SHORTFICTION', 'tags': ['short fiction'],
+                            # 'language': 'eng', 'comments': '<br />Quelle: http://www.isfdb.org/cgi-bin/title.cgi?2946687',
+                            # 'publications': ['868274']}
+                            # stub two delivers:
+                            # {'isfdb-title': '41896', 'title': 'In the Vault', 'authors': ['H. P. Lovecraft'],
+                            # 'pubdate': datetime.datetime(1925, 11, 1, 2, 0), 'type': 'SHORTFICTION', 'tags': ['short fiction', 'short story', 'horror', 'cemetery', 'thriller'],
+                            # 'length': 'short story', 'webpages': 'http://en.wikipedia.org/wiki/In_the_Vault', 'language': 'eng',
+                            # 'comments': '<br />Quelle: http://www.isfdb.org/cgi-bin/title.cgi?41896',
+                            # 'publications': ['706981', '61879', '273106', '618032', '44960', '359388', '618034', '297445', '297440', '367691', '302799', '309509', '18059', '11658', '38934', '145971', '282647', '248690', '306035', '237633', '120561', '282648', '591894', '237637', '564083', '609374', '282649', '309179', '264815', '682730', '423983', '396460', '824200', '416243', '359195', '38935', '789800', '391376', '35792', '282521', '282721', '282522', '308779', '601355', '170301', '185181', '35793', '359410', '282722', '303253', '78446', '65445', '277217', '64078', '567162', '791582', '555987', '379243', '325738', '287198', '249955', '446578', '293057', '356003', '332409', '374550', '469219', '570586', '463546', '531112', '529150', '593595', '774732', '579248', '623804', '623778', '648278', '776874', '776870', '666333', '765111', '779323', '745178', '805986', '806173', '239285', '288973', '352022', '431714', '506197', '511485', '514714', '560685', '855800', '706744', '708866']}
+                            # Fetching all linked pub records
+                            if self.prefs['log_level'] in ('DEBUG', 'INFO'):
+                                log.info(_('Fetching all linked pub records...'))
+                            for pubno in stub_with_pubs['publications']:
+                                # We have a publication id and a title id, so cache the title id
+                                self.cache_publication_id_to_title_id(pubno, stub_with_pubs['isfdb-title'])
+                                # If the title found in isfdb's title record is identical to the metadata title,
+                                # promote this title record
+                                relevance = 2
+                                if stripped(stub["title"]) == stripped(title):
+                                    relevance = 0
+                                url = Publication.url_from_id(pubno)
+                                matches.add((url, relevance))
+                                if self.prefs['log_level'] in ('DEBUG'):
+                                    log.debug('Add match from publications list: {0}.'.format(url))
+                                if len(matches) >= self.prefs["max_results"]:
+                                    break
 
-        # See: ToDo: In case id field has title id: fetch all linked pub ids and put in matches list (above)
+                if abort.is_set():
+                    if self.prefs['log_level'] in ('DEBUG', 'INFO'):
+                        log.info(_('Abort is set.'))
+                    return
+
+                ########################################################
+                # 3b. Search with title and author(s) for publications #
+                ########################################################
+
+                # Why this? (bertholdm)
+                # If we haven't reached the maximum number of results, also search by title and author
+                if len(matches) < self.prefs["max_results"] and self.prefs["search_publications"]:
+
+                    query = PublicationsList.url_from_title_and_author(title, author, log, self.prefs)
+                    stubs = PublicationsList.from_url(self.browser, query, timeout, log, self.prefs)
+                    # For the title "In the Vault" by "H. P. Lovecraft" no publications are found by title.
+                    # Although the story shows up in 95 publications, but these have other titles (magazine title, anthology title, ...)
+                    if stubs is None:
+                        if self.prefs['log_level'] in ('DEBUG', 'INFO'):
+                            log.info(
+                                _('No publications found with title and author(s) search for »{0}« by {1}.').format(title,
+                                                                                                                    author))
+
+                    # Sort stubs in ascending order by pub year
+                    sorted_stubs = sorted(stubs, key=lambda k: k['pub_year'])
+                    if self.prefs['log_level'] in ('DEBUG'):
+                        log.debug('sorted_stubs from PublicationsList.from_url(): {0}.'.format(sorted_stubs))
+
+                    # for stub in stubs:
+                    for stub in sorted_stubs:
+                        relevance = 2
+                        if stripped(stub["title"]) == stripped(title):
+                            relevance = 0  # this is the exact title
+                        if stub["url"] is not None:
+                            matches.add((stub["url"], relevance))
+                            if self.prefs['log_level'] in ('DEBUG'):
+                                log.debug('Add match: {0}.'.format(stub["url"]))
+                            if len(matches) >= self.prefs["max_results"]:
+                                break
+
+                if abort.is_set():
+                    if self.prefs['log_level'] in ('DEBUG', 'INFO'):
+                        log.info(_('Abort is set.'))
+                    return
+
+            # if abort.is_set():
+            #     if self.prefs['log_level'] in ('DEBUG', 'INFO'):
+            #         log.info(_('Abort is set.'))
+            #     return
+
+            # See: ToDo: In case id field has title id: fetch all linked pub ids and put in matches list (above)
+
+        # Transfer the search results to the workers
 
         if self.prefs['log_level'] in ('DEBUG', 'INFO'):
             log.info(_('Matches found (URL, relevance): {0}.').format(matches))

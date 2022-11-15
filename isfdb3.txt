@@ -1,4 +1,4 @@
-[Metadata Source Plugin] ISFDB3 - Version 1.0.3 - 02-10-2022
+[Metadata Source Plugin] ISFDB3 - Version 1.1.3 - 11-15-2022
 
 Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
 
@@ -88,6 +88,16 @@ v1.0.2 02-06-2022
 - Typo in calling translate method
 v1.0.3 02-10-2022
 - Optimized title/pub merge: Cache title id for all pub ids in author/title search (analig search with ISBN)
+v1.1.0 02-16-2022
+- Configuration for unwanted tags / Remove duplicates in tags
+- Erroneously series source link in comment, not source links for titles and pubs
+v1.1.1 07-13-2022
+- Advanced search is now only for logged in users. Fallback to simple search
+v1.1.2 07-14-2022
+- Comparing author in simple search case insensitive
+v1.1.3 11-15-2022
+- In simple search, to filter authors from title list, unquote the author's name from url (convert percent encoded characters back)
+
 
 Installation:
 

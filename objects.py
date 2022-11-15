@@ -3,7 +3,7 @@
 import datetime
 import gettext
 import re
-from urllib.parse import urlencode
+from urllib.parse import urlencode, unquote
 
 from calibre.library.comments import sanitize_comments_html
 from calibre.utils.cleantext import clean_ascii_chars
@@ -574,6 +574,62 @@ class TitleList(SearchResults):
         return url  # cls.simple_url_from_params(params, log)
 
     @classmethod
+    def url_from_title_with_keywords(cls, title_with_keywords, keyword_list, log, prefs):
+
+        if prefs['log_level'] in ('DEBUG'):
+            log.debug("*** Enter TitleList.url_from_title_with_keywords().")
+            log.debug("title_with_keywords={0}".format(title_with_keywords))
+            log.debug("keyword_list={0}".format(keyword_list))
+
+        field = 0
+
+        # http://www.isfdb.org/cgi-bin/se.cgi?arg=project+saturn&type=All+Titles
+        params = {
+            "TYPE": 'All Titles',  # cls.TYPE
+        }
+
+        # Extract title from keyword "Title:"
+        # 1) Make a list of start pos for each keyword
+        keyword_start_list = []
+        for keyword in keyword_list:
+            keyword_start_list.append(title_with_keywords.find(keyword))
+        keyword_start_list.append(len(title_with_keywords))
+        log.debug("keyword_start_list={0}".format(keyword_start_list))
+        title_dict = {}
+        list_index = 0
+        for keyword in keyword_list:
+            title_dict[keyword] = \
+                title_with_keywords[keyword_start_list[list_index]+len(keyword):keyword_start_list[list_index + 1]]\
+                    .strip()
+            list_index = list_index + 1
+        if prefs['log_level'] in ('DEBUG'):
+            log.debug("title_dict={0}".format(title_dict))
+
+        title = title_dict['Title:']
+        year = title_dict['Year:']
+
+        if title:
+            field += 1
+            params.update({
+                "USE_%d" % field: "title_title",
+                "OPERATOR_%d" % field: "contains",
+                "ARG": title + ' - ' + year,
+            })
+
+        # http://www.isfdb.org/cgi-bin/se.cgi?arg=The+Magazine+of+Fantasy+and+Science+Fiction&type=Magazine
+        # -> Series: The Magazine of Fantasy and Science Fiction
+        # http://www.isfdb.org/cgi-bin/se.cgi?arg=The+Magazine+of+Fantasy+and+Science+Fiction+&type=Series
+        # -> Series: The Magazine of Fantasy and Science Fiction
+
+        # ToDo: Find correct url for simple search for all titles
+
+
+        url = cls.simple_url_from_params(params, log, prefs)
+        if prefs['log_level'] in ('DEBUG'):
+            log.debug('url={0}.'.format(url))
+        return url  # cls.simple_url_from_params(params, log)
+
+    @classmethod
     def from_url(cls, browser, url, timeout, log, prefs):
 
         if prefs['log_level'] in ('DEBUG'):
@@ -632,6 +688,18 @@ class TitleList(SearchResults):
                     log.debug(_('No root found, neither with advanced or simple search. HTML output follows. Abort.'))
                     abort = True
                     return []
+
+                # Get rid of tooltips
+                try:
+                    for tooltip in root.xpath('//sup[@class="mouseover"]'):
+                        tooltip.getparent().remove(
+                            tooltip)  # We grab the parent of the element to call the remove directly on it
+                    for tooltip in root.xpath('//span[@class="tooltiptext tooltipnarrow tooltipright"]'):
+                        tooltip.getparent().remove(
+                            tooltip)  # We grab the parent of the element to call the remove directly on it
+                except:
+                    pass
+
                 # //*[@id="main"]/table
                 rows = root.xpath('//div[@id="main"]/table/tr')
 
@@ -797,6 +865,7 @@ class TitleList(SearchResults):
         for row in rows:
             if prefs['log_level'] in ('DEBUG'):
                 log.debug('row={0}'.format(row.xpath('.')[0].text_content()))
+
             if not row.xpath('td'):
                 if prefs['log_level'] in ('DEBUG'):
                     log.debug('Table header ignored.')
@@ -825,9 +894,12 @@ class TitleList(SearchResults):
                 if author:
                     author_str = str(author.group(1))
                     author_str = author_str.replace('+', ' ')
+                    author_str = author_str.lower()
+                    # author_str comes from url, so convert percent encoded characters back
+                    author_str = unquote(author_str, encoding='iso-8859-1', errors='replace')
                     if prefs['log_level'] in ('DEBUG'):
                         log.debug('author_str={0}'.format(author_str))
-                    if author_str not in row.xpath('td[5]')[0].text_content():
+                    if author_str not in row.xpath('td[5]')[0].text_content().lower():
                         if prefs['log_level'] in ('DEBUG'):
                             log.debug('Author ignored.')
                         continue  # ignore author
