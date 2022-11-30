@@ -716,6 +716,25 @@ class TitleList(SearchResults):
 
                     if '<span class="recordID"><b>Title Record #' in root_str:
 
+                        # Keine IDs vorhanden. Schlüsselwortsuche mit Titel und Autor wird durchgeführt:.
+                        # Searching with author=, title=Krieg zwischen den Welten.
+                        # *** Enter TitleList.url_from_title_and_author().
+                        # title=Krieg zwischen den Welten, author=
+                        # cls.TYPE=Title
+                        # *** Enter SearchResults.url_from_params()
+                        # URL=http://www.isfdb.org/cgi-bin/adv_search_results.cgi?
+                        # params={'ORDERBY': 'title_title', 'START': '0', 'TYPE': 'Title', 'USE_1': 'title_title', 'OPERATOR_1': 'contains', 'TERM_1': 'Krieg zwischen den Welten'}
+                        # url=http://www.isfdb.org/cgi-bin/adv_search_results.cgi?ORDERBY=title_title&START=0&TYPE=Title&USE_1=title_title&OPERATOR_1=contains&TERM_1=Krieg+zwischen+den+Welten.
+                        # *** Enter TitleList.from_url().
+                        # url=http://www.isfdb.org/cgi-bin/adv_search_results.cgi?ORDERBY=title_title&START=0&TYPE=Title&USE_1=title_title&OPERATOR_1=contains&TERM_1=Krieg+zwischen+den+Welten
+                        # *** Enter ISFDBObject.root_from_url().
+                        # url=http://www.isfdb.org/cgi-bin/adv_search_results.cgi?ORDERBY=title_title&START=0&TYPE=Title&USE_1=title_title&OPERATOR_1=contains&TERM_1=Krieg+zwischen+den+Welten
+                        # Erweiterte Suche nicht erlaubt für nicht angemeldete Benutzer. Einfache Suche wird durchgeführt.
+                        # simple_search_url=http://www.isfdb.org/cgi-bin/se.cgi?arg=Krieg+zwischen+den+Welten&type=All+Titles
+                        # *** Enter ISFDBObject.root_from_url().
+                        # url=http://www.isfdb.org/cgi-bin/se.cgi?arg=Krieg+zwischen+den+Welten&type=All+Titles
+                        # Die ISFDB Übersichtsseite hat weitergeleitet zur Detailseite (da nur ein Titel vorhanden). Steht noch auf der To-Do-Liste.
+
                         log.debug(
                             _('ISFDB webpage has us redirected to a title page (only one title found). Handling is to do.'))
 
