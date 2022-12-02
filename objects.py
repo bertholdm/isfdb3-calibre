@@ -2,6 +2,7 @@
 
 import datetime
 import gettext
+import os
 import re
 from urllib.parse import urlencode, unquote
 
@@ -228,9 +229,10 @@ class ISFDBObject(object):
             log.debug('*** Enter ISFDBObject.root_from_url().')
             log.debug('url={0}'.format(url))
         response = browser.open_novisit(url, timeout=timeout)
+        location = response.geturl()  # guess url in case of redirection
         raw = response.read()
         raw = raw.decode('iso_8859_1', 'ignore')  # site encoding is iso-8859-1
-        return fromstring(clean_ascii_chars(raw))
+        return location, fromstring(clean_ascii_chars(raw))
 
 
 class SearchResults(ISFDBObject):
@@ -385,7 +387,7 @@ class PublicationsList(SearchResults):
 
         publication_stubs = []
 
-        root = cls.root_from_url(browser, url, timeout, log, prefs)
+        location, root = cls.root_from_url(browser, url, timeout, log, prefs)
 
         # Get rid of tooltips
         try:
@@ -424,7 +426,7 @@ class PublicationsList(SearchResults):
 
         # ToDo
 
-        root = cls.root_from_url(browser, url, timeout, log, prefs)
+        location, root = cls.root_from_url(browser, url, timeout, log, prefs)
 
         # Get rid of tooltips
         try:
@@ -640,7 +642,7 @@ class TitleList(SearchResults):
         title_stubs = []
         simple_search_url = None
 
-        root = cls.root_from_url(browser, url, timeout, log, prefs)  # site encoding is iso-8859-1
+        location, root = cls.root_from_url(browser, url, timeout, log, prefs)  # site encoding is iso-8859-1
         if not root:
             log.debug('No root found with this url!. Abort.')
             abort = True
@@ -682,7 +684,7 @@ class TitleList(SearchResults):
                 simple_search_url = simple_search_url + re.search('&TERM_1=(.*)?(&|$)', url).group(1)
                 simple_search_url = simple_search_url + "&type=All+Titles"
                 log.debug('simple_search_url={0}'.format(simple_search_url))
-                root = cls.root_from_url(browser, simple_search_url, timeout, log, prefs)  # site encoding is iso-8859-1
+                location, root = cls.root_from_url(browser, simple_search_url, timeout, log, prefs)  # site encoding is iso-8859-1
                 # If still no results, debug:
                 if not root:
                     log.debug(_('No root found, neither with advanced or simple search. HTML output follows. Abort.'))
@@ -712,35 +714,10 @@ class TitleList(SearchResults):
                     # <span class="recordID"><b>Title Record # </b>57407</span>
                     root_str = etree.tostring(root, encoding='utf8', method='xml').decode()
 
-                    # ToDo: Diese Prüfung auch für advanced search durchführen! (nur ein Titel gefúnden -> redirect)
-
                     if '<span class="recordID"><b>Title Record #' in root_str:
-
-                        # Keine IDs vorhanden. Schlüsselwortsuche mit Titel und Autor wird durchgeführt:.
-                        # Searching with author=, title=Krieg zwischen den Welten.
-                        # *** Enter TitleList.url_from_title_and_author().
-                        # title=Krieg zwischen den Welten, author=
-                        # cls.TYPE=Title
-                        # *** Enter SearchResults.url_from_params()
-                        # URL=http://www.isfdb.org/cgi-bin/adv_search_results.cgi?
-                        # params={'ORDERBY': 'title_title', 'START': '0', 'TYPE': 'Title', 'USE_1': 'title_title', 'OPERATOR_1': 'contains', 'TERM_1': 'Krieg zwischen den Welten'}
-                        # url=http://www.isfdb.org/cgi-bin/adv_search_results.cgi?ORDERBY=title_title&START=0&TYPE=Title&USE_1=title_title&OPERATOR_1=contains&TERM_1=Krieg+zwischen+den+Welten.
-                        # *** Enter TitleList.from_url().
-                        # url=http://www.isfdb.org/cgi-bin/adv_search_results.cgi?ORDERBY=title_title&START=0&TYPE=Title&USE_1=title_title&OPERATOR_1=contains&TERM_1=Krieg+zwischen+den+Welten
-                        # *** Enter ISFDBObject.root_from_url().
-                        # url=http://www.isfdb.org/cgi-bin/adv_search_results.cgi?ORDERBY=title_title&START=0&TYPE=Title&USE_1=title_title&OPERATOR_1=contains&TERM_1=Krieg+zwischen+den+Welten
-                        # Erweiterte Suche nicht erlaubt für nicht angemeldete Benutzer. Einfache Suche wird durchgeführt.
-                        # simple_search_url=http://www.isfdb.org/cgi-bin/se.cgi?arg=Krieg+zwischen+den+Welten&type=All+Titles
-                        # *** Enter ISFDBObject.root_from_url().
-                        # url=http://www.isfdb.org/cgi-bin/se.cgi?arg=Krieg+zwischen+den+Welten&type=All+Titles
-                        # Die ISFDB Übersichtsseite hat weitergeleitet zur Detailseite (da nur ein Titel vorhanden). Steht noch auf der To-Do-Liste.
-
                         log.debug(
-                            _('ISFDB webpage has us redirected to a title page (only one title found). Handling is to do.'))
-
-                        # Analysing title record an build a pseudo title overview page
-
-                        # See Title.from_url(), but only interesting fields:
+                            _('ISFDB webpage has redirected to a title page (only one title found), located at: {0}.'.format(location)))
+                        log.debug(root_str[:800])
 
                         # Das haben wir:
 
@@ -772,110 +749,31 @@ class TitleList(SearchResults):
 
                         # So soll's werden:
 
-                        # <tr align="left" class="table1">
-                        # <td>&nbsp;</td>
-                        # <td>POEM</td>
-                        # <td>English</td>
-                        # <td dir="ltr"><a href="http://www.isfdb.org/cgi-bin/title.cgi?2757790" dir="ltr">"leaving Saturn"</a></td>
-                        # <td><a href="http://www.isfdb.org/cgi-bin/ea.cgi?66631" dir="ltr">LeRoy Gorman</a></td>
-                        # </tr>
+                        # [{'title': 'The War Beneath the Tree', 'url': 'https://www.isfdb.org/cgi-bin/title.cgi?57407', 'authors': ['Gene Wolfe']}]
 
-                        # Get rid of tooltips
-                        # for tooltip in root.xpath('//sup[@class="mouseover"]'):
-                        #     tooltip.getparent().remove(
-                        #         tooltip)  # We grab the parent of the element to call the remove directly on it
-                        # for tooltip in root.xpath('//span[@class="tooltiptext tooltipnarrow tooltipright"]'):
-                        #     tooltip.getparent().remove(
-                        #         tooltip)  # We grab the parent of the element to call the remove directly on it
-                        #
-                        # # Get title infos from title page and build python table rows
-                        # detail_div = root.xpath('//div[@class="ContentBox"]')[0]
-                        # detail_nodes = []
-                        # detail_node = []
-                        # for e in detail_div:
-                        #     if e.tag in ['br', '/div']:
-                        #         detail_nodes.append(detail_node)
-                        #         detail_node = []
-                        #     else:
-                        #         detail_node.append(e)
-                        # detail_nodes.append(detail_node)
-                        #
-                        # # Loop thru the python table rows an build html string for a pseudo title overview page
-                        #
-                        # title_overview_html = ['<tr align="left" class="table1">']
-                        # for detail_node in detail_nodes:
-                        #     if prefs['log_level'] in ('DEBUG'):
-                        #         if len(detail_node) > 0:
-                        #             for ni in range(len(detail_node) - 1):
-                        #                 log.debug('detail_node={0}'.format(etree.tostring(detail_node[ni])))
-                        #         else:
-                        #             log.debug('detail_node={0}'.format(etree.tostring(detail_node)))
-                        #     section = detail_node[0].text_content().strip().rstrip(':')
-                        #     if prefs['log_level'] in ('DEBUG'):
-                        #         log.debug('section={0}'.format(section))
-                        #     section_text_content = detail_node[0].tail.strip()
-                        #     if section_text_content == '':
-                        #         try:
-                        #             section_text_content = detail_node[1].xpath('text()')  # extract link text
-                        #         except Exception as e:
-                        #             if prefs['log_level'] in ('DEBUG', 'INFO', 'ERROR'):
-                        #                 log.error('Error: {0}.'.format(e))
-                        #     if prefs['log_level'] in ('DEBUG'):
-                        #         log.debug(
-                        #             'section={0}, section_text_content={1}.'.format(section, section_text_content))
-                        #     try:
-                        #         if section == 'Title':
-                        #             title = detail_node[0].tail.strip()
-                        #             if not title:
-                        #                 # assume an extra span with a transliterated title tooltip
-                        #                 title = detail_node[1].text_content().split('?')[0].strip()
-                        #             # <td dir="ltr"><a href="http://www.isfdb.org/cgi-bin/title.cgi?2757790" dir="ltr">"leaving Saturn"</a></td>
-                        #             title_overview_html = title_overview_html \
-                        #                                   + '<td dir="ltr"><a href="http://www.isfdb.org/cgi-bin/title.cgi?' \
-                        #                                   + title
-                        #
-                        #         elif section in ('Author', 'Authors', 'Editor', 'Editors'):
-                        #             properties["authors"] = []
-                        #             author_links = [e for e in detail_node if e.tag == 'a']
-                        #             for a in author_links:
-                        #                 author = a.text_content().strip()
-                        #                 if author != 'uncredited':
-                        #                     if section.startswith('Editor'):
-                        #                         properties["authors"].append(author + ' (Editor)')
-                        #                     else:
-                        #                         properties["authors"].append(author)
-                        #
-                        #         elif section == 'Type':
-                        #             properties["type"] = detail_node[0].tail.strip()
-                        #             if "tags" not in properties:
-                        #                 properties["tags"] = []
-                        #             try:
-                        #                 tags = cls.TYPE_TO_TAG[properties["type"]]
-                        #                 properties["tags"].extend([t.strip() for t in tags.split(",")])
-                        #             except KeyError:
-                        #                 pass
-                        #
-                        #         elif section == 'Language':
-                        #             properties["language"] = detail_node[0].tail.strip()
-                        #             # For calibre, the strings must be in the language of the current locale
-                        #             # Both Calibre and ISFDB use ISO 639-2 language codes,
-                        #             # but in the ISFDB web page only the language names are shown
-                        #             try:
-                        #                 properties["language"] = LANGUAGES[properties["language"]]
-                        #             except KeyError:
-                        #                 pass
-                        #
-                        #     except Exception as e:
-                        #         log.exception(
-                        #             _('Error parsing section {0} for url: {1}. Error: {2}').format(section, url, e))
-                        #
-                        # # Save all publication ids for this title
-                        # publication_links = root.xpath('//a[contains(@href, "/pl.cgi?")]/@href')
-                        # properties["publications"] = [Publication.id_from_url(l) for l in publication_links]
+                        properties = {}
+                        properties["url"] = location
+                        properties["title"] = re.search(r'<title>Title: (.*)</title>', root_str).group(0).strip()
+                        properties["title"] = re.sub('<.*?>', '', properties["title"])  # Get rid of html tags
+                        properties["title"] = properties["title"].replace('Title:', '').strip()
+                        properties["title"] = [properties["title"]]
+                        properties["date"] = datetime.date
+                        try:
+                            properties["author"] = re.search(r'<b>Author:</b>(.*)\\r\\n<br><b>Date:</b>', root_str, re.MULTILINE).group(0).strip()
+                            properties["author"] = [re.sub('<.*?>', '', properties["author"])]  # Get rid of html tags
+                        except AttributeError:
+                            properties["author"] = []
+                        # content_box = root.xpath('//*[@id="content"]/div[1])')
+                        if prefs['log_level'] in ('DEBUG'):
+                            log.debug('properties["title"]={0}, properties["url"]={1}.'.format(properties["title"],
+                                                                                               properties["url"]))
+                        title_stubs = [{'title': properties["title"], 'url': properties["url"],
+                                        'authors': properties["author"], 'date': properties["date"]}]
 
+                        # ToDo: No title entry in result, only pubs?!
 
+                        return title_stubs
 
-                if not rows:
                     log.debug('No rows found, neither with advanced or simple search. HTML output follows. Abort.')
                     log.debug(etree.tostring(root, pretty_print=True))
                     abort = True
@@ -1011,7 +909,7 @@ class Publication(Record):
         properties = {}
         properties["isfdb"] = cls.id_from_url(url)
 
-        root = cls.root_from_url(browser, url, timeout, log, prefs)
+        location, root = cls.root_from_url(browser, url, timeout, log, prefs)
 
         # Get rid of tooltips
         for tooltip in root.xpath('//sup[@class="mouseover"]'):
@@ -1296,7 +1194,7 @@ class TitleCovers(Record):
     @classmethod
     def from_url(cls, browser, url, timeout, log, prefs):
         covers = []
-        root = cls.root_from_url(browser, url, timeout, log, prefs)
+        location, root = cls.root_from_url(browser, url, timeout, log, prefs)
 
         # Get rid of tooltips
         for tooltip in root.xpath('//sup[@class="mouseover"]'):
@@ -1373,7 +1271,7 @@ class Title(Record):
             properties["authors"] = [a.text_content() for a in row.xpath('td[6]/a')]
         except IndexError:
             # Handling Tooltip in div
-            properties["title"] = [a.text_content() for a in row.xpath('td[6]/div/a/text()')]
+            properties["authors"] = [a.text_content() for a in row.xpath('td[6]/div/a/text()')]
 
         # Workaround to avoid merging titles with eeh same title and author(s) by Calibre's default behavior
         # Title.BOOK_TITLE_NO = Title.BOOK_TITLE_NO + 1
@@ -1416,7 +1314,7 @@ class Title(Record):
             properties["authors"] = [a.text_content() for a in row.xpath('td[5]/a')]
         except IndexError:
             # Handling Tooltip in div
-            properties["title"] = [a.text_content() for a in row.xpath('td[5]/div/a/text()')]
+            properties["authors"] = [a.text_content() for a in row.xpath('td[5]/div/a/text()')]
 
         # Workaround to avoid merging titles with eeh same title and author(s) by Calibre's default behavior
         # Title.BOOK_TITLE_NO = Title.BOOK_TITLE_NO + 1
@@ -1436,7 +1334,7 @@ class Title(Record):
         properties = {}
         properties["isfdb-title"] = cls.id_from_url(url)
 
-        root = cls.root_from_url(browser, url, timeout, log, prefs)
+        location, root = cls.root_from_url(browser, url, timeout, log, prefs)
 
         # Get rid of tooltips
         for tooltip in root.xpath('//sup[@class="mouseover"]'):
@@ -1667,6 +1565,7 @@ class Series(Record):
             log.debug('*** Enter Series.root_from_url().')
             log.debug('url={0}'.format(url))
         response = browser.open_novisit(url, timeout=timeout)
+        location = response.geturl()  # guess url in case of redirection
         raw = response.read()
         # Parses an XML document or fragment from a string. Returns the root node (or the result returned by a parser target).
         # To override the default parser with a different parser you can pass it to the parser keyword argument.
@@ -1700,7 +1599,7 @@ class Series(Record):
         series_candidate = ''
         full_series = ''
 
-        root = Series.root_from_url(browser, url, timeout, log, prefs)
+        location, root = Series.root_from_url(browser, url, timeout, log, prefs)
 
         # Is this a author record?
         if 'Author Record #' in etree.tostring(root, encoding='utf8', method='xml').decode():
@@ -1872,10 +1771,8 @@ class ISFDBWebAPI(object):
         errcode, errmsg, headers = webservice.getreply()
         if errcode != 200:
             resp = webservice.getfile()
-            print
-            "Error:", errmsg
-            print
-            "Resp:", resp.read()
+            print("Error:", errmsg)
+            print("Resp:", resp.read())
             resp.close()
             return ''
         else:

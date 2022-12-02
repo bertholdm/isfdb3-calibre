@@ -39,25 +39,25 @@ class ISFDB3(Source):
     version = (1, 1, 4)  # Changes in forked version: see changelog
 
     # Changelog
-    # v1.1.4 11-30-2022
-    # - Workaround for key error if o title-record found
-    # v1.1.3 11-15-2022
+    # Version 1.1.4 11-30-2022
+    # - Handling redirection to a title page, if only one title record found
+    # Version 1.1.3 11-15-2022
     # - In simple search, to filter authors from title list, unquote the author's name from url (convert percent encoded characters back)
-    # v1.1.2 07-14-2022
+    # Version 1.1.2 07-14-2022
     # - Comparing author in simple search case insensitive
-    # v1.1.1 07-13-2022
+    # Version 1.1.1 07-13-2022
     # - Advanced search is now only for logged in users. Fallback to simple search
-    # v1.1.0 02-16-2022
+    # Version 1.1.0 02-16-2022
     # - Configuration for unwanted tags / Remove duplicates in tags
     # - Erroneously series source link in comment, not source links for titles and pubs
-    # v1.0.3 02-10-2022
+    # Version 1.0.3 02-10-2022
     # - Optimized title/pub merge: Cache title id for all pub ids in author/title search (analig search with ISBN)
-    # v1.0.2 02-06-2022
+    # Version 1.0.2 02-06-2022
     # - Parse error for dictionary LANGUAGES (moved from class to module scope)
     # - Typo in calling translate method
-    # v1.0.1 - 02-05-2022
+    # Version 1.0.1 - 02-05-2022
     # - Small typo: none vs. None
-    # v1.0.0 - 01-31-2022
+    # Version 1.0.0 - 01-31-2022
     # - Initial release
 
     minimum_calibre_version = (5, 0, 0)
