@@ -35,13 +35,6 @@ Another example: Publications are not found by ISFDB2, if the title/publication 
 Title: Best S.F. Stories from New Worlds (http://www.isfdb.org/cgi-bin/title.cgi?36317), but publication reads: Publication: Best S.F. Stories from New Worlds (http://www.isfdb.org/cgi-bin/pl.cgi?35921).
 
 to 2): Calibre's default behavior merges titles and publicatications with the same author and title in one result, regardles of other data (publication date, series, publisher, ...).
-Excerpt from https://github.com/kovidgoyal/calibre/blob/master/src/calibre/ebooks/metadata/sources/identify.py:
----
-def merge_metadata_results(self, merge_on_identifiers=False):
-	'''
-        Merge results with identical title and authors or an identical identifier
-        '''
----
 Therefore, to preserve all search results, ISFDB3 qualifies the title field with the ISFDB id before put it in the result queue.
 Example: K. H. Scheer, Expedition. The title was published six times in the years 1961 - 1980, in different series and adaptations. ISFDB2 returns only one publication, ISFDB3 all.
 Other example (H. P. Lovecraft, In the Vault):
