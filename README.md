@@ -69,7 +69,7 @@ Limitations:
 - Since there is no language field in publication records, only in title records, following the publication linkss in a title list may show up publications in not desired languages. However, the publications list in the title page has a button »Not displaying translations«, so some research is already meeded.
 
 - For not logged in users, isfdb.org has recently stopped the advanced search access. 
-  ISFDB3 has a fallback to simple search with itle only and a filter for record types (INTERIORART, ...).
+  ISFDB3 has a fallback to simple search with title only and a filter for record types (INTERIORART, ...).
   To avoid large title lists for short or generic titles ("Stars") with the default "contains" search, the search is switched to "exact match", if the first character in title field is an equal sign ("=").
 
 
