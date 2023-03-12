@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ISFDB3\n"
-"POT-Creation-Date: 2022-07-13 14:50+0200\n"
-"PO-Revision-Date: 2022-07-13 14:56+0200\n"
+"POT-Creation-Date: 2023-03-12 11:18+0100\n"
+"PO-Revision-Date: 2023-03-12 11:19+0100\n"
 "Last-Translator: Michael Detambel <info@michael-detambel.de>\n"
 "Language-Team: Michael Detambel\n"
 "Language: de_DE@formal\n"
@@ -10,19 +10,23 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.2.2\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: __init__.py:37
-msgid "Downloads metadata and covers from ISFDB (http://www.isfdb.org/)"
-msgstr "Lädt Metadaten und Buchumschläge von ISFDB  (http://www.isfdb.org/)"
+#: __init__.py:40
+msgid "Downloads metadata and covers from ISFDB (https://www.isfdb.org/)"
+msgstr "Lädt Metadaten und Buchumschläge von ISFDB (https://www.isfdb.org/)"
 
-#: __init__.py:251
+#: __init__.py:111
+msgid "For further explanations see isfdb3.md file."
+msgstr "Weitere Informationen in der Datei isfdb3.md."
+
+#: __init__.py:137
 msgid "Maximum number of search results to download:"
 msgstr "Maximale Anzahl an Suchergebnissen zum Herunterladen:"
 
-#: __init__.py:252
+#: __init__.py:138
 msgid ""
 "This setting only applies to ISBN and title / author searches. Book records "
 "with a valid ISFDB publication and/or title ID will return exactly one "
@@ -32,22 +36,22 @@ msgstr ""
 "Autor.. Bucheinträge mit einer gültigen  SF-Leihbuch ID liefern genau ein "
 "Ergebnis."
 
-#: __init__.py:258
+#: __init__.py:145
 msgid "Maximum number of covers to download:"
 msgstr "Maximale Anzahl an Titelbildern zum Herunterladen:"
 
-#: __init__.py:259
+#: __init__.py:146
 msgid ""
 "The maximum number of covers to download. This only applies to publication "
 "records with no cover. If there is a cover associated with the record, only "
 "that cover will be downloaded."
 msgstr "Die maximale Anzahl an Titelbildern, die heruntergeladen werden.."
 
-#: __init__.py:265
+#: __init__.py:153
 msgid "Search ISFDB publications?"
 msgstr "Ausgaben in der ISFDB suchen?"
 
-#: __init__.py:266
+#: __init__.py:154
 msgid ""
 "This only applies to title / author searches. A record with a publication ID "
 "will always return a publication."
@@ -56,11 +60,11 @@ msgstr ""
 "Autor.. Bucheinträge mit einer gültigen  SF-Leihbuch ID liefern genau ein "
 "Ergebnis."
 
-#: __init__.py:272
+#: __init__.py:161
 msgid "Search ISFDB titles?"
 msgstr "Titel in der ISFDB suchen?"
 
-#: __init__.py:273
+#: __init__.py:162
 msgid ""
 "This only applies to title / author searches. A record with a title ID and "
 "no publication ID will always return a title."
@@ -69,19 +73,19 @@ msgstr ""
 "Autor.. Bucheinträge mit einer gültigen  SF-Leihbuch ID liefern genau ein "
 "Ergebnis."
 
-#: __init__.py:279
+#: __init__.py:169
 msgid "Search options"
 msgstr "Such-Optionen"
 
-#: __init__.py:280
+#: __init__.py:170
 msgid "Choose one of the options for search variants."
 msgstr "Wählen Sie eine der folgenden Optionen als Such-Variante."
 
-#: __init__.py:288
+#: __init__.py:178
 msgid "Combine series and sub-series?"
 msgstr "Serie und Unterserie zusammenfassen?"
 
-#: __init__.py:289
+#: __init__.py:179
 msgid ""
 "Choosing this option will set the series field with series and sub-series "
 "(if any)."
@@ -89,11 +93,11 @@ msgstr ""
 "Bei Auswahl dieser Option wird das \"Serie\"-Feld mit einer Kombination aus "
 "Serie und Unter-Serie (falls vorhanden) gefüllt (wenn vorhanden)."
 
-#: __init__.py:295
+#: __init__.py:185
 msgid "Combine series and sub-series with"
 msgstr "Serie und Unterserie trennen mit"
 
-#: __init__.py:296
+#: __init__.py:186
 msgid ""
 "String to concatenate series und sub-series in the series field. Examples: "
 "\".\" (Calibre sort character), \" | \", ..."
@@ -101,111 +105,119 @@ msgstr ""
 "Zeichenkette angeben, mit der Serie und Unterserie getrennt werden sollen. "
 "Beispiele: \".\" (für Calibre Sortierung), \" | \", usw."
 
-#: __init__.py:302
+#: __init__.py:193
 msgid "Unwanted Tags"
 msgstr "Unerwünschte Schlagwörter"
 
-#: __init__.py:303
+#: __init__.py:194
 msgid "Comma-seperated list of tags to ignore."
 msgstr "Komma-separierte Liste von Schlagworten, die ignoriert werden sollen."
 
-#: __init__.py:309
+#: __init__.py:200
 msgid "Note translations in comments."
 msgstr "Hinweis auf Übersetzungen im Kommentar."
 
-#: __init__.py:310
+#: __init__.py:201
 msgid ""
 "Choosing this option will set information and links to ISFDB pages with "
-"translations in the indicatet language(s), if privided."
+"translations in the indicated language(s), if provided."
 msgstr ""
 "Durch diese Option werden Informationen zu Übersetzungen eingefügt, falls "
 "vorhanden."
 
-#: __init__.py:316
+#: __init__.py:208
+msgid "Translate ISFDB."
+msgstr "ISFDB übersetzen."
+
+#: __init__.py:209
+msgid "Choosing this option will traslate ISFDB texts."
+msgstr "Diese Option wählen, wenn die Texte der ISFDB übersetzt werden sollen."
+
+#: __init__.py:225
 msgid "Languages"
 msgstr "Sprachen"
 
-#: __init__.py:317
+#: __init__.py:226
 msgid "Choose one language to filter titles. English is ever set."
 msgstr "Eine Sprache wählen, um Titel zu filtern. Englisch ist immer gesetzt."
 
-#: __init__.py:325
+#: __init__.py:234
 msgid "Logging level."
 msgstr "Logging-Niveau."
 
-#: __init__.py:326
+#: __init__.py:235
 msgid "ERROR = only error messages, DEBUG: all logging messages."
 msgstr "ERROR = Nur Fehlermeldungen, DEBUG: alle Meldungen."
 
-#: __init__.py:421
+#: __init__.py:338
 msgid "ISFDB3 is starting..."
 msgstr "ISFDB3 startet..."
 
-#: __init__.py:422
+#: __init__.py:339
 #, python-brace-format
 msgid "Log level is {0}."
 msgstr "Logging-Niveau  ist {0}."
 
-#: __init__.py:464 __init__.py:494 __init__.py:595 __init__.py:635
+#: __init__.py:391 __init__.py:421 __init__.py:579 __init__.py:619
 msgid "Abort is set."
 msgstr "Abbruch der Verarbeitung."
 
-#: __init__.py:490
+#: __init__.py:417
 #, python-brace-format
 msgid "{0} matches with isbn and/or isfdb-catalog ids."
 msgstr "{0} Treffer mit ISBN und/oder der ISFDB Katalog Id."
 
-#: __init__.py:502
+#: __init__.py:429
 msgid "No id(s) given. Trying a search with title and author(s)."
 msgstr ""
 "Keine IDs vorhanden. Schlüsselwortsuche mit Titel und Autor wird "
 "durchgeführt:."
 
-#: __init__.py:513
+#: __init__.py:469 __init__.py:561
+msgid "Fetching all linked pub records..."
+msgstr "Hole alle verknüpften Datensätze mit Veröffentlichungen..."
+
+#: __init__.py:497
 #, python-brace-format
 msgid "Searching with author={0}, title={1}."
 msgstr "Searching with author={0}, title={1}."
 
-#: __init__.py:577
-msgid "Fetching all linked pub records..."
-msgstr "Hole alle verknüpften Datensätze mit Veröffentlichungen..."
-
-#: __init__.py:613
+#: __init__.py:597
 #, python-brace-format
 msgid "No publications found with title and author(s) search for »{0}« by {1}."
 msgstr ""
 "Keine Veröffentlichungen gefunden mit der Titel- und Autorensuche für »{0}« "
 "von {1}."
 
-#: __init__.py:646
+#: __init__.py:632
 #, python-brace-format
 msgid "Matches found (URL, relevance): {0}."
 msgstr "Treffer gefunden (URL, relevance): {0}."
 
-#: __init__.py:649
+#: __init__.py:635
 msgid "Starting workers..."
 msgstr "Starte Arbeitsprogramme..."
 
-#: __init__.py:683
+#: __init__.py:669
 msgid "Not enough information. Running identify."
 msgstr ""
 "Keine zwischengespeicherte Titelbild URL gefunden. Starte erneut "
 "Identifizierung."
 
-#: __init__.py:727
+#: __init__.py:713
 msgid "We were unable to find any covers."
 msgstr "Es wurden keine Titelbilder gefunden."
 
-#: __init__.py:773
+#: __init__.py:759
 #, python-format
 msgid "Worker parsing ISFDB url: %r"
 msgstr "Das Arbeitsprogramm wertet den ISFDB URL: %r aus"
 
-#: __init__.py:780
+#: __init__.py:766
 msgid "This url is a Publication."
 msgstr "Dieser URL ist eine Publikation."
 
-#: __init__.py:798
+#: __init__.py:784
 msgid ""
 "Could not find title ID in original metadata or on publication page. "
 "Searching for title."
@@ -213,90 +225,745 @@ msgstr ""
 "Konnte keine Titel-ID in den ursprünglichen Metadaten oder auf der "
 "Publikationsseite finden. Starte Titelsuche."
 
-#: __init__.py:800
+#: __init__.py:786
 msgid "Warning: pub[\"author_string\"] is not set."
 msgstr "Warnung: pub[\"author_string\"] ist nicht gefüllt."
 
-#: __init__.py:819
+#: __init__.py:808
 #, python-format
 msgid "Fetching additional title information from %s"
 msgstr "Hole zusätzliche Titel-Informationen aus %s"
 
-#: __init__.py:826
+#: __init__.py:815
 msgid "This is the exact title! Merge title and publication info."
 msgstr "Dies ist der genaue Titel. Mische Titel- und Publikation-Info."
 
-#: __init__.py:847
+#: __init__.py:836
 msgid "This is not the correct title."
 msgstr "Dies ist nicht der richtige Titel."
 
-#: __init__.py:851
+#: __init__.py:840
 msgid "We could not find a title record for this publication."
 msgstr "Es konnte kein Datensatz für diese Veröffentlichung gefunden werden."
 
-#: __init__.py:855
+#: __init__.py:845
 msgid "This url is a Title."
 msgstr "Dieser URL ist ein Titel."
 
-#: __init__.py:882
+#: __init__.py:872
 msgid "Out of cheese error! Unrecognised url!"
 msgstr "Nicht auswertbare URL!"
 
-#: __init__.py:888
+#: __init__.py:878
 #, python-format
 msgid "Insufficient metadata found for %r"
 msgstr "Nicht genügen Metadaten gefunden für %r"
 
-#: __init__.py:892
+#: __init__.py:882
 msgid "Unknown"
 msgstr "Unbekannt"
 
-#: __init__.py:995
+#: __init__.py:1004
 #, python-format
 msgid "Worker failed to fetch and parse url %r with error %r"
 msgstr ""
 "Im Arbeitsprogramm trat beim Holen und Auswerten  des URL %r der Fehler %r "
 "auf"
 
-#: objects.py:263 objects.py:296
+#: myglobals.py:244
+msgid "the book has no ISBN, since it was not available in regular book shops"
+msgstr ""
+"das Buch hat keine ISBN, da es nicht im regulären Buchhandel vertrieben wurde"
+
+#: myglobals.py:245
+msgid "There's no statement for the date of publication"
+msgstr "Das Datum der Veröffentlichung ist nicht angegeben"
+
+#: myglobals.py:246
+msgid "No indication for the date of publication"
+msgstr "Kein Hinweis auf ein Veröffentlichungsdatum"
+
+#: myglobals.py:247
+msgid "No statement for the date of publication"
+msgstr "Das Datum der Veröffentlichung ist nicht angegeben"
+
+#: myglobals.py:248
+msgid "The day of publication from the monthly schedule"
+msgstr ""
+"Das Datum der Veröffentlichung ist abgeleitet von der monatlichen "
+"Erscheinungsweise"
+
+#: myglobals.py:249
+msgid "Day of publication from the monthly schedule"
+msgstr ""
+"Datum der Veröffentlichung abgeleitet von der monatlichen Erscheinungsweise"
+
+#: myglobals.py:250
+msgid "The day of publication from the weekly schedule"
+msgstr ""
+"Das Datum der Veröffentlichung ist abgeleitet von der wöchentlichen "
+"Erscheinungsweise"
+
+#: myglobals.py:251
+msgid "Day of publication from the weekly schedule"
+msgstr ""
+"Datum der Veröffentlichung abgeleitet von der wöchentlichen Erscheinungsweise"
+
+#: myglobals.py:252
+msgid "The publication date is deduced from"
+msgstr "Das Erscheinungsdatum ist abgeleitet von"
+
+#: myglobals.py:253
+msgid "First (and probably only) printing"
+msgstr "Erste (und wahrscheinlich einzige) Auflage"
+
+#: myglobals.py:254
+msgid "The page count begins with the cover"
+msgstr "Die Seitenzählung beginnt mit dem Umschlag"
+
+#: myglobals.py:255
+msgid "the last story ends on this page"
+msgstr "Die letzte Erzählung endet auf dieser Seite"
+
+#: myglobals.py:256
+msgid "A most likely abridged re-edition"
+msgstr "Eine sehr wahrscheinlich gekürzte Neuauflage"
+
+#: myglobals.py:257
+msgid "An abridged reprint of the"
+msgstr "Ein gekürzter Nachdruck der"
+
+#: myglobals.py:258
+msgid "First German edition and printing"
+msgstr "Deutscher Erstdruck"
+
+#: myglobals.py:259
+msgid "First German edition"
+msgstr "Deutsche Erstauflage"
+
+#: myglobals.py:260
+msgid "The cover artist is not credited"
+msgstr "Der Titelbildkünstler ist nicht vermerkt"
+
+#: myglobals.py:261
+msgid "The interior art is not credited"
+msgstr "Die Innenillustrationen sind nicht zugeschrieben"
+
+#: myglobals.py:262
+msgid "identified by his unique style"
+msgstr "erkennbar an seinem unverwechselbaren Stil"
+
+#: myglobals.py:263
+msgid "Published simultaneously with"
+msgstr "Gleichzeitig erschienen mit"
+
+#: myglobals.py:264
+msgid "The table of contents appears"
+msgstr "Das Inhaltsverzeichnis befindet sich"
+
+#: myglobals.py:265
+msgid "No credit for cover art"
+msgstr "Kein Künstler für das Titelbild vermerkt"
+
+#: myglobals.py:266
+msgid "there is no visible signature"
+msgstr "es gibt keine erkennbare Signatur"
+
+#: myglobals.py:267
+msgid "no visible signature"
+msgstr "keine erkennbare Signatur"
+
+#: myglobals.py:268
+msgid "stated on the copyright page"
+msgstr "auf der Copyright-Seite vermerkt"
+
+#: myglobals.py:269
+msgid "No credit for the cover art"
+msgstr "Kein Künstler für das Titelbild vermerkt"
+
+#: myglobals.py:270
+msgid "on the cover and the spine"
+msgstr "auf der Umschlagseite und dem Buchrücken"
+
+#: myglobals.py:271
+msgid "Cover design credited to"
+msgstr "Titelbildentwurf ist vermerkt für"
+
+#: myglobals.py:272
+msgid "There is no interior art"
+msgstr "Ohne Innenillustrationen"
+
+#: myglobals.py:273
+msgid "A selected bibliography"
+msgstr "Eine ausgewählte Bibliografie"
+
+#: myglobals.py:274
+msgid "Apparent first printing"
+msgstr "Augenscheinlich Originalausgabe"
+
+#: myglobals.py:275
+msgid "Translation copyrighted"
+msgstr "Copyright der Übersetzung"
+
+#: myglobals.py:276
+msgid "visible in the cover's"
+msgstr "sichtbar auf des Titelbilds"
+
+#: myglobals.py:277
+msgid "(view Concise Listing)"
+msgstr " "
+
+#: myglobals.py:278
+msgid "The not numbered pages"
+msgstr "Die nicht nummerierten Seiten"
+
+#: myglobals.py:279
+msgid "Cover artist credited"
+msgstr "Der Titelbildkünstler ist vermerkt"
+
+#: myglobals.py:280 myglobals.py:281
+msgid "It could very well be"
+msgstr "Es kommt gut infrage"
+
+#: myglobals.py:282
+msgid "not explicitly stated"
+msgstr "nicht ausdrücklich vermerkt"
+
+#: myglobals.py:283
+msgid "on the copyright page"
+msgstr "auf der Copyright-Seite"
+
+#: myglobals.py:284
+msgid "on the cover's lower left border"
+msgstr "auf der linken unteren Umschlagsseite"
+
+#: myglobals.py:285
+msgid "The copyright is assigned for the year"
+msgstr "Der Urheber/Copyright-Vermerk nennt das Jahr"
+
+#: myglobals.py:286
+msgid "has a teaser for the next number"
+msgstr "enthält eine Vorschau der nächsten Ausgabe"
+
+#: myglobals.py:287
+msgid "to the author"
+msgstr "dem Autor"
+
+#: myglobals.py:288
+msgid "Stated first printing"
+msgstr "Originalausgabe vermerkt"
+
+#: myglobals.py:289
+msgid "Most likely abridged"
+msgstr "Sehr wahrscheinlich gekürzt"
+
+#: myglobals.py:290
+msgid "publication schedule"
+msgstr "Erscheinungsweise"
+
+#: myglobals.py:291
+msgid "Month of publication"
+msgstr "Der Monat der Veröffentlichung"
+
+#: myglobals.py:292
+msgid "did the majority of"
+msgstr "lieferte den Löwenanteil von"
+
+#: myglobals.py:293
+msgid "is clearly visible"
+msgstr "ist klar sichtbar"
+
+#: myglobals.py:294
+msgid "A table of contents"
+msgstr "Ein Inhaltsverzeichnis"
+
+#: myglobals.py:295
+msgid "publication series"
+msgstr "Reihe"
+
+#: myglobals.py:296
+msgid "but his signature"
+msgstr "aber seine Signatur"
+
+#: myglobals.py:297 myglobals.py:303
+msgid "interior artwork"
+msgstr "Innenillustration"
+
+#: myglobals.py:298
+msgid "is referenced via"
+msgstr "ist identifiziert via"
+
+#: myglobals.py:299
+msgid "on the title page"
+msgstr "auf der Umschlagseite"
+
+#: myglobals.py:300
+msgid "Possibly abridged"
+msgstr "Möglicherweise gekürzt"
+
+#: myglobals.py:301
+msgid "Table of contents"
+msgstr "Inhaltsverzeichnis"
+
+#: myglobals.py:302
+msgid "Abridged reprint"
+msgstr "Gekürzter Nachdruck"
+
+#: myglobals.py:304
+msgid "this translation"
+msgstr "diese Übersetzung"
+
+#: myglobals.py:305
+msgid "was published in"
+msgstr "wurde veröffentlicht in"
+
+#: myglobals.py:306
+msgid "Author's Note"
+msgstr "Anmerkung des Verfassers"
+
+#: myglobals.py:307
+msgid "Basic data from"
+msgstr "Grunddaten von"
+
+#: myglobals.py:308
+msgid "second printing"
+msgstr "zweiter Druck"
+
+#: myglobals.py:309
+msgid "the fortnightly"
+msgstr "der vierzehntäglichen"
+
+#: myglobals.py:310
+msgid "the four-weekly"
+msgstr "der vierwöchtentlichen"
+
+#: myglobals.py:311
+msgid "first printing"
+msgstr "Erstdruck"
+
+#: myglobals.py:312
+msgid "Original title"
+msgstr "Originaltitel"
+
+#: myglobals.py:313
+msgid "The Page count"
+msgstr "Die Seitenzählung"
+
+#: myglobals.py:314
+msgid "the title page"
+msgstr "der Umschlagseite"
+
+#: myglobals.py:315
+msgid "with the cover"
+msgstr "mit der Umschlagseite"
+
+#: myglobals.py:316
+msgid "calender week"
+msgstr "Kalenderwoche"
+
+#: myglobals.py:317
+msgid "First edition and printing"
+msgstr "Erstauflage und-druck"
+
+#: myglobals.py:318
+msgid "First edition"
+msgstr "Erstauflage"
+
+#: myglobals.py:319
+msgid "First printing"
+msgstr "Erstdruck"
+
+#: myglobals.py:320
+msgid "identified by"
+msgstr "identifiziert durch"
+
+#: myglobals.py:321
+msgid "special price"
+msgstr "Sonderpreis"
+
+#: myglobals.py:322
+msgid "The cover art"
+msgstr "Das Titelbild"
+
+#: myglobals.py:323
+msgid "Translated by"
+msgstr "Deutsch von"
+
+#: myglobals.py:324
+msgid "Cover artist"
+msgstr "Titelbild-Künstler"
+
+#: myglobals.py:325
+msgid "interior art"
+msgstr "Innenillustration"
+
+#: myglobals.py:326
+msgid "is stated on"
+msgstr "ist vermerkt auf"
+
+#: myglobals.py:327
+msgid "not stated"
+msgstr "nicht vermerkt"
+
+#: myglobals.py:328
+msgid "on the cover"
+msgstr "auf der Umschlagseite"
+
+#: myglobals.py:329
+msgid "on the spine"
+msgstr "auf dem Buchrücken"
+
+#: myglobals.py:330
+msgid "Other prices"
+msgstr "Fremdwährungen"
+
+#: myglobals.py:331
+msgid "short story"
+msgstr "Kurzgeschichte"
+
+#: myglobals.py:332
+msgid "the 4-weekly"
+msgstr "der vierwöchtentlichen"
+
+#: myglobals.py:333
+msgid "of a month"
+msgstr "eines Monats"
+
+#: myglobals.py:334
+msgid " dedicated "
+msgstr " zugeschrieben "
+
+#: myglobals.py:335
+msgid "Netherlands"
+msgstr "Niederlande"
+
+#: myglobals.py:336
+msgid "Other price"
+msgstr "Fremdwährung"
+
+#: myglobals.py:337
+msgid "Switzerland"
+msgstr "Schweiz"
+
+#: myglobals.py:338
+msgid "this number"
+msgstr "diese Nummer"
+
+#: myglobals.py:339
+msgid "uncredited"
+msgstr "anonym"
+
+#: myglobals.py:340
+msgid "unpaginated"
+msgstr "ungezählt"
+
+#: myglobals.py:341
+msgid "The unpaginated"
+msgstr "Die nicht nummerierte"
+
+#: myglobals.py:342
+msgid "<b>and</b>"
+msgstr "<b>und</b>"
+
+#: myglobals.py:343
+msgid "Collection"
+msgstr "Sammlung"
+
+#: myglobals.py:344
+msgid "collection"
+msgstr "Sammlung"
+
+#: myglobals.py:345
+msgid "Month from"
+msgstr "Monat anhand"
+
+#: myglobals.py:346
+msgid "noveletta"
+msgstr "Novelette"
+
+#: myglobals.py:347
+msgid "rear flap"
+msgstr "hintere Umschlagklappe"
+
+#: myglobals.py:348
+msgid "re-edition"
+msgstr "Neuauflage"
+
+#: myglobals.py:349
+msgid "Romanette"
+msgstr "Kurzroman"
+
+#: myglobals.py:350
+msgid "the weekly"
+msgstr "der wöchentlichen"
+
+#: myglobals.py:351
+msgid "trans. of"
+msgstr "deutsche Ausgabe von"
+
+#: myglobals.py:352
+msgid "Translator"
+msgstr "Übersetzer"
+
+#: myglobals.py:353
+msgid "is not numbered"
+msgstr "ist nicht nummeriert"
+
+#: myglobals.py:354
+msgid "unnumbered"
+msgstr "nicht nummeriert"
+
+#: myglobals.py:355 objects.py:1003
+msgid "variant of"
+msgstr "Variante von"
+
+# Strings for ISFDB Texts (Variables in program)
+# Tags from Book Types
+#: myglobals.py:356
+msgid "Anthology"
+msgstr "Anthologie"
+
+#: myglobals.py:357
+msgid "chapbook"
+msgstr "Groschenheft"
+
+#: myglobals.py:358
+msgid "hardcover edition"
+msgstr "gebundenen Ausgabe"
+
+#: myglobals.py:359
+msgid "day from "
+msgstr "Tag anhand "
+
+#: myglobals.py:360
+msgid "edited by"
+msgstr "herausgegeben von"
+
+#: myglobals.py:361
+msgid "hardvover"
+msgstr "gebundenes Buch"
+
+#: myglobals.py:362
+msgid "paperback"
+msgstr "Taschenbuch"
+
+#: myglobals.py:363
+msgid "publisher"
+msgstr "Verleger"
+
+#: myglobals.py:364
+msgid "signature"
+msgstr "Signatur"
+
+#: myglobals.py:365
+msgid "The month"
+msgstr "Der Monat"
+
+#: myglobals.py:366
+msgid " starts "
+msgstr " beginnt "
+
+#: myglobals.py:367
+msgid " states "
+msgstr " vermerkt "
+
+#: myglobals.py:368
+msgid "ad pages"
+msgstr "Anzeigenseiten"
+
+#: myglobals.py:369
+msgid "Chapbook"
+msgstr "Groschenheft"
+
+#: myglobals.py:370
+msgid "Contents"
+msgstr "Inhalt"
+
+#: myglobals.py:371
+msgid "credited"
+msgstr "vermerkt"
+
+#: myglobals.py:372
+msgid "Day from"
+msgstr "Tag anhand"
+
+#: myglobals.py:373
+msgid "novella"
+msgstr "Novelle"
+
+#: myglobals.py:374
+msgid "omnibus"
+msgstr "Reader"
+
+#: myglobals.py:375
+msgid "or later"
+msgstr "oder später"
+
+#: myglobals.py:376
+msgid "Possibly"
+msgstr "Möglicherweise"
+
+#: myglobals.py:377
+msgid "schedule"
+msgstr "Erscheinungsweise"
+
+#: myglobals.py:378
+msgid " corner"
+msgstr " Ecke"
+
+#: myglobals.py:379
+msgid " cover "
+msgstr " Titelbild "
+
+#: myglobals.py:380
+msgid " pages "
+msgstr " Seiten "
+
+#: myglobals.py:381
+msgid " upper "
+msgstr " oberen "
+
+#: myglobals.py:382
+msgid "ad page"
+msgstr "Anzeigenseite"
+
+#: myglobals.py:383
+msgid "Austria"
+msgstr "Österreich"
+
+#: myglobals.py:384
+msgid "deduced"
+msgstr "abgeleitet"
+
+#: myglobals.py:385
+msgid "edition"
+msgstr "Ausgabe"
+
+#: myglobals.py:386
+msgid "Omnibus"
+msgstr "Reader"
+
+#: myglobals.py:387
+msgid "review"
+msgstr "Rezension"
+
+#: myglobals.py:388
+msgid "The day"
+msgstr "Der Tag"
+
+#: myglobals.py:389
+msgid "various"
+msgstr "Diverse"
+
+#: myglobals.py:390
+msgid " appears "
+msgstr " erscheint "
+
+#: myglobals.py:391
+msgid " from "
+msgstr " von "
+
+#: myglobals.py:392
+msgid " left "
+msgstr " linken "
+
+#: myglobals.py:393
+msgid " page "
+msgstr " Seite "
+
+# Weitere isfdb-Texte
+#: myglobals.py:394
+msgid "Editor"
+msgstr "Herausgeber"
+
+#: myglobals.py:395
+msgid "essay"
+msgstr "Aufsatz"
+
+#: myglobals.py:396
+msgid "novel"
+msgstr "Roman"
+
+#: myglobals.py:397
+msgid "Title"
+msgstr "Titel"
+
+#: myglobals.py:398
+msgid " are "
+msgstr " sind "
+
+#: myglobals.py:399
+msgid " bep "
+msgstr " hinteres Vorsatzblatt "
+
+#: myglobals.py:400
+msgid "as by"
+msgstr "alias"
+
+#: myglobals.py:401
+msgid "Italy"
+msgstr "Italien"
+
+#: myglobals.py:402
+msgid " p. "
+msgstr " S. "
+
+#: myglobals.py:403
+msgid "fep"
+msgstr "vorderes Vorsatzblatt"
+
+#: myglobals.py:404
+msgid "Pp."
+msgstr "Seiten:"
+
+#: myglobals.py:405
+msgid "P."
+msgstr "S."
+
+#: objects.py:156 objects.py:189
 #, python-brace-format
 msgid "Error while encoding {0}: {1}."
 msgstr "Beim Codieren ist ein Fehler aufgetreten {0}: {1}."
 
-#: objects.py:267 objects.py:300
+#: objects.py:160 objects.py:193
 #, python-brace-format
 msgid ""
 "Truncate the search string at the error position and search with the "
 "substring: {0}."
 msgstr "Der Suchtext wird an der Fehlerstelle abgeschnitten: {0}."
 
-#: objects.py:611
+#: objects.py:594
 msgid ""
 "Advanced search not allowed for not logged in users. Trying a simple search."
 msgstr ""
 "Erweiterte Suche nicht erlaubt für nicht angemeldete Benutzer. Einfache "
 "Suche wird durchgeführt."
 
-#: objects.py:632
+#: objects.py:620
 msgid ""
 "No root found, neither with advanced or simple search. HTML output follows. "
 "Abort."
 msgstr "Unbekannte Seitenstruktur. HTML-Ausgabe folgt. Abbruch."
 
-#: objects.py:652
+#: objects.py:649
+#, python-brace-format
 msgid ""
-"ISFDB webpage has us redirected to a title page (only one title found). "
-"Handling is to do."
+"ISFDB webpage has redirected to a title page (only one title found), located "
+"at: {0}."
 msgstr ""
-"Die ISFDB Übersichtsseite hat weitergeleitet zur Detailseite (da nur ein "
+"Die ISFDB Übersichtsseite hat weitergeleitet zur Detailseite {0} (da nur ein "
 "Titel vorhanden). Steht noch auf der To-Do-Liste."
 
-#: objects.py:1030 objects.py:1458
+#: objects.py:924 objects.py:1454
+msgid " (Editor)"
+msgstr " (Herausgeber)"
+
+#: objects.py:967 objects.py:1522
 #, python-brace-format
 msgid "Series is: \"{0}\". Now searching series index in \"{1}\""
 msgstr "Serie ist: {0}. Suche jetzt den Serien-Index in \"{1}\""
 
-#: objects.py:1040
+#: objects.py:977
 #, python-brace-format
 msgid ""
 "Reported number was {0} and was reduced to a Calibre compatible format.<br />"
@@ -304,7 +971,7 @@ msgstr ""
 "Seriennummer war {0} und wurde in ein Calibre-kompatibles Format umgesetzt."
 "<br />"
 
-#: objects.py:1049 objects.py:1478
+#: objects.py:986 objects.py:1542
 #, python-brace-format
 msgid ""
 "Reported number was the roman numeral {0} and was converted to a Calibre "
@@ -313,66 +980,138 @@ msgstr ""
 "Seriennummer war {0} und wurde in ein Calibre-kompatibles Format umgesetzt."
 "<br />"
 
-#: objects.py:1057 objects.py:1486
+#: objects.py:994 objects.py:1550
 #, python-brace-format
 msgid "Could not convert {0} to a Calibre compatible format.<br />"
 msgstr ""
 "Seriennummer war {0} und wurde in ein Calibre-kompatibles Format umgesetzt."
 "<br />"
 
-#: objects.py:1123
+#: objects.py:1004
+msgid " by "
+msgstr " von "
+
+#: objects.py:1111
+msgid "Unknown catalog with more than one link."
+msgstr "Unbekannter Katalog mit mehr als einem Link."
+
+#: objects.py:1156
 #, python-format
 msgid "Error parsing section %r for url: %r. Error: %r"
 msgstr "Fehler beim parsen von Abschnitt %r für die URL: %r. Fehler: %r"
 
-#: objects.py:1130
+#: objects.py:1180
 #, python-format
-msgid "Error parsing comments for url: %r. Error: %r"
-msgstr "Fehler beim parsen des Titelbildes für die URL: %r. Fehler: %r"
+msgid "Error parsing the second content box for url: %r. Error: %r"
+msgstr ""
+"Fehler beim Parsen der <i>content box</i> mit der Titelzeile und dem "
+"Inhaltsverzeichnis für die URL: %r. Fehler: %r"
 
-#: objects.py:1137
+#: objects.py:1187
 msgid "Source for publication metadata: "
 msgstr "Quelle für Metadaten der Veröffentlichung "
 
-#: objects.py:1145
+#: objects.py:1195
 msgid "No series found so far. Looking further."
 msgstr "Bisher keine Serie gefunden. Suche weiter."
 
-#: objects.py:1168
+#: objects.py:1224
 msgid "Source for series metadata: "
 msgstr "Quelle für Metadaten der Serie "
 
-#: objects.py:1171
+#: objects.py:1227
 msgid "No series found at all."
 msgstr "Endgültig keine Serie gefunden."
 
-#: objects.py:1178
+#: objects.py:1234
 #, python-format
 msgid "Error parsing cover for url: %r. Error: %r"
 msgstr "Fehler beim parsen des Titelbildes für die URL: %r. Fehler: %r"
 
-#: objects.py:1258
+#: objects.py:1317
 msgid "Title.stub_from_search(): row is None."
 msgstr "Title.stub_from_search(): row is None."
 
-#: objects.py:1301
+#: objects.py:1360
 msgid "Title.stub_from_simple_search(): row is None."
 msgstr "Title.stub_from_search(): hat keine Daten geliefert."
 
-#: objects.py:1469
+#: objects.py:1533
 #, python-brace-format
 msgid "Reported number was {0} and was reduced to a Calibre compatible format."
 msgstr ""
 "Seriennummer war {0} und wurde in ein Calibre-kompatibles Format umgesetzt."
 
-#: objects.py:1550
+#: objects.py:1632
 #, python-brace-format
 msgid "Error parsing section {0} for url: {1}. Error: {2}"
 msgstr "Fehler beim Parsen von Abschnitt {0} für den URL: {1}. Fehler: {2}"
 
-#: objects.py:1553 objects.py:1555
+#: objects.py:1635 objects.py:1637
 msgid "Source for title metadata: "
 msgstr "Quelle für Metadaten des Titels "
+
+#, fuzzy
+#~| msgid "identified by"
+#~ msgid "Identifier types"
+#~ msgstr "identifiziert durch"
+
+#~ msgid "the year"
+#~ msgstr "das Jahr"
+
+#~ msgid " and "
+#~ msgstr " und "
+
+#~ msgid "Date "
+#~ msgstr "Datum "
+
+#~ msgid " to "
+#~ msgstr " für "
+
+#~ msgid "Ad "
+#~ msgstr "Anzeige "
+
+#~ msgid " but "
+#~ msgstr " aber "
+
+#~ msgid " has "
+#~ msgstr " trägt "
+
+#~ msgid " not "
+#~ msgstr " nicht "
+
+#~ msgid " two "
+#~ msgstr " zwei "
+
+#~ msgid "Last "
+#~ msgstr "Letzte "
+
+#~ msgid " at "
+#~ msgstr " bei "
+
+#~ msgid " bc "
+#~ msgstr " Rückseite "
+
+#~ msgid " is "
+#~ msgstr " ist "
+
+#~ msgid " of "
+#~ msgstr " von "
+
+#~ msgid " on "
+#~ msgstr " auf "
+
+#~ msgid " or "
+#~ msgstr " oder "
+
+#~ msgid " he "
+#~ msgstr " er "
+
+#~ msgid "stated first-printing"
+#~ msgstr "Originalausgabe vermerkt"
+
+#~ msgid "The "
+#~ msgstr "Der "
 
 #~ msgid "Combine series and sub-series"
 #~ msgstr "Serie und Unterserie zusammenfassen"
@@ -389,8 +1128,6 @@ msgstr "Quelle für Metadaten des Titels "
 #~ msgid "Source: "
 #~ msgstr "Quelle: "
 
-#, fuzzy, python-brace-format
-#~| msgid "{0} matches with ids."
 #~ msgid "Found {0} matches."
 #~ msgstr "{0} Treffer mit Id(s)."
 
@@ -418,9 +1155,6 @@ msgstr "Quelle für Metadaten des Titels "
 
 #~ msgid "Choose one of the options for search target."
 #~ msgstr "Wählen Sie eine der folgenden Optionen für das Such-Ziel."
-
-#~ msgid "Title"
-#~ msgstr "Titel"
 
 #~ msgid "Blurb"
 #~ msgstr "Klappentext"
@@ -469,14 +1203,11 @@ msgstr "Quelle für Metadaten des Titels "
 #~ msgid "Candidates for user defined fields"
 #~ msgstr "Informationen für benutzerdefinierte Felder"
 
-#~ msgid "Author: "
-#~ msgstr "Autor: "
-
 #~ msgid "Series: "
 #~ msgstr "Serie: "
 
 #~ msgid "Publisher's book number"
-#~ msgstr "IDVerlagsnummer"
+#~ msgstr "Verlagsnummer"
 
 #~ msgid "Book details processing finished."
 #~ msgstr "Verarbeitung der Buch-Detailinformationen abgeschlossen."
@@ -493,5 +1224,23 @@ msgstr "Quelle für Metadaten des Titels "
 #~ "Maximale Anzahl an Titel/Autor-Treffern zur Überprüfung (1 = schnellste "
 #~ "Variante):"
 
-#~ msgid "Verlagsnummer"
-#~ msgstr "Publisher's bBook ID"
+#~ msgid "Publisher's Book ID"
+#~ msgstr "Verlagsnummer"
+
+#~ msgid "fanzine"
+#~ msgstr "Fan-Magazin"
+
+#~ msgid "magazine"
+#~ msgstr "Magazin"
+
+#~ msgid "non-fiction"
+#~ msgstr "Sachbuch"
+
+#~ msgid "poem"
+#~ msgstr "Gedicht"
+
+#~ msgid "serial"
+#~ msgstr "Fortsetzung/Reihe"
+
+#~ msgid "juvenile"
+#~ msgstr "Jugendbuch"
