@@ -50,15 +50,15 @@ Note for searching by title and author: Since the default search uses the keywor
 Other changes compared to ISFDB2:
 
 - Changes character encoding in GET parameters (search strings) from utf-8 to iso-8859-1 to avoid none matches for non-ASCII chars (for example german umlauts). The database data itself is in utf-8.
-- Adds additional identifiers found in ISFDB. Currently: DNB and OCLC/WorldCat (more on request).
+- Adds all identifiers found in ISFDB "External IDs" section plus ISBN, if found. 
 - Modifies the method "clean_downloaded_metadata()": Fixcase title and author(s) only when the title language is english.
 - Gets additional info about series hierarchy from the series page. Option for combine main series and series names to use Calibre's hierarchical view feature.
 - Workarounds for not Calibre's float format compatible series numbers (as 61/62 or roman numbers)
-- Converts language field text in the isfdb to Calibre's language code
+- Converts language field text to Calibre's language code.
 
 Planned Features / ToDo's:
 
-There are a lot of to do's (and suggestions?).
+There are a lot of things (and suggestions?).
 
 - Notify referenced webpages (in pub record), if not already in Calibre's info window.
 - Find series in the contents block (in pub record)
@@ -67,11 +67,9 @@ There are a lot of to do's (and suggestions?).
 Limitations:
 
 - Since there is no language field in publication records, only in title records, following the publication linkss in a title list may show up publications in not desired languages. However, the publications list in the title page has a button »Not displaying translations«, so some research is already meeded.
-
-- For not logged in users, isfdb.org has recently stopped the advanced search access. 
+- For not logged-in users, isfdb.org has recently stopped the advanced search access. 
   ISFDB3 has a fallback to simple search with title only and a filter for record types (INTERIORART, ...).
   To avoid large title lists for short or generic titles ("Stars") with the default "contains" search, the search is switched to "exact match", if the first character in title field is an equal sign ("=").
-
 
 Version History:
 
@@ -112,7 +110,6 @@ Version 1.0.1 - 02-05-2022
 Version 1.0.0 - 01-31-2022
 - Initial release.
 
-
 Installation:
 
 Download the attached zip file and install the plugin as described in the Introduction to plugins thread (https://www.mobileread.com/forums/showthread.php?t=118680).
@@ -120,6 +117,4 @@ The plugin is also available in Calibre's Plugin Updater.
 
 How to report bugs and suggestions:
 
-If you find any issues please report them in this thread or on Github: https://github.com/bertholdm/isfdb3-calibre.
-
-
+If you find any issues please report them in the thread on the MobileRead website or on Github: https://github.com/bertholdm/isfdb3-calibre.
