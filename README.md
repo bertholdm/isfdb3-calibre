@@ -75,6 +75,9 @@ Limitations:
 
 Version History:
 
+Version 1.2.1 03-19-2023
+- Installing error when using locale.getdefaultlocale(). Changed to locale.getlocale() with fallback to 'en_US'.
+  Thanks to andytinkham for the error report.
 Version 1.2.0 03-12-2023
 - New: Fetch all idemtifier types from ISFDB publication page.
 - New: In simple sarch mode, very short or generic titles returns a lot of title and/or pub records.

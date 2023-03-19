@@ -13,7 +13,7 @@ from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.config import JSONConfig
 # import calibre_plugins.isfdb3.myglobals
 # https://www.mobileread.com/forums/showthread.php?t=344649
-from .myglobals import LANGUAGES, LOCALE_LANGUAGE_CODE, LOCALE_COUNTRY, EXTERNAL_IDS, TRANSLATION_REPLACINGS
+from calibre_plugins.isfdb3.myglobals import LANGUAGES, LOCALE_LANGUAGE_CODE, LOCALE_COUNTRY, EXTERNAL_IDS, TRANSLATION_REPLACINGS
 
 # Activate GETTEXT
 # This works in test file:
@@ -1097,6 +1097,8 @@ class Publication(Record):
                                 catalog_link_full = catalog_link
                                 catalog_link = ['']
                                 country_no = catalog_countries.index(LOCALE_COUNTRY)
+                                if prefs['log_level'] in 'DEBUG':
+                                    log.debug('LOCALE_COUNTRY={0}, country_no={1}'.format(LOCALE_COUNTRY, country_no))
                                 try:
                                     catalog_link = [catalog_link_full[country_no]]
                                 except ValueError:

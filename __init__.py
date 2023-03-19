@@ -12,7 +12,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.sources.base import Source, Option, fixauthors, fixcase
 from calibre_plugins.isfdb3.objects import Publication, Title, PublicationsList, TitleList, TitleCovers
 # import calibre_plugins.isfdb3.myglobals
-from .myglobals import LANGUAGES, IDENTIFIER_TYPES, EXTERNAL_IDS
+from calibre_plugins.isfdb3.myglobals import LANGUAGES, IDENTIFIER_TYPES, EXTERNAL_IDS
 
 # References:
 #
@@ -39,9 +39,12 @@ class ISFDB3(Source):
     name = 'ISFDB3'
     description = _('Downloads metadata and covers from ISFDB (https://www.isfdb.org/)')
     author = 'Michael Detambel - Forked from Adrianna Pińska\'s ISFDB2 (https://github.com/confluence/isfdb2-calibre)'
-    version = (1, 2, 0)  # Changes in forked version: see changelog
+    version = (1, 2, 1)  # Changes in forked version: see changelog
 
     # Changelog
+    # Version 1.2.1 03-19-2023
+    # - Installing error when using locale.getdefaultlocale(). Changed to locale.getlocale() with fallback to 'en_US'.
+    #   Thanks to andytinkham for the error report.
     # Version 1.2.0 03-12-2023
     # - New: Fetch all idemtifier types from ISFDB publication page.
     # - New: In simple sarch mode, very short or generic titles returns a lot of title and/or pub records.

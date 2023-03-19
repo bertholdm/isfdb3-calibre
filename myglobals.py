@@ -3,8 +3,12 @@
 import html
 import locale
 
-LOCALE_LANGUAGE_CODE, LOCALE_ENCODING = locale.getdefaultlocale()  # ('en_GB', 'cp1252')
+LOCALE_LANGUAGE_CODE, LOCALE_ENCODING = locale.getlocale()  # ('en_GB', 'cp1252')
+if not LOCALE_LANGUAGE_CODE:
+    LOCALE_LANGUAGE_CODE = 'en_US'
 LOCALE_COUNTRY = LOCALE_LANGUAGE_CODE[-2:]
+if not LOCALE_ENCODING:
+    LOCALE_ENCODING = 'utf-8'
 
 # book languages from the ISFDB Database (ISO-639-2-Codes, same as Calibre uses)
 LANGUAGES = {
