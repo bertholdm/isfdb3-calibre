@@ -1,4 +1,4 @@
-[Metadata Source Plugin] ISFDB3 - Version 1.2.0 - 03-12-2023
+[Metadata Source Plugin] ISFDB3 - Version 1.2.1 - 03-19-2023
 
 Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
 
