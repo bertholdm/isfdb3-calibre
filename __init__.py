@@ -39,9 +39,12 @@ class ISFDB3(Source):
     name = 'ISFDB3'
     description = _('Downloads metadata and covers from ISFDB (https://www.isfdb.org/)')
     author = 'Michael Detambel - Forked from Adrianna Pińska\'s ISFDB2 (https://github.com/confluence/isfdb2-calibre)'
-    version = (1, 2, 1)  # Changes in forked version: see changelog
+    version = (1, 2, 2)  # Changes in forked version: see changelog
 
     # Changelog
+    # Version 1.2.2 03-30-2023
+    # - When pub was found with only "isfdb" id, no title id was cached, so a unnecessary title search was fired.
+    #   Solved by parse ContentBox 2 for title link in pub record.
     # Version 1.2.1 03-19-2023
     # - Installing error when using locale.getdefaultlocale(). Changed to locale.getlocale() with fallback to 'en_US'.
     #   Thanks to andytinkham for the error report.
@@ -776,11 +779,11 @@ class Worker(Thread):
                     # 'type': 'CHAPBOOK', 'dnb': '1140457357', 'comments': '...
 
                 title_id = self.plugin.cached_publication_id_to_title_id(pub["isfdb"])
+                # If no cached title id is found, None is returned!!!
                 if not title_id and "isfdb-title" in pub:
                     title_id = pub["isfdb-title"]
                 if self.prefs['log_level'] in 'DEBUG':
                     self.log.debug("title_id={0}".format(title_id))
-
                 if not title_id:
                     if self.prefs['log_level'] in ('DEBUG', 'INFO'):
                         self.log.info(

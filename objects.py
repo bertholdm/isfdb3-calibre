@@ -1157,7 +1157,7 @@ class Publication(Record):
             except Exception as e:
                 log.exception(_('Error parsing section %r for url: %r. Error: %r') % (section, url, e))
 
-        # The sencond content box contains the pub title (extended) and the table of contents
+        # The second content box contains the pub title (extended) and the table of contents
         try:
             # Get rid of tooltips
             for tooltip in root.xpath('//sup[@class="mouseover"]'):
@@ -1173,11 +1173,21 @@ class Publication(Record):
             contents_node = root.xpath('//div[@class="ContentBox"][2]')
             if contents_node:
                 # xyz = _(contents_node[1].text_content().strip())
+                if prefs['log_level'] in 'DEBUG':
+                    log.debug('contents_node={0}'.format(contents_node))
+                title_node = root.xpath('//div[@class="ContentBox"][2]/ul/li//a[1]/@href')
+                if prefs['log_level'] in 'DEBUG':
+                    log.debug('title_node={0}'.format(title_node))
+                title_id = title_node[0][title_node[0].index('?') + 1:]
+                properties["isfdb-title"] = title_id
                 properties["comments"] = sanitize_comments_html(tostring(contents_node[0], method='html'))
                 if prefs["translate_isfdb"]:
                     for term in TRANSLATION_REPLACINGS:
                         # log.debug('term, msgtext='.format(term, _(term)))
                         properties["comments"] = properties["comments"].replace(term, _(term))
+            else:
+                if prefs['log_level'] in 'DEBUG':
+                    log.debug('No second Contend Box found!')
         except Exception as e:
             log.exception(_('Error parsing the second content box for url: %r. Error: %r') % (url, e))
 
