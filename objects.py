@@ -75,6 +75,13 @@ def roman_to_int(numeral):
     return result + (-1 if subtraction else 1) * last_val * last_count
 
 
+def season_to_int(name):
+    season_names = ['Spring', 'Summer', 'Fall', 'Winter']
+    if name in season_names:
+        return 1 + season_names.index(name)
+    return 0
+
+
 def remove_node(child, keep_content=False):
     """
     Remove an XML element, preserving its tail text.
@@ -382,7 +389,7 @@ class TitleList(SearchResults):
                 "TERM_1": title,
                 "CONJUNCTION_1": "AND",
                 "USE_2": "author_canonical",
-                "OPERATOR_2": "exact",
+                "OPERATOR_2": "contains",  # "exact"
                 "TERM_2": author,
                 "CONJUNCTION_2": "AND",
                 "USE_3": "title_ttype",
@@ -611,8 +618,15 @@ class TitleList(SearchResults):
                 simple_search_url = simple_search_url + re.search('&TERM_1=(.*)?(&|$)', url).group(1)
                 simple_search_url = simple_search_url + "&type=All+Titles"
                 if prefs['exact_search']:
-                    simple_search_url = simple_search_url.replace('contains', 'exact')
+                    simple_search_url = simple_search_url.replace('contains', 'exact')  # ToDo: Exact search only for title???
                 log.debug('simple_search_url={0}'.format(simple_search_url))
+                # https://www.isfdb.org/cgi-bin/se.cgi?arg=STONE&USE_2=author_canonical&OPERATOR_2=exact&TERM_2=Edward+Bryant&CONJUNCTION_1=AND&type=All+Titles
+                # In simple search all params except 'arg' and 'type' are ignored: https://www.isfdb.org/cgi-bin/se.cgi?arg=STONE&type=Fiction+Titles
+                # A search for 'STONE' found 3720 matches.
+                # The first 300 matches are displayed below. Use Advanced Title Search to see more matches.
+                # For simple search, max_results and max_covers must be increased to get all possible results
+                prefs['max_results'] = 300
+                prefs['max_covers'] = 300
                 location, root = cls.root_from_url(browser, simple_search_url, timeout, log,
                                                    prefs)  # site encoding is iso-8859-1
                 # If still no results, debug:
@@ -620,6 +634,10 @@ class TitleList(SearchResults):
                     log.debug(_('No root found, neither with advanced or simple search. HTML output follows. Abort.'))
                     abort = True
                     return []
+
+                # Show number of result records
+                result_records = root.xpath('//*[@id="main"]/p[1]/b/text()[1]')
+                log.debug('{0}'.format(result_records))
 
                 # Get rid of tooltips
                 try:

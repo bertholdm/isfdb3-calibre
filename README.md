@@ -1,4 +1,4 @@
-[Metadata Source Plugin] ISFDB3 - Version 1.2.1 - 03-19-2023
+[Metadata Source Plugin] ISFDB3 - Version 1.2.2 - 03-30-2023
 
 Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
 
@@ -46,6 +46,7 @@ As a drawback, the qualifier in the title field has to be deleted manually or wi
 And another: You probably need to increase the runtime for the plugin ("Configure Metadata Download" button).
 
 Note for searching by title and author: Since the default search uses the keyword "contains", the title and author name may be shortened. This is always recommended when the spelling is in doubt ("Clark Ashton Smith" vs. "C.A. Smith" or "Eliteeinheit Luna Port" vs. "Eliteeinheit Lunaport").
+Note for searching for magazines, samplers, etc.: If you in doubt, how the title for the publication may be in the isfdb database, search with title and author of a story herein and fetch the data of the appropriate publication.
 
 Other changes compared to ISFDB2:
 
@@ -73,6 +74,9 @@ Limitations:
 
 Version History:
 
+Version 1.2.2 03-30-2023
+- When pub was found with only "isfdb" id, no title id was cached, so a unnecessary title search was fired.
+  Solved by parse ContentBox 2 for title link in pub record. 
 Version 1.2.1 03-19-2023
 - Installing error when using locale.getdefaultlocale(). Changed to locale.getlocale() with fallback to 'en_US'.
   Thanks to andytinkham for the error report.

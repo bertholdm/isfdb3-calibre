@@ -31,7 +31,7 @@ from calibre_plugins.isfdb3.myglobals import LANGUAGES, IDENTIFIER_TYPES, EXTERN
 # https://pyvideo.org/pycon-za-2018/custom-metadata-plugins-for-calibre-cataloguing-an-old-paper-library.html
 # https://github.com/confluence/isfdb2-calibre
 
-# _ = gettext.gettext  # is already done by load_translations()
+_ = gettext.gettext  # is already done by load_translations()
 load_translations()
 
 
@@ -39,9 +39,21 @@ class ISFDB3(Source):
     name = 'ISFDB3'
     description = _('Downloads metadata and covers from ISFDB (https://www.isfdb.org/)')
     author = 'Michael Detambel - Forked from Adrianna Pińska\'s ISFDB2 (https://github.com/confluence/isfdb2-calibre)'
-    version = (1, 2, 2)  # Changes in forked version: see changelog
+    version = (1, 3, 0)  # the plugin version number
+    release = ('03-16-2024')  # the release date
+    calibre = (5,0,0)  # the minimum calibre version number
+    minimum_calibre_version = (5, 0, 0)
+    # From https://manual.calibre-ebook.com/de/_modules/calibre/ebooks/metadata/sources/base.html
+    #: Set this to True to ignore HTTPS certificate errors when connecting to this source.
+    history = True  # the History flag
+    platforms = ['Windows', 'Linux', 'Mac']  # the platforms supported
 
     # Changelog
+    # Version 1.3.0 03-16-2024
+    # - Extended exact search for generic titles:
+    #   In simple search all params except 'arg' and 'type' are ignored: https://www.isfdb.org/cgi-bin/se.cgi?arg=STONE&type=Fiction+Titles
+    #   A search for 'STONE' found 3720 matches.
+    #   The first 300 matches are displayed below. -- no chance for simple or generic titles
     # Version 1.2.2 03-30-2023
     # - When pub was found with only "isfdb" id, no title id was cached, so a unnecessary title search was fired.
     #   Solved by parse ContentBox 2 for title link in pub record.
@@ -82,9 +94,6 @@ class ISFDB3(Source):
     # Version 1.0.0 - 01-31-2022
     # - Initial release.
 
-    minimum_calibre_version = (5, 0, 0)
-    # From https://manual.calibre-ebook.com/de/_modules/calibre/ebooks/metadata/sources/base.html
-    #: Set this to True to ignore HTTPS certificate errors when connecting to this source.
     ignore_ssl_errors = True
     #: Set this to True if your plugin returns HTML formatted comments
     has_html_comments = True
@@ -139,7 +148,7 @@ class ISFDB3(Source):
         Option(
             'max_results',
             'number',
-            10,
+            500,
             _('Maximum number of search results to download:'),
             _('This setting only applies to ISBN and title / author searches. Book records with a valid ISFDB '
               'publication and/or title ID will return exactly one result.'),
@@ -147,7 +156,7 @@ class ISFDB3(Source):
         Option(
             'max_covers',
             'number',
-            10,
+            500,
             _('Maximum number of covers to download:'),
             _('The maximum number of covers to download. This only applies to publication records with no cover. '
               'If there is a cover associated with the record, only that cover will be downloaded.')
@@ -351,7 +360,7 @@ class ISFDB3(Source):
             log.debug('authors={0}'.format(authors))
             log.debug('identifiers={0}'.format(identifiers))
 
-        # For very short titles there ist a possible marker '=' as the first character in title field
+        # For very short or generic titles ('The Sky') one may set the marker '=' as first character in title field
         self.prefs['exact_search'] = False
         log.debug('self.prefs={0}'.format(self.prefs))
         if title:
@@ -417,6 +426,8 @@ class ISFDB3(Source):
                         if self.prefs['log_level'] in 'DEBUG':
                             log.debug('Add match: {0}.'.format(stub["url"]))
                         if len(matches) >= self.prefs["max_results"]:
+                            log.info(_('Search for Pubs aborted because max. results are reached: {0}.')
+                                     .format(self.prefs["max_results"]))
                             break
 
                 if self.prefs['log_level'] in ('DEBUG', 'INFO'):
@@ -463,6 +474,8 @@ class ISFDB3(Source):
                         if self.prefs['log_level'] in 'DEBUG':
                             log.debug('Add match from title list: {0}.'.format(stub["url"]))
                         if len(matches) >= self.prefs["max_results"]:
+                            log.info(_('Search for Titles aborted because max. results are reached: {0}.')
+                                     .format(self.prefs["max_results"]))
                             break
                         ######################################################################
                         # Fetch all linked pub records for this title,                       #
@@ -487,6 +500,8 @@ class ISFDB3(Source):
                             if self.prefs['log_level'] in 'DEBUG':
                                 log.debug('Add match from publications list: {0}.'.format(url))
                             if len(matches) >= self.prefs["max_results"]:
+                                log.info(_('Search for Pubs aborted because max. results are reached: {0}.')
+                                         .format(self.prefs["max_results"]))
                                 break
 
             else:
@@ -541,6 +556,8 @@ class ISFDB3(Source):
                             if self.prefs['log_level'] in 'DEBUG':
                                 log.debug('Add match from title list: {0}.'.format(stub["url"]))
                             if len(matches) >= self.prefs["max_results"]:
+                                log.info(_('Search for Titles aborted because max. results are reached: {0}.')
+                                         .format(self.prefs["max_results"]))
                                 break
 
                             ######################################################################
@@ -578,6 +595,8 @@ class ISFDB3(Source):
                                 if self.prefs['log_level'] in 'DEBUG':
                                     log.debug('Add match from publications list: {0}.'.format(url))
                                 if len(matches) >= self.prefs["max_results"]:
+                                    log.info(_('Search for Pubs aborted because max. results are reached: {0}.')
+                                             .format(self.prefs["max_results"]))
                                     break
 
                 if abort.is_set():
@@ -618,6 +637,8 @@ class ISFDB3(Source):
                             if self.prefs['log_level'] in 'DEBUG':
                                 log.debug('Add match: {0}.'.format(stub["url"]))
                             if len(matches) >= self.prefs["max_results"]:
+                                log.info(_('Search for Titles aborted because max. results are reached: {0}.')
+                                         .format(self.prefs["max_results"]))
                                 break
 
                 if abort.is_set():
