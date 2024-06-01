@@ -7,7 +7,7 @@ import time
 from queue import Queue, Empty
 from threading import Thread
 
-from calibre.ebooks.metadata import check_isbn
+from calibre.ebooks.metadata import check_isbn, authors_to_string, author_to_author_sort, title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.sources.base import Source, Option, fixauthors, fixcase
 from calibre_plugins.isfdb3.objects import Publication, Title, PublicationsList, TitleList, TitleCovers
@@ -39,8 +39,8 @@ class ISFDB3(Source):
     name = 'ISFDB3'
     description = _('Downloads metadata and covers from ISFDB (https://www.isfdb.org/)')
     author = 'Michael Detambel - Forked from Adrianna Pińska\'s ISFDB2 (https://github.com/confluence/isfdb2-calibre)'
-    version = (1, 3, 0)  # the plugin version number
-    release = ('03-16-2024')  # the release date
+    version = (1, 4, 0)  # the plugin version number
+    release = ('06-01-2024')  # the release date
     calibre = (5,0,0)  # the minimum calibre version number
     minimum_calibre_version = (5, 0, 0)
     # From https://manual.calibre-ebook.com/de/_modules/calibre/ebooks/metadata/sources/base.html
@@ -49,6 +49,10 @@ class ISFDB3(Source):
     platforms = ['Windows', 'Linux', 'Mac']  # the platforms supported
 
     # Changelog
+    # Version 1.4.0 06-01-2024
+    # - Correct title url in comments.
+    # - For title records: Display title and link of first publication, if given.
+    # - Title template in options to build custom titles.
     # Version 1.3.0 03-16-2024
     # - Extended exact search for generic titles:
     #   In simple search all params except 'arg' and 'type' are ignored: https://www.isfdb.org/cgi-bin/se.cgi?arg=STONE&type=Fiction+Titles
@@ -186,6 +190,17 @@ class ISFDB3(Source):
             {'is_exactly': 'is exactly', 'is_not_exactly': 'is not exactly', 'contains': 'contains',
              'does_not_contains': 'does not contain', 'starts_with': 'starts with', 'ends_with': 'ends with'}
         ),
+        # title template
+        Option(
+            'title_template',
+            'string',
+            '{title}',
+            _('Title template'),
+            _('Allowed placeholders are: {title}, {title_sort}, {authors}, {authors_sort}, {series}, {series_code}, '
+              '{series_index}, {main_series}.\n'
+              '{series_index} can be formatted with python F-strings: p. ex. use {series_index:04d} to print out '
+              'series index with 4 digits and leading zeros, if necessary. Default value ist the pure title.')
+        ),
         Option(
             'combine_series',
             'bool',
@@ -240,7 +255,7 @@ class ISFDB3(Source):
             _('Languages'),
             _('Choose one language to filter titles. English is ever set.'),
             REVERSELANGUAGES,
-            # {'ger': 'German', 'spa': 'Spanish', 'fre': 'French'}
+            # {'ger': 'German', 'spa': 'Spanish', 'fre': 'French', 'ita': 'Italian'}
         ),
         Option(
             'log_level',
@@ -340,6 +355,30 @@ class ISFDB3(Source):
         if docase and mi.tags:
             mi.tags = list(map(fixcase, mi.tags))
         mi.isbn = check_isbn(mi.isbn)
+
+        # Build custom title, if template is given
+        if self.prefs['title_template'] == '' or self.prefs['title_template'] == '{title}':
+            pass  # Vanilla title string
+        else:
+            custom_title = self.prefs['title_template']
+            custom_title = custom_title.replace('{title}', mi.title)
+            custom_title = custom_title.replace('{title_sort}', title_sort(mi.title, lang='deu'))
+            custom_title = custom_title.replace('{authors}', ' & '.join(mi.authors))
+            custom_title = custom_title.replace('{authors_sort}', ' & '.join(map(author_to_author_sort, mi.authors)))
+            custom_title = custom_title.replace('{series}', mi.series)
+            if mi.series_index is None:
+                custom_title = custom_title.replace('{series_index}', '')
+            else:
+                pattern = '(\{series_index:.*?\})'
+                match = re.search(pattern, custom_title)
+                if match:
+                    f_string = match.group().replace('series_index', '')
+                    series_index_str = f_string.format(mi.series_index)
+                    custom_title = custom_title.replace(match.group(), series_index_str)
+                else:
+                    custom_title = custom_title.replace('{series_index}', str(mi.series_index).strip())
+            mi.title = custom_title
+
 
     def identify(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30):
         """

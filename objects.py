@@ -81,6 +81,8 @@ def season_to_int(name):
         return 1 + season_names.index(name)
     return 0
 
+# Kovid: No, metadata plugins run in a separate thread and have no access to the database.
+# The only metadata that is made available to them is title, authors and identifiers.
 
 def remove_node(child, keep_content=False):
     """
@@ -747,6 +749,7 @@ class TitleList(SearchResults):
                 # Filter languages
                 if prefs['log_level'] in 'DEBUG':
                     log.debug('loc_prefs[languages]={0}'.format(prefs['languages']))
+                # Get the content of the languages field in calibre meta data
                 if row.xpath('td[3]')[0].text_content() not in ('English', get_language_name(prefs['languages'])):
                     if prefs['log_level'] in 'DEBUG':
                         log.debug('Language ignored.')
@@ -1215,10 +1218,8 @@ class Publication(Record):
                      'series_webpages', 'cover']:
                 combined_comments = combined_comments + properties[k] + '<br />'
         properties["comments"] = combined_comments + _('Source for publication metadata: ') + url
-        # ToDo: show series url
 
         # no series info was found in ContentBox #1, so look in ContenBox #2:
-
         # ToDo: See series search in title class
 
         if "series" not in properties:
@@ -1251,7 +1252,7 @@ class Publication(Record):
                     properties["series_index"] = int("".join(filter(str.isdigit, match.group(1))))
                     if prefs['log_level'] in 'DEBUG':
                         log.debug('properties["series_index"]={0}'.format(properties["series_index"]))
-                properties["comments"] = combined_comments + _('Source for series metadata: ') + series_url
+                properties["comments"] = properties["comments"] + '<br />' + _('Source for series metadata: ') + series_url
             except (IndexError, KeyError):
                 if prefs['log_level'] in ('DEBUG', 'INFO'):
                     log.info(_('No series found at all.'))
@@ -1425,6 +1426,8 @@ class Title(Record):
             log.debug('*** Enter Title.from_url().')
             log.debug('url={0}'.format(url))
 
+        title_url = url  # Save url for comments
+
         properties = {"isfdb-title": cls.id_from_url(url)}
 
         location, root = cls.root_from_url(browser, url, timeout, log, prefs)
@@ -1549,9 +1552,8 @@ class Title(Record):
                     if properties["series"] != '':
                         if prefs['log_level'] in ('DEBUG', 'INFO'):
                             log.info(
-                                _('Series is: "{0}". Now searching series index in "{1}"'.format(properties["series"],
-                                                                                                 detail_node[
-                                                                                                     0].tail.strip())))
+                                _('Series is: "{0}". Now searching series index in "{1}"'.
+                                  format(properties["series"], detail_node[0].tail.strip())))
                         if detail_node[0].tail.strip() == '':
                             properties["series_index"] = 0.0
                         elif '/' in detail_node[0].tail:
@@ -1662,13 +1664,43 @@ class Title(Record):
                 log.exception(_('Error parsing section {0} for url: {1}. Error: {2}').format(section, url, e))
 
         if 'comments' in properties:
-            properties["comments"] = properties["comments"] + '<br />' + _('Source for title metadata: ') + url
+            properties["comments"] = properties["comments"] + '<br />' + _('Source for title metadata: ') + title_url
         else:
-            properties["comments"] = '<br />' + _('Source for title metadata: ') + url
+            properties["comments"] = '<br />' + _('Source for title metadata: ') + title_url
 
         # Save all publication ids for this title
         publication_links = root.xpath('//a[contains(@href, "/pl.cgi?")]/@href')
         properties["publications"] = [Publication.id_from_url(l) for l in publication_links]
+
+        # If the title date is in pub list, set the publication text and link in comment as "First published in: ..."
+        title_date = properties["pubdate"].isoformat()[:10]
+        if prefs['log_level'] in 'DEBUG':
+            log.debug('title date={0}'.format(title_date))
+        pubrows = root.xpath('//table[@class="publications"]/tr')
+        for pubrow in pubrows:
+            pub_date = ''.join(pubrow.xpath('./td[2]/text()')).strip()
+            if pub_date != '':
+                if prefs['log_level'] in 'DEBUG':
+                    log.debug('pub_date={0}'.format(pub_date))
+                # Ignore day if day in pubdate is zero
+                if pub_date[-2:] == '00':
+                    pub_date = pub_date[:-2] + title_date[-2:]
+                    if prefs['log_level'] in 'DEBUG':
+                        log.debug('pub_date={0}'.format(pub_date))
+                if pub_date == title_date:
+                    if prefs['log_level'] in 'DEBUG':
+                        log.debug('pub_date found in pub table.')
+                    # Extracting the text content of the first two cells (pub title and link, pubdate)
+                    pub_title = ''.join(pubrow.xpath('./td[1]/a/text()'))
+                    pub_link = ''.join(pubrow.xpath('./td[1]/a/@href'))
+                    pub_info = pub_title + ' (' + pub_link + ').'
+                    if prefs['log_level'] in 'DEBUG':
+                        log.debug('pub_info={0}'.format(pub_info))
+                    if 'comments' in properties:
+                        properties["comments"] = properties["comments"] + '<br />' + _('First published in: ') + pub_info
+                    else:
+                        properties["comments"] = '<br />' + _('First published in: ') + pub_info
+                    break
 
         return properties
 

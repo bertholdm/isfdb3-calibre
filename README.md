@@ -1,4 +1,4 @@
-[Metadata Source Plugin] ISFDB3 - Version 1.2.2 - 03-30-2023
+[Metadata Source Plugin] ISFDB3 - Version 1.4.0 06-01-2024
 
 Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
 
@@ -57,6 +57,8 @@ Other changes compared to ISFDB2:
 - Workarounds for not Calibre's float format compatible series numbers (as 61/62 or roman numbers)
 - Converts language field text to Calibre's language code.
 
+The title can be formatted using a template (see options). Example: The template "{series} {series_index:03d} - {title} - {authors_sort}" produces "Utopia Zukunftsroman 001 - Strafkolonie Mond - Tjörnsen, Alf".
+
 Planned Features / ToDo's:
 
 There are a lot of things (and suggestions?).
@@ -74,6 +76,15 @@ Limitations:
 
 Version History:
 
+Version 1.4.0 06-01-2024
+- Correct title url in comments.
+- For title records: Display title and link of first publication, if given.
+- Title template in options to build custom titles.
+Version 1.3.0 03-16-2024
+- Extended exact search for generic titles:
+  In simple search all params except 'arg' and 'type' are ignored: https://www.isfdb.org/cgi-bin/se.cgi?arg=STONE&type=Fiction+Titles
+  A search for 'STONE' found 3720 matches.
+  The first 300 matches are displayed below. -- no chance for simple or generic titles
 Version 1.2.2 03-30-2023
 - When pub was found with only "isfdb" id, no title id was cached, so a unnecessary title search was fired.
   Solved by parse ContentBox 2 for title link in pub record. 
