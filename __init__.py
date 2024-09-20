@@ -39,8 +39,8 @@ class ISFDB3(Source):
     name = 'ISFDB3'
     description = _('Downloads metadata and covers from ISFDB (https://www.isfdb.org/)')
     author = 'Michael Detambel - Forked from Adrianna Pińska\'s ISFDB2 (https://github.com/confluence/isfdb2-calibre)'
-    version = (1, 4, 0)  # the plugin version number
-    release = ('06-01-2024')  # the release date
+    version = (1, 4, 1)  # the plugin version number
+    release = ('09-19-2024')  # the release date
     calibre = (5,0,0)  # the minimum calibre version number
     minimum_calibre_version = (5, 0, 0)
     # From https://manual.calibre-ebook.com/de/_modules/calibre/ebooks/metadata/sources/base.html
@@ -49,6 +49,11 @@ class ISFDB3(Source):
     platforms = ['Windows', 'Linux', 'Mac']  # the platforms supported
 
     # Changelog
+    # Version 1.4.1 09-19-2024
+    # - Copy publications type to tags (same treatment as for title type).
+    # - Enhanced treatment of ISB numbers (fetching both ISBN 10 and 13 for a publication, if given)
+    # - Extended maximum number for searching books and covers to download (since Calibre 7.18).
+    # - Avoid error throwing if second content box is not present.
     # Version 1.4.0 06-01-2024
     # - Correct title url in comments.
     # - For title records: Display title and link of first publication, if given.
@@ -152,7 +157,7 @@ class ISFDB3(Source):
         Option(
             'max_results',
             'number',
-            500,
+            100,
             _('Maximum number of search results to download:'),
             _('This setting only applies to ISBN and title / author searches. Book records with a valid ISFDB '
               'publication and/or title ID will return exactly one result.'),
@@ -160,7 +165,7 @@ class ISFDB3(Source):
         Option(
             'max_covers',
             'number',
-            500,
+            100,
             _('Maximum number of covers to download:'),
             _('The maximum number of covers to download. This only applies to publication records with no cover. '
               'If there is a cover associated with the record, only that cover will be downloaded.')
@@ -324,6 +329,12 @@ class ISFDB3(Source):
         isbn = identifiers.get('isbn', None)
         if isbn:
             return self.cached_identifier_to_cover_url(self.cached_isbn_to_identifier(isbn))
+        isbn10 = identifiers.get('isbn-10', None)
+        if isbn10:
+            return self.cached_identifier_to_cover_url(self.cached_isbn_to_identifier(isbn10))
+        isbn13 = identifiers.get('isbn-13', None)
+        if isbn13:
+            return self.cached_identifier_to_cover_url(self.cached_isbn_to_identifier(isbn13))
 
         return None
 
@@ -451,6 +462,13 @@ class ISFDB3(Source):
 
             # If there's an ISBN, search by ISBN first, then by isfdb catalog id
             isbn = check_isbn(identifiers.get('isbn', None))
+            isbn13 = check_isbn(identifiers.get('isbn-13', None))  # ISBN-13 is opreferred
+            if not isbn and isbn13:
+                isbn = isbn13
+            isbn10 = check_isbn(identifiers.get('isbn-10', None))  # ISBN-13 is fallback
+            if not isbn and isbn10:
+                isbn = isbn10
+
             catalog_id = identifiers.get('isfdb-catalog', None)
 
             # Fall back to non-ISBN catalog ID -- ISFDB uses the same field for both.

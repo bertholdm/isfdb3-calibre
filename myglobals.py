@@ -3,6 +3,25 @@
 import html
 import locale
 
+TYPE_TO_TAG = {
+    "ANTHOLOGY": "anthology",
+    "CHAPBOOK": "chapbook",
+    "COLLECTION": "collection",
+    "ESSAY": "essay",
+    "FANZINE": "fanzine",
+    "MAGAZINE": "magazine",
+    "NONFICTION": "non-fiction",
+    "NOVEL": "novel",
+    "NOVEL\n [non-genre]": "novel",
+    "NOVEL\n [juvenile]": "juvenile, novel",
+    "OMNIBUS": "omnibus",
+    "POEM": "poem",
+    "SERIAL": "serial",
+    "SHORTFICTION": "short fiction",
+    "SHORTFICTION\n [juvenile]": "juvenile, short fiction",
+    "SHORTFICTION\n [non-genre]": "short fiction"
+}
+
 LOCALE_LANGUAGE_CODE, LOCALE_ENCODING = locale.getlocale()  # ('en_GB', 'cp1252')
 if LOCALE_LANGUAGE_CODE is None:
     LOCALE_LANGUAGE_CODE = 'en_US'

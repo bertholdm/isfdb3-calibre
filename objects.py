@@ -13,7 +13,8 @@ from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.config import JSONConfig
 # import calibre_plugins.isfdb3.myglobals
 # https://www.mobileread.com/forums/showthread.php?t=344649
-from calibre_plugins.isfdb3.myglobals import LANGUAGES, LOCALE_LANGUAGE_CODE, LOCALE_COUNTRY, EXTERNAL_IDS, TRANSLATION_REPLACINGS
+from calibre_plugins.isfdb3.myglobals import (TYPE_TO_TAG, LANGUAGES, LOCALE_LANGUAGE_CODE, LOCALE_COUNTRY,
+                                              EXTERNAL_IDS, TRANSLATION_REPLACINGS)
 
 # Activate GETTEXT
 # This works in test file:
@@ -820,13 +821,19 @@ class TitleList(SearchResults):
 
 
 class Record(ISFDBObject):
+
     URL = None  # Is set in the sub-classes Publication and Title
 
     @classmethod
     # Which record type (title or publication) is the actual page
     def is_type_of(cls, url, log, prefs):
-        return url.startswith(cls.URL)
-
+        if prefs['log_level'] in 'DEBUG':
+            log.debug('*** Enter Record(ISFDBObject).is_type_of().')
+            log.debug('cls.URL={0}'.format(cls.URL))
+        type =  url.startswith(cls.URL)
+        if prefs['log_level'] in 'DEBUG':
+            log.debug('type={0}'.format(type))
+        return type
 
 class Publication(Record):
     # URL = 'http://www.isfdb.org/cgi-bin/pl.cgi?'
@@ -895,7 +902,7 @@ class Publication(Record):
             if prefs['log_level'] in 'DEBUG':
                 log.debug('This is a pub page without cover.')
             detail_nodes = root.xpath(
-                '//div[@id="content"]/div[@class="ContentBox"]/ul/li')  # no table (on records with no image)
+                '//div[@id="content"]/div[@class="ContentBox"]/ul/li')  # no table present in records with no image
 
         if not detail_nodes:
             if prefs['log_level'] in ('DEBUG', 'INFO'):
@@ -950,6 +957,17 @@ class Publication(Record):
 
                 elif section == 'Type':
                     properties["type"] = detail_node[0].tail.strip()
+                    # Copy publication type to tags
+                    if "tags" not in properties:
+                        properties["tags"] = []
+                    try:
+                        tags = TYPE_TO_TAG[properties["type"]]
+                        if prefs["translate_isfdb"]:
+                            # ToDo: Loop thru tags in list and translate them
+                            tags = _(tags)
+                        properties["tags"].extend([t.strip() for t in tags.split(",")])
+                    except KeyError:
+                        pass
 
                 elif section == 'Format':
                     properties["format"] = detail_node[0].tail.strip()
@@ -1056,10 +1074,19 @@ class Publication(Record):
                     if match:
                         if match.group(1):
                             isbn1 = match.group(1)
-                            isbn1 = ''.join([c.replace('-', '') for c in isbn1])
+                            isbn1 = ''.join([c.replace('-', '') for c in isbn1])  # Get rid of dashes
                         if match.group(2):
                             isbn2 = match.group(2)
-                            isbn2 = ''.join([c.replace('-', '') for c in isbn2])
+                            isbn2 = ''.join([c.replace('-', '') for c in isbn2])  # Get rid of dashes
+                        # Fetch both ISBN 10 and 13
+                        if len(isbn1) == 10:
+                            properties["identifiers"].update({'isbn-10': isbn1})
+                        elif len(isbn1) == 13:
+                            properties["identifiers"].update({'isbn-13': isbn1})
+                        if len(isbn2) == 10:
+                            properties["identifiers"].update({'isbn-10': isbn2})
+                        elif len(isbn2) == 13:
+                            properties["identifiers"].update({'isbn-13': isbn2})
                         # Preferred ISBN is ISBN-13
                         if len(isbn1) > 0 and len(isbn1) > len(isbn2):
                             properties["identifiers"].update({'isbn': isbn1})
@@ -1178,7 +1205,7 @@ class Publication(Record):
             except Exception as e:
                 log.exception(_('Error parsing section %r for url: %r. Error: %r') % (section, url, e))
 
-        # The second content box contains the pub title (extended) and the table of contents
+        # The second content box, if present, contains the pub title (extended) and the table of contents
         try:
             # Get rid of tooltips
             for tooltip in root.xpath('//sup[@class="mouseover"]'):
@@ -1191,8 +1218,15 @@ class Publication(Record):
                 # We grab the parent of the element to call the remove directly on it
                 remove_node(tooltip, keep_content=True)  # but save the author's name
             # contents_node = root.xpath('//div[@class="ContentBox"][2]/ul')
-            contents_node = root.xpath('//div[@class="ContentBox"][2]')
-            if contents_node:
+            # Contents (view Concise Listing)
+            number_of_content_boxes = len(root.findall('.//div[@class="ContentBox"]'))
+            if prefs['log_level'] in 'DEBUG':
+                log.debug('number_of_content_boxes={0}'.format(number_of_content_boxes))
+            if number_of_content_boxes > 1:
+                contents_node = root.xpath('//div[@class="ContentBox"][2]')
+            else:
+                contents_node = []
+            if number_of_content_boxes > 1:
                 # xyz = _(contents_node[1].text_content().strip())
                 if prefs['log_level'] in 'DEBUG':
                     log.debug('contents_node={0}'.format(contents_node))
@@ -1207,8 +1241,8 @@ class Publication(Record):
                         # log.debug('term, msgtext='.format(term, _(term)))
                         properties["comments"] = properties["comments"].replace(term, _(term))
             else:
-                if prefs['log_level'] in 'DEBUG':
-                    log.debug('No second Contend Box found!')
+                if prefs['log_level'] in ['INFO', 'DEBUG']:
+                    log.debug('No second content box found!')
         except Exception as e:
             log.exception(_('Error parsing the second content box for url: %r. Error: %r') % (url, e))
 
@@ -1306,25 +1340,6 @@ class Title(Record):
     # URL = 'http://www.isfdb.org/cgi-bin/title.cgi?'
     URL = 'https://www.isfdb.org/cgi-bin/title.cgi?'
     # 'https://www.isfdb.org/cgi-bin/title.cgi?57736'
-
-    TYPE_TO_TAG = {
-        "ANTHOLOGY": "anthology",
-        "CHAPBOOK": "chapbook",
-        "COLLECTION": "collection",
-        "ESSAY": "essay",
-        "FANZINE": "fanzine",
-        "MAGAZINE": "magazine",
-        "NONFICTION": "non-fiction",
-        "NOVEL": "novel",
-        "NOVEL\n [non-genre]": "novel",
-        "NOVEL\n [juvenile]": "juvenile, novel",
-        "OMNIBUS": "omnibus",
-        "POEM": "poem",
-        "SERIAL": "serial",
-        "SHORTFICTION": "short fiction",
-        "SHORTFICTION\n [juvenile]": "juvenile, short fiction",
-        "SHORTFICTION\n [non-genre]": "short fiction"
-    }
 
     @classmethod
     def url_from_id(cls, isfdb_title_id):
@@ -1492,10 +1507,11 @@ class Title(Record):
 
                 elif section == 'Type':
                     properties["type"] = detail_node[0].tail.strip()
+                    # Copy title type to tags
                     if "tags" not in properties:
                         properties["tags"] = []
                     try:
-                        tags = cls.TYPE_TO_TAG[properties["type"]]
+                        tags = TYPE_TO_TAG[properties["type"]]
                         if prefs["translate_isfdb"]:
                             # ToDo: Loop thru tags in list and translate them
                             tags = _(tags)
