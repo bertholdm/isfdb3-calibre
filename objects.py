@@ -903,6 +903,7 @@ class Publication(Record):
                 log.debug('This is a pub page without cover.')
             detail_nodes = root.xpath(
                 '//div[@id="content"]/div[@class="ContentBox"]/ul/li')  # no table present in records with no image
+            # More than one ContenBox possible!
 
         if not detail_nodes:
             if prefs['log_level'] in ('DEBUG', 'INFO'):
@@ -937,6 +938,9 @@ class Publication(Record):
                     if not properties["title"]:
                         # assume an extra span with a transliterated title tooltip
                         properties["title"] = detail_node[1].text_content().strip()
+                    # Todo: Get series and series index from pub line, if not otherwise indicated:
+                    # Publication: New Worlds,#192 July 1969
+                    # Publication: Epic Illustrated, February 1986
 
                 elif section in ('Author', 'Authors', 'Editor', 'Editors'):
                     properties["authors"] = []
@@ -1043,20 +1047,78 @@ class Publication(Record):
                         properties["cover"] = properties["cover"].replace(' by ', _(' by '))
 
                 elif section == 'Notes':
-                    notes_nodes = detail_node.xpath('./div[@class="notes"]/ul')  # /li
-                    if notes_nodes:
-                        if "notes" not in properties:
-                            properties["notes"] = sanitize_comments_html(tostring(notes_nodes[0], method='html'))
-                        else:
-                            properties["notes"] = properties["notes"] + '<br />' + \
-                                                  sanitize_comments_html(tostring(notes_nodes[0], method='html'))
-                        if prefs['log_level'] in 'DEBUG':
-                            log.debug('properties["notes"]={0}'.format(properties["notes"]))
-
-                        if prefs["translate_isfdb"]:
-                            for term in TRANSLATION_REPLACINGS:
-                                # log.debug('term, msgtext='.format(term, _(term)))
-                                properties["notes"] = properties["notes"].replace(term, _(term))
+                    # notes_nodes = detail_node.xpath('./div[@class="notes"]/ul')  # /li
+                    # notes = detail_node[0].tail.strip()
+                    notes = ' '.join([x for x in detail_node.itertext()]).strip().replace('\n', '')
+                    if prefs['log_level'] in ['DEBUG']:
+                        log.debug('notes={0}'.format(notes))
+                    if notes != '':
+                        notes_nodes = detail_node.xpath('./div[@class="notes"]')
+                        # Notes:
+                        # or
+                        # Notes: Vol. 17, No. 5
+                        # or
+                        # Notes:
+                        # • Vol 6 No 12. Edited by ...
+                        # • Fiction Editor: Ellen Datlow
+                        #  etc.
+                        # Code:
+                        # <div class="notes"><b>Notes:</b>
+                        # <ul>
+                        # <li>"Some ...</li>
+                        # <li>Cover artist ...</li>
+                        # </ul>
+                        # </div>
+                        # and even this:
+                        # Notes:
+                        # • Vol. 4, No. 3. Issue 22.
+                        if notes_nodes:
+                            # Special treatment for publication series:
+                            # Vol 1, No 5. Donald A. Wollheim is credited...
+                            # match = re.search('.*Vol(?:\. | )([0-9]+)(?:, | *)'
+                            #                  'No(?:\. | )([0-9]+).*'
+                            #                  'Issue ([0-9]+).*',
+                            #                  notes, re.IGNORECASE)
+                            match = re.search('.*Vol(?:\.\s|\s)([0-9]+)(?:,\s| *)'
+                                              'No(?:\.\s|\s)([0-9]+)'
+                                              '(\.\sIssue\s)?([0-9]+)?.*',
+                                              notes, re.IGNORECASE)
+                            if match:
+                                volume = number = issue_number = 0
+                                if match.group(1):
+                                    volume = int(str(match.group(1)))
+                                if match.group(2):
+                                    number = int(str(match.group(2)))
+                                if match.group(3) and match.group(4):
+                                    issue_number = int(str(match.group(4)))
+                                    prefs["series_index_options"] = 'issue_no_only'
+                                if prefs['log_level'] in ['DEBUG']:
+                                    log.debug('series_index_options={0}'.format(prefs["series_index_options"]))
+                                    log.debug('volume={0}, number={1}, issue_number={2}'.
+                                              format(volume, number, issue_number))
+                                if prefs["series_index_options"] == 'vol_and_no':
+                                    if number < 100:
+                                        properties["series_index"] = float(volume) + float(number) * .01
+                                    else:
+                                        properties["series_index"] = float(volume) + 0.99
+                                elif prefs["series_index_options"] == 'issue_no_only':
+                                    properties["series_index"] = float(issue_number) + .0
+                                else:
+                                    log.debug('Unknown series index option.')
+                                if prefs['log_level'] in ['DEBUG', 'INFO']:
+                                    log.debug('Build Series Index from Notes={0}'.format(properties["series_index"]))
+                            # Output Notes as is (including html)
+                            if "notes" not in properties:
+                                properties["notes"] = sanitize_comments_html(tostring(notes_nodes[0], method='html'))
+                            else:
+                                properties["notes"] = properties["notes"] + '<br />' + \
+                                                      sanitize_comments_html(tostring(notes_nodes[0], method='html'))
+                            if prefs["translate_isfdb"]:
+                                for term in TRANSLATION_REPLACINGS:
+                                    # log.debug('term, msgtext='.format(term, _(term)))
+                                    properties["notes"] = properties["notes"].replace(term, _(term))
+                            if prefs['log_level'] in 'DEBUG':
+                                log.debug('properties["notes"]={0}'.format(properties["notes"]))
 
                 elif section == 'ISBN':
                     # Possible formats:
@@ -1229,7 +1291,9 @@ class Publication(Record):
             if number_of_content_boxes > 1:
                 # xyz = _(contents_node[1].text_content().strip())
                 if prefs['log_level'] in 'DEBUG':
-                    log.debug('contents_node={0}'.format(contents_node))
+                    for contents_node_line in contents_node:
+                        contents_node_line_str = etree.tostring(contents_node_line)
+                        log.debug('contents_node_line={0}'.format(contents_node_line_str))
                 title_node = root.xpath('//div[@class="ContentBox"][2]/ul/li//a[1]/@href')
                 if prefs['log_level'] in 'DEBUG':
                     log.debug('title_node={0}'.format(title_node))

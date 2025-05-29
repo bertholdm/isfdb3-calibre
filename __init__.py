@@ -39,8 +39,8 @@ class ISFDB3(Source):
     name = 'ISFDB3'
     description = _('Downloads metadata and covers from ISFDB (https://www.isfdb.org/)')
     author = 'Michael Detambel - Forked from Adrianna Pińska\'s ISFDB2 (https://github.com/confluence/isfdb2-calibre)'
-    version = (1, 4, 1)  # the plugin version number
-    release = ('09-19-2024')  # the release date
+    version = (1, 4, 2)  # the plugin version number
+    release = ('05-27-2025')  # the release date
     calibre = (5,0,0)  # the minimum calibre version number
     minimum_calibre_version = (5, 0, 0)
     # From https://manual.calibre-ebook.com/de/_modules/calibre/ebooks/metadata/sources/base.html
@@ -49,6 +49,9 @@ class ISFDB3(Source):
     platforms = ['Windows', 'Linux', 'Mac']  # the platforms supported
 
     # Changelog
+    # Version 1.4.2 05-27-2025
+    # - Downloaded metadata sets the series but not the number within the series, if the series number is in Notes
+    #   ("Notes: Vol. 17, No. 5" for Publication Record # 59828). Thanks to Ross Presser (rpresser).
     # Version 1.4.1 09-19-2024
     # - Copy publications type to tags (same treatment as for title type).
     # - Enhanced treatment of ISB numbers (fetching both ISBN 10 and 13 for a publication, if given)
@@ -232,7 +235,7 @@ class ISFDB3(Source):
             'note_translations',
             'bool',
             True,
-            _('Note translations in comments.'),
+            _('Note translations in comments'),
             _('Choosing this option will set information and links to ISFDB pages with translations in the indicated '
               'language(s), if provided.')
         ),
@@ -240,7 +243,7 @@ class ISFDB3(Source):
             'translate_isfdb',
             'bool',
             False,
-            _('Translate ISFDB.'),
+            _('Translate ISFDB'),
             _('Choosing this option will traslate ISFDB texts.')
         ),
         # Option(
@@ -266,11 +269,28 @@ class ISFDB3(Source):
             'log_level',
             'choices',
             'INFO',
-            _('Logging level.'),
+            _('Logging level'),
             _('ERROR = only error messages, DEBUG: all logging messages.'),
             {'ERROR': 'ERROR', 'INFO': 'INFO', 'DEBUG': 'DEBUG'},
             # {40: 'ERROR', 30: 'WARNING', 20: 'INFO', 10: 'DEBUG'},
-        )
+        ),
+        Option(
+            'series_index_options',
+            'choices',
+            'vol_and_no',
+            _('Series index build options'),
+            _('Choose one of the options to build the series index for periodicals from, if volume and issue number is '
+              'given in "Notes" block.\n'
+              'In most cases, the number (no.) runs within the volume number (usually a year), so two decimal places '
+              '(set by Calibre) are sufficient. However, there are also cases where the issue number runs independently '
+              'from 1 to hundreds of issues (e.g., New Worlds Science Fiction Magazine).\n'
+              'Therefore switch between the options for your needs before downloading metadata.\n'
+              'If "vol.no" is choosen and the (issue) number exceeds 99, the decimal part (no) is set to 99. '
+              'If the issue number is explicitly given in the isfdb, this option is ignored. '
+              'If an issue number is given as well (Vol. 4, No. 3. Issue 22) after vol. and no., the issue number is '
+              'used, as if option "issue_no_only" were set.'),
+            {'vol_and_no': 'Use volume and issue number (vol.no)', 'issue_no_only': 'use issue number only (no.0)'},
+        ),
     )
 
     # Add built-in identifier types for isfdb (can not be touched by user)
@@ -1056,7 +1076,7 @@ class Worker(Thread):
             # Note that result with identical title/author/identifiers are still merged."
             # See also:
             # https://www.mobileread.com/forums/showthread.php?t=224546
-            # http://www.mobileread.mobi/forums/showthread.php?t=336308)
+            # http://www.mobileread.com/forums/showthread.php?t=336308)
 
             # we have to qualify the title field with distinguish patterns before we put the metadata in the request queue.
 
