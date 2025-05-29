@@ -40,7 +40,7 @@ class ISFDB3(Source):
     description = _('Downloads metadata and covers from ISFDB (https://www.isfdb.org/)')
     author = 'Michael Detambel - Forked from Adrianna Pińska\'s ISFDB2 (https://github.com/confluence/isfdb2-calibre)'
     version = (1, 4, 2)  # the plugin version number
-    release = ('05-27-2025')  # the release date
+    release = ('05-29-2025')  # the release date
     calibre = (5,0,0)  # the minimum calibre version number
     minimum_calibre_version = (5, 0, 0)
     # From https://manual.calibre-ebook.com/de/_modules/calibre/ebooks/metadata/sources/base.html
@@ -49,9 +49,9 @@ class ISFDB3(Source):
     platforms = ['Windows', 'Linux', 'Mac']  # the platforms supported
 
     # Changelog
-    # Version 1.4.2 05-27-2025
-    # - Downloaded metadata sets the series but not the number within the series, if the series number is in Notes
-    #   ("Notes: Vol. 17, No. 5" for Publication Record # 59828). Thanks to Ross Presser (rpresser).
+    # Version 1.4.2 05-29-2025
+    # - Downloaded metadata sets the series but not the number within the series, if the series number is only given
+    #   in Notes ("Notes: Vol. 17, No. 5" or "Vol. 4, No. 3. Issue 22"). Thanks to Ross Presser (rpresser).
     # Version 1.4.1 09-19-2024
     # - Copy publications type to tags (same treatment as for title type).
     # - Enhanced treatment of ISB numbers (fetching both ISBN 10 and 13 for a publication, if given)

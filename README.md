@@ -1,4 +1,4 @@
-[Metadata Source Plugin] ISFDB3 - Version 1.4.1 09-19-2024
+[Metadata Source Plugin] ISFDB3 - Version 1.4.2 05-29-2025
 
 Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
 
@@ -7,7 +7,7 @@ The ISFDB database provides a lot of data for sf titles and publications (covers
 A web search form is available under http://www.isfdb.org/cgi-bin/adv_search_menu.cgi
 There is also a web API under http://www.isfdb.org/wiki/index.php/Web_API, but this is not in use yet by the plugin, because the interface only supplies a subset of the data.
 
-The data model distinct between titles and publications (connected m:n) and the database has also tables for series, translations, covers, ... A dump for MySQL is available under http://www.isfdb.org/wiki/index.php/ISFDB_Downloads.
+The data model distinguishes between titles and publications (connected m:n) and the database has also tables for series, translations, covers, ... A dump for MySQL is available under http://www.isfdb.org/wiki/index.php/ISFDB_Downloads.
 
 Background:
 
@@ -21,7 +21,7 @@ When I do I will go through your code and see if I can merge some of the feature
 I don't mind if this plugin is submitted to the plugin repository -- but I am not active on the Mobileread forums, so I am unlikely to do this anytime soon. 
 You are welcome to! If you decide to submit your forked version, please change the name (to isfdb3-calibre?), to make it clear that it's not the same plugin and may have slightly different behavior."
 
-So I have created the plugin ISFDB3 and submitted it to the plugin repository at mobileread.
+Therefore, I created the plugin ISFDB3 and submitted it to the plugin repository at mobileread.
 
 Main changes compared to ISFDB2:
 
@@ -46,7 +46,7 @@ As a drawback, the qualifier in the title field has to be deleted manually or wi
 And another: You probably need to increase the runtime for the plugin ("Configure Metadata Download" button).
 
 Note for searching by title and author: Since the default search uses the keyword "contains", the title and author name may be shortened. This is always recommended when the spelling is in doubt ("Clark Ashton Smith" vs. "C.A. Smith" or "Eliteeinheit Luna Port" vs. "Eliteeinheit Lunaport").
-Note for searching for magazines, samplers, etc.: If you're in doubt, how the title for the publication may be read in the ISFDB, search with title and author of a story herein and chose the appropriate publication.
+Note on searching for magazines, samplers, etc.: If you are unsure about the exact title of a publication in the ISFDB, search for the title and author of a story in it and select the corresponding publication from the results display.
 
 Other changes compared to ISFDB2:
 
@@ -70,12 +70,15 @@ There are a lot of things (and suggestions?).
 Limitations:
 
 - Since there is no language field in publication records, only in title records, following the publication links in a title list may show up publications in not desired languages. However, the publications list in the title page has a button »Not displaying translations«, so some research is already needed.
-- For not logged-in users, isfdb.org has recently stopped the advanced search access. 
+- Some time ago, isfdb.org blocked advanced search access for non-logged-in users.
   ISFDB3 has a fallback to simple search with title only and a filter for record types (INTERIORART, ...).
   To avoid large title lists for short or generic titles ("Stars") with the default "contains" search, the search is switched to "exact match", if the first character in the title field is an equal sign ("=").
 
 Version History:
 
+Version 1.4.2 05-29-2025
+- Downloaded metadata sets the series but not the number within the series, if the series number is only given 
+  in Notes ("Notes: Vol. 17, No. 5" or "Vol. 4, No. 3. Issue 22"). Thanks to Ross Presser (rpresser).
 Version 1.4.1 09-19-2024
 - Copy publications type to tags (same treatment as for title type).
 - Enhanced treatment of ISB numbers (fetching both ISBN 10 and 13 for a publication, if given)
