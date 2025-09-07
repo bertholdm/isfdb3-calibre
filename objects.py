@@ -932,6 +932,8 @@ class Publication(Record):
             if prefs['log_level'] in 'DEBUG':
                 log.debug('section={0}'.format(section))
 
+            date_text = ''  # Memorize, to build series index from pubdate, if not expicitly given
+
             try:
                 if section == 'Publication':
                     properties["title"] = detail_node[0].tail.strip()
@@ -986,6 +988,7 @@ class Publication(Record):
                     # If series is a url, open series page and search for "Sub-series of:"
                     # https://www.isfdb.org/cgi-bin/pe.cgi?45706
                     properties["series"] = ''
+                    properties["series_index"] = 0.0
                     # if ISFDB3.loc_prefs["combine_series"]:
                     # url = detail_node[1].xpath('//a[contains(text(), "' + detail_node[1].text_content().strip() + '")]/@href')  # get all urs
                     try:
@@ -1075,11 +1078,10 @@ class Publication(Record):
                         if notes_nodes:
                             # Special treatment for publication series:
                             # Vol 1, No 5. Donald A. Wollheim is credited...
-                            # match = re.search('.*Vol(?:\. | )([0-9]+)(?:, | *)'
-                            #                  'No(?:\. | )([0-9]+).*'
-                            #                  'Issue ([0-9]+).*',
-                            #                  notes, re.IGNORECASE)
-                            match = re.search('.*Vol(?:\.\s|\s)([0-9]+)(?:,\s| *)'
+                            # or:
+                            # ToDo: Volume 41, No 3, Whole No. 244
+                            # Whole No. at the moment ignored
+                            match = re.search('.*Vol(?:\.\s|ume\s|\s)([0-9]+)(?:,\s| *)'
                                               'No(?:\.\s|\s)([0-9]+)'
                                               '(\.\sIssue\s)?([0-9]+)?.*',
                                               notes, re.IGNORECASE)
@@ -1244,7 +1246,7 @@ class Publication(Record):
                 elif section == 'Date':
                     date_text = detail_node[0].tail.strip()
                     if date_text in ['date unknown', 'unknown', 'unpublished']:
-                        properties["pubdate"] = None  # Warning ignoret
+                        properties["pubdate"] = None  # Warning ignored
                     else:
                         # We use this instead of strptime to handle dummy days and months
                         # E.g. 1965-00-00
@@ -1263,6 +1265,18 @@ class Publication(Record):
                 elif section == 'Container Title':
                     title_url = detail_nodes[9].xpath('a')[0].attrib.get('href')
                     properties["isfdb-title"] = Title.id_from_url(title_url)
+
+                # If we have a series name, but no series index, try to build the index from the pub date
+                if "series" in properties:
+                    if properties["series"] != '':
+                        if properties["series_index"] == 0.0:
+                            if date_text != '':
+                                year, month, day = [int(p) for p in date_text.split("-")]
+                                properties["series_index"] = float(year) + float(month) * 0.01
+                                if prefs['log_level'] in 'DEBUG':
+                                    log.debug('properties["series_index"], taken from pubdate={0}'
+                                              .format(properties["series_index"]))
+                # ToDo: ? Pub year, but spring, summer, ...
 
             except Exception as e:
                 log.exception(_('Error parsing section %r for url: %r. Error: %r') % (section, url, e))
@@ -1347,7 +1361,7 @@ class Publication(Record):
                     log.debug('properties["series"]={0}'.format(properties["series"]))
                 if '#' in properties["title"]:
                     match = re.search('#(\d+)', properties["title"], re.IGNORECASE)
-                    properties["series_index"] = int("".join(filter(str.isdigit, match.group(1))))
+                    properties["series_index"] = float(int("".join(filter(str.isdigit, match.group(1)))))
                     if prefs['log_level'] in 'DEBUG':
                         log.debug('properties["series_index"]={0}'.format(properties["series_index"]))
                 properties["comments"] = properties["comments"] + '<br />' + _('Source for series metadata: ') + series_url
@@ -1548,7 +1562,11 @@ class Title(Record):
                         log.error('Error: {0}.'.format(e))
             if prefs['log_level'] in 'DEBUG':
                 log.debug('section={0}, section_text_content={1}.'.format(section, section_text_content))
+
+            date_text = ''  # Fallback vor series index construction
+
             try:
+
                 if section == 'Title':
                     properties["title"] = detail_node[0].tail.strip()
                     if not properties["title"]:
@@ -1640,7 +1658,7 @@ class Title(Record):
                             # Calibre accepts only float format compatible numbers, not e. g. "61/62"
                             series_index_list = detail_node[0].tail.split('/')
                             # properties["series_index"] = float(series_index_list[0].strip())
-                            properties["series_index"] = int("".join(filter(str.isdigit, series_index_list[0])).strip())
+                            properties["series_index"] = float(int("".join(filter(str.isdigit, series_index_list[0])).strip()))
                             properties["series_number_notes"] = \
                                 _("Reported number was {0} and was reduced to a Calibre compatible format."). \
                                     format(detail_node[0].tail)
@@ -1649,14 +1667,14 @@ class Title(Record):
                                 log.debug('Roman literal found:{0}'.format(detail_node[0].tail.strip()))
                             # Calibre accepts only float format compatible arabic numbers, not roman numerals e. g. "IV"
                             # https://www.isfdb.org/cgi-bin/pl.cgi?243949
-                            properties["series_index"] = roman_to_int(detail_node[0].tail.strip())
+                            properties["series_index"] = float(roman_to_int(detail_node[0].tail.strip()))
                             properties["series_number_notes"] = \
                                 _("Reported number was the roman numeral {0} and was converted to a Calibre compatible format.<br />"). \
                                     format(detail_node[0].tail.strip())
                         else:
                             try:
-                                properties["series_index"] = int(
-                                    "".join(filter(str.isdigit, detail_node[0].tail.strip())))
+                                properties["series_index"] = float(int(
+                                    "".join(filter(str.isdigit, detail_node[0].tail.strip()))))
                             except ValueError:
                                 properties["series_number_notes"] = \
                                     _("Could not convert {0} to a Calibre compatible format.<br />"). \

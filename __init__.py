@@ -39,8 +39,8 @@ class ISFDB3(Source):
     name = 'ISFDB3'
     description = _('Downloads metadata and covers from ISFDB (https://www.isfdb.org/)')
     author = 'Michael Detambel - Forked from Adrianna Pińska\'s ISFDB2 (https://github.com/confluence/isfdb2-calibre)'
-    version = (1, 4, 2)  # the plugin version number
-    release = ('05-29-2025')  # the release date
+    version = (1, 4, 3)  # the plugin version number
+    release = ('09-07-2025')  # the release date
     calibre = (5,0,0)  # the minimum calibre version number
     minimum_calibre_version = (5, 0, 0)
     # From https://manual.calibre-ebook.com/de/_modules/calibre/ebooks/metadata/sources/base.html
@@ -49,6 +49,10 @@ class ISFDB3(Source):
     platforms = ['Windows', 'Linux', 'Mac']  # the platforms supported
 
     # Changelog
+    # Version 1.4.3 09-07-2025
+    # - Regex for series index search in notes enhanced.
+    # - If series name is given, but no volume and/or issue at all, series index is constructed with
+    #   the publication date (year,month).
     # Version 1.4.2 05-29-2025
     # - Downloaded metadata sets the series but not the number within the series, if the series number is only given
     #   in Notes ("Notes: Vol. 17, No. 5" or "Vol. 4, No. 3. Issue 22"). Thanks to Ross Presser (rpresser).
@@ -288,7 +292,9 @@ class ISFDB3(Source):
               'If "vol.no" is choosen and the (issue) number exceeds 99, the decimal part (no) is set to 99. '
               'If the issue number is explicitly given in the isfdb, this option is ignored. '
               'If an issue number is given as well (Vol. 4, No. 3. Issue 22) after vol. and no., the issue number is '
-              'used, as if option "issue_no_only" were set.'),
+              'used, as if option "issue_no_only" were set.\n'
+              'If series name is given, but no volume and/or issue at all, series index is constructed with '
+              'the publication date (year,month)\n'),
             {'vol_and_no': 'Use volume and issue number (vol.no)', 'issue_no_only': 'use issue number only (no.0)'},
         ),
     )
