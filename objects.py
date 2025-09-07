@@ -1079,16 +1079,31 @@ class Publication(Record):
                             # Special treatment for publication series:
                             # Vol 1, No 5. Donald A. Wollheim is credited...
                             # or:
-                            # ToDo: Volume 41, No 3, Whole No. 244
+                            # Volume 41, No 3, Whole No. 244
+                            # or:
+                            # Vol. II No. 8
                             # Whole No. at the moment ignored
-                            match = re.search('.*Vol(?:\.\s|ume\s|\s)([0-9]+)(?:,\s| *)'
+                            match = re.search('.*Vol(?:\.\s|ume\s|\s)([0-9]+|[MDCLXVI]+)(?:,\s| *)'
                                               'No(?:\.\s|\s)([0-9]+)'
                                               '(\.\sIssue\s)?([0-9]+)?.*',
                                               notes, re.IGNORECASE)
                             if match:
                                 volume = number = issue_number = 0
                                 if match.group(1):
-                                    volume = int(str(match.group(1)))
+                                    # Check if volume is indicated in roman digits
+                                    volume_text = str(match.group(1))
+                                    if is_roman_numeral(volume_text):
+                                        if prefs['log_level'] in 'DEBUG':
+                                            log.debug('Roman literal found:{0}'.format(volume_text))
+                                        # Calibre accepts only float format compatible arabic numbers,
+                                        # not roman numerals e. g. "IV"
+                                        # https://www.isfdb.org/cgi-bin/pl.cgi?243949
+                                        volume = roman_to_int(volume_text)
+                                        properties["series_number_notes"] = \
+                                            _("Reported number was the roman numeral {0} and was converted to "
+                                              "a Calibre compatible format.<br />").format(volume_text)
+                                    else:
+                                        volume = int(str(volume_text))
                                 if match.group(2):
                                     number = int(str(match.group(2)))
                                 if match.group(3) and match.group(4):
