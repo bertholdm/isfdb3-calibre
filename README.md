@@ -1,4 +1,4 @@
-[Metadata Source Plugin] ISFDB3 - Version 1.4.2 05-29-2025
+[Metadata Source Plugin] ISFDB3 - Version 1.4.3 09-07-2025
 
 Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
 
@@ -75,7 +75,10 @@ Limitations:
   To avoid large title lists for short or generic titles ("Stars") with the default "contains" search, the search is switched to "exact match", if the first character in the title field is an equal sign ("=").
 
 Version History:
-
+Version 1.4.3 09-07-2025
+- Regex for series index search in notes enhanced.
+- If series name is given, but no volume and/or issue at all, series index is constructed with
+  the publication date (year,month).
 Version 1.4.2 05-29-2025
 - Downloaded metadata sets the series but not the number within the series, if the series number is only given 
   in Notes ("Notes: Vol. 17, No. 5" or "Vol. 4, No. 3. Issue 22"). Thanks to Ross Presser (rpresser).
@@ -136,7 +139,7 @@ Version 1.0.0 - 01-31-2022
 Installation:
 
 Download the attached zip file and install the plugin as described in the Introduction to plugins thread (https://www.mobileread.com/forums/showthread.php?t=118680).
-The plugin is also available in Calibre's Plugin Updater.
+The plugin is also available in Calibre's plugin updater.
 
 How to report bugs and suggestions:
 

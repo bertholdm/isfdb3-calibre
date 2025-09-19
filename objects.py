@@ -1083,7 +1083,10 @@ class Publication(Record):
                             # or:
                             # Vol. II No. 8
                             # Whole No. at the moment ignored
-                            match = re.search('.*Vol(?:\.\s|ume\s|\s)([0-9]+|[MDCLXVI]+)(?:,\s| *)'
+                            # or:
+                            # #57
+                            # Note that Terry Boren's story is [...]
+                            match = re.search('#([0-9]+).*|.*Vol(?:\.\s|ume\s|\s)([0-9]+|[MDCLXVI]+)(?:,\s| *)'
                                               'No(?:\.\s|\s)([0-9]+)'
                                               '(\.\sIssue\s)?([0-9]+)?.*',
                                               notes, re.IGNORECASE)

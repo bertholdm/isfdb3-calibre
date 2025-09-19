@@ -39,8 +39,8 @@ class ISFDB3(Source):
     name = 'ISFDB3'
     description = _('Downloads metadata and covers from ISFDB (https://www.isfdb.org/)')
     author = 'Michael Detambel - Forked from Adrianna Pińska\'s ISFDB2 (https://github.com/confluence/isfdb2-calibre)'
-    version = (1, 4, 3)  # the plugin version number
-    release = ('09-07-2025')  # the release date
+    version = (1, 4, 4)  # the plugin version number
+    release = ('09-19-2025')  # the release date
     calibre = (5,0,0)  # the minimum calibre version number
     minimum_calibre_version = (5, 0, 0)
     # From https://manual.calibre-ebook.com/de/_modules/calibre/ebooks/metadata/sources/base.html
@@ -49,6 +49,8 @@ class ISFDB3(Source):
     platforms = ['Windows', 'Linux', 'Mac']  # the platforms supported
 
     # Changelog
+    # Version 1.4.4 09-19-2025
+    # - Regex for series index search in notes enhanced.
     # Version 1.4.3 09-07-2025
     # - Regex for series index search in notes enhanced.
     # - If series name is given, but no volume and/or issue at all, series index is constructed with
