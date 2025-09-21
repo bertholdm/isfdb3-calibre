@@ -1084,11 +1084,11 @@ class Publication(Record):
                             # Vol. II No. 8
                             # Whole No. at the moment ignored
                             # or:
-                            # #57
-                            # Note that Terry Boren's story is [...]
-                            match = re.search('#([0-9]+).*|.*Vol(?:\.\s|ume\s|\s)([0-9]+|[MDCLXVI]+)(?:,\s| *)'
-                                              'No(?:\.\s|\s)([0-9]+)'
-                                              '(\.\sIssue\s)?([0-9]+)?.*',
+                            # #57Note that Terry Boren's story is [...]
+                            # or:
+                            # Vol 46, No 3, Whole No 274 [...]
+                            match = re.search('.*(?:Volume\s|Vol\.\s|Vol\s)([0-9]+|[MDCLXVI]+)(?:,\s| *)'
+                                              '(?:No\.\s|No\s|\s)([0-9]+)(\.\sIssue\s)?([0-9]+)?.*|#([0-9]+)',
                                               notes, re.IGNORECASE)
                             if match:
                                 volume = number = issue_number = 0
@@ -1112,6 +1112,8 @@ class Publication(Record):
                                 if match.group(3) and match.group(4):
                                     issue_number = int(str(match.group(4)))
                                     prefs["series_index_options"] = 'issue_no_only'
+                                if match.group(5):
+                                    volume = int(str(match.group(5)))
                                 if prefs['log_level'] in ['DEBUG']:
                                     log.debug('series_index_options={0}'.format(prefs["series_index_options"]))
                                     log.debug('volume={0}, number={1}, issue_number={2}'.
@@ -1628,14 +1630,18 @@ class Title(Record):
                 elif section == 'Date':
                     # In a title record, the date points always to the first publishing date (copyright)
                     date_text = detail_node[0].tail.strip()
-                    # We use this instead of strptime to handle dummy days and months
-                    # E.g. 1965-00-00
-                    year, month, day = [int(p) for p in date_text.split("-")]
-                    month = month or 1
-                    day = day or 1
-                    # Correct datetime result for day = 0: Set hour to 2 UTC
-                    # (if not, datetime goes back to the last month and, in january, even to december last year)
-                    properties["pubdate"] = datetime.datetime(year, month, day, 2, 0, 0)
+                    # Make sure if date text is suitable to build a date object (empty string or "date unknown" etc)
+                    try:
+                        # We use this instead of strptime to handle dummy days and months
+                        # E.g. 1965-00-00
+                        year, month, day = [int(p) for p in date_text.split("-")]
+                        month = month or 1
+                        day = day or 1
+                        # Correct datetime result for day = 0: Set hour to 2 UTC
+                        # (if not, datetime goes back to the last month and, in january, even to december last year)
+                        properties["pubdate"] = datetime.datetime(year, month, day, 2, 0, 0)
+                    except:
+                        pass
 
                 elif section == 'Series':
                     if prefs['log_level'] in 'DEBUG':
@@ -1789,34 +1795,35 @@ class Title(Record):
         properties["publications"] = [Publication.id_from_url(l) for l in publication_links]
 
         # If the title date is in pub list, set the publication text and link in comment as "First published in: ..."
-        title_date = properties["pubdate"].isoformat()[:10]
-        if prefs['log_level'] in 'DEBUG':
-            log.debug('title date={0}'.format(title_date))
-        pubrows = root.xpath('//table[@class="publications"]/tr')
-        for pubrow in pubrows:
-            pub_date = ''.join(pubrow.xpath('./td[2]/text()')).strip()
-            if pub_date != '':
-                if prefs['log_level'] in 'DEBUG':
-                    log.debug('pub_date={0}'.format(pub_date))
-                # Ignore day if day in pubdate is zero
-                if pub_date[-2:] == '00':
-                    pub_date = pub_date[:-2] + title_date[-2:]
+        if 'pubdate' in properties:
+            title_date = properties["pubdate"].isoformat()[:10]
+            if prefs['log_level'] in 'DEBUG':
+                log.debug('title date={0}'.format(title_date))
+            pubrows = root.xpath('//table[@class="publications"]/tr')
+            for pubrow in pubrows:
+                pub_date = ''.join(pubrow.xpath('./td[2]/text()')).strip()
+                if pub_date != '':
                     if prefs['log_level'] in 'DEBUG':
                         log.debug('pub_date={0}'.format(pub_date))
-                if pub_date == title_date:
-                    if prefs['log_level'] in 'DEBUG':
-                        log.debug('pub_date found in pub table.')
-                    # Extracting the text content of the first two cells (pub title and link, pubdate)
-                    pub_title = ''.join(pubrow.xpath('./td[1]/a/text()'))
-                    pub_link = ''.join(pubrow.xpath('./td[1]/a/@href'))
-                    pub_info = pub_title + ' (' + pub_link + ').'
-                    if prefs['log_level'] in 'DEBUG':
-                        log.debug('pub_info={0}'.format(pub_info))
-                    if 'comments' in properties:
-                        properties["comments"] = properties["comments"] + '<br />' + _('First published in: ') + pub_info
-                    else:
-                        properties["comments"] = '<br />' + _('First published in: ') + pub_info
-                    break
+                    # Ignore day if day in pubdate is zero
+                    if pub_date[-2:] == '00':
+                        pub_date = pub_date[:-2] + title_date[-2:]
+                        if prefs['log_level'] in 'DEBUG':
+                            log.debug('pub_date={0}'.format(pub_date))
+                    if pub_date == title_date:
+                        if prefs['log_level'] in 'DEBUG':
+                            log.debug('pub_date found in pub table.')
+                        # Extracting the text content of the first two cells (pub title and link, pubdate)
+                        pub_title = ''.join(pubrow.xpath('./td[1]/a/text()'))
+                        pub_link = ''.join(pubrow.xpath('./td[1]/a/@href'))
+                        pub_info = pub_title + ' (' + pub_link + ').'
+                        if prefs['log_level'] in 'DEBUG':
+                            log.debug('pub_info={0}'.format(pub_info))
+                        if 'comments' in properties:
+                            properties["comments"] = properties["comments"] + '<br />' + _('First published in: ') + pub_info
+                        else:
+                            properties["comments"] = '<br />' + _('First published in: ') + pub_info
+                        break
 
         return properties
 

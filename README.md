@@ -1,4 +1,4 @@
-[Metadata Source Plugin] ISFDB3 - Version 1.4.3 09-07-2025
+[Metadata Source Plugin] ISFDB3 - Version 1.4.5 09-21-2025
 
 Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
 
@@ -75,6 +75,10 @@ Limitations:
   To avoid large title lists for short or generic titles ("Stars") with the default "contains" search, the search is switched to "exact match", if the first character in the title field is an equal sign ("=").
 
 Version History:
+Version 1.4.5 09-21-2025
+- Avoid date conversions if no publishing date is given or publishing date field ccontent is text like "date unknown"
+Version 1.4.4 09-19-2025
+- Regex for series index search in notes enhanced.
 Version 1.4.3 09-07-2025
 - Regex for series index search in notes enhanced.
 - If series name is given, but no volume and/or issue at all, series index is constructed with
