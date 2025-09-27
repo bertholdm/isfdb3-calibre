@@ -46,7 +46,7 @@ As a drawback, the qualifier in the title field has to be deleted manually or wi
 And another: You probably need to increase the runtime for the plugin ("Configure Metadata Download" button).
 
 Note for searching by title and author: Since the default search uses the keyword "contains", the title and author name may be shortened. This is always recommended when the spelling is in doubt ("Clark Ashton Smith" vs. "C.A. Smith" or "Eliteeinheit Luna Port" vs. "Eliteeinheit Lunaport").
-Note on searching for magazines, samplers, etc.: If you are unsure about the exact title of a publication in the ISFDB, search for the title and author of a story in it and select the corresponding publication from the results display.
+Note on searching for magazines, samplers, etc.: If you are unsure about the exact title of such a publication in the ISFDB, search for the title (must) and author (can) of a (not too frequently published) story in it and select the suitable publication from the results display.
 
 Other changes compared to ISFDB2:
 
