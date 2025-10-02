@@ -961,6 +961,31 @@ class Publication(Record):
                             else:
                                 properties["authors"].append(author)
 
+                elif section == 'Date':
+                    date_text = detail_node[0].tail.strip()
+                    if date_text in ['date unknown', 'unknown', 'unpublished']:
+                        properties["pubdate"] = None  # Warning ignored
+                    else:
+                        # We use this instead of strptime to handle dummy days and months
+                        # E.g. 1965-00-00
+                        year, month, day = [int(p) for p in date_text.split("-")]
+                        month = month or 1
+                        day = day or 1
+                        # Correct datetime result for day = 0: Set hour to 2 UTC
+                        # (if not, datetime goes back to the last month and, in january, even to december last year)
+                        # ToDo: set hour to publisher's timezone?
+                        # properties["pubdate"] = datetime.datetime(year, month, day)
+                        properties["pubdate"] = datetime.datetime(year, month, day, 2, 0, 0)
+
+                elif section == 'Publisher':
+                    try:
+                        properties["publisher"] = detail_node.xpath('a')[0].text_content().strip()
+                    except IndexError:
+                        properties["publisher"] = detail_node.xpath('div/a')[0].text_content().strip()  # toolötip div
+
+                elif section == 'Format':
+                    properties["format"] = detail_node[0].tail.strip()
+
                 elif section == 'Type':
                     properties["type"] = detail_node[0].tail.strip()
                     # Copy publication type to tags
@@ -975,14 +1000,12 @@ class Publication(Record):
                     except KeyError:
                         pass
 
-                elif section == 'Format':
-                    properties["format"] = detail_node[0].tail.strip()
-
-                elif section == 'Publisher':
-                    try:
-                        properties["publisher"] = detail_node.xpath('a')[0].text_content().strip()
-                    except IndexError:
-                        properties["publisher"] = detail_node.xpath('div/a')[0].text_content().strip()  # toolötip div
+                elif section == 'Cover':
+                    properties["cover"] = ' '.join([x for x in detail_node.itertext()]).strip().replace('\n', '')
+                    properties["cover"] = properties["cover"].replace('  ', ' ')
+                    if prefs["translate_isfdb"]:
+                        properties["cover"] = properties["cover"].replace('variant of', _('variant of'))
+                        properties["cover"] = properties["cover"].replace(' by ', _(' by '))
 
                 elif section == 'Pub. Series':
                     # If series is a url, open series page and search for "Sub-series of:"
@@ -1042,13 +1065,6 @@ class Publication(Record):
                                 properties["series_index"] = 0.0
                         # log.info('properties["series_index"]={0}'.format(properties["series_index"]))
 
-                elif section == 'Cover':
-                    properties["cover"] = ' '.join([x for x in detail_node.itertext()]).strip().replace('\n', '')
-                    properties["cover"] = properties["cover"].replace('  ', ' ')
-                    if prefs["translate_isfdb"]:
-                        properties["cover"] = properties["cover"].replace('variant of', _('variant of'))
-                        properties["cover"] = properties["cover"].replace(' by ', _(' by '))
-
                 elif section == 'Notes':
                     # notes_nodes = detail_node.xpath('./div[@class="notes"]/ul')  # /li
                     # notes = detail_node[0].tail.strip()
@@ -1087,7 +1103,9 @@ class Publication(Record):
                             # #57Note that Terry Boren's story is [...]
                             # or:
                             # Vol 46, No 3, Whole No 274 [...]
-                            match = re.search('.*(?:Volume\s|Vol\.\s|Vol\s)([0-9]+|[MDCLXVI]+)(?:,\s| *)'
+                            # or:
+                            # Summer 1950 (May-July), Vol 4., No. 11.
+                            match = re.search('.*(?:Volume\s|Vol\.\s|Vol\s)([0-9]+|[MDCLXVI]+)(?:.,\s|,\s| *)'
                                               '(?:No\.\s|No\s|\s)([0-9]+)(\.\sIssue\s)?([0-9]+)?.*|#([0-9]+)',
                                               notes, re.IGNORECASE)
                             if match:
@@ -1129,6 +1147,32 @@ class Publication(Record):
                                     log.debug('Unknown series index option.')
                                 if prefs['log_level'] in ['DEBUG', 'INFO']:
                                     log.debug('Build Series Index from Notes={0}'.format(properties["series_index"]))
+
+                            # Is there a more precise pub date in Notes?
+                            # Summer 1950 (May-July), Vol 4., No. 11.
+                            match = re.search('(January|February|March|April|May|June|July|August|September|'
+                                              'October|November|December)', notes, re.IGNORECASE)
+                            if match:
+                                if match.group(1):
+                                    # Check if volume is indicated in roman digits
+                                    month_name = str(match.group(1))
+                                    log.debug('month_name={0}'.format(month_name))
+                                    # Does not work with non-english locale!
+                                    # month_number = datetime.datetime.strptime(month_name, '%B').month
+                                    month_names = ['January', 'February' , 'March', 'April', 'May', 'June', 'July',
+                                                   'August', 'September', 'October', 'November', 'December']
+                                    month_number = month_names.index(month_name) + 1
+                                    log.debug('month_number={0}'.format(month_number))
+                                    log.debug('properties["pubdate"]={0}'.format(properties["pubdate"]))
+                                    log.debug('properties["pubdate"].month={0}'.format(properties["pubdate"].month))
+                                    if properties["pubdate"].month == 1:
+                                        properties["pubdate"] = (
+                                            datetime.datetime(properties["pubdate"].year,
+                                                              month_number,
+                                                              properties["pubdate"].day,
+                                                              2, 0, 0))
+                                        log.debug('properties["pubdate"]={0}'.format(properties["pubdate"]))
+
                             # Output Notes as is (including html)
                             if "notes" not in properties:
                                 properties["notes"] = sanitize_comments_html(tostring(notes_nodes[0], method='html'))
@@ -1262,22 +1306,6 @@ class Publication(Record):
                         properties["identifiers"].update({calibre_identifier_type: catalog_number[0]})
                         if prefs['log_level'] in 'DEBUG':
                             log.debug('properties["identifiers"]={0}'.format(properties["identifiers"]))
-
-                elif section == 'Date':
-                    date_text = detail_node[0].tail.strip()
-                    if date_text in ['date unknown', 'unknown', 'unpublished']:
-                        properties["pubdate"] = None  # Warning ignored
-                    else:
-                        # We use this instead of strptime to handle dummy days and months
-                        # E.g. 1965-00-00
-                        year, month, day = [int(p) for p in date_text.split("-")]
-                        month = month or 1
-                        day = day or 1
-                        # Correct datetime result for day = 0: Set hour to 2 UTC
-                        # (if not, datetime goes back to the last month and, in january, even to december last year)
-                        # ToDo: set hour to publisher's timezone?
-                        # properties["pubdate"] = datetime.datetime(year, month, day)
-                        properties["pubdate"] = datetime.datetime(year, month, day, 2, 0, 0)
 
                 elif section == 'Catalog ID':
                     properties["isfdb-catalog"] = detail_node[0].tail.strip()
