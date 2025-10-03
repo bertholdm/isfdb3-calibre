@@ -49,6 +49,9 @@ class ISFDB3(Source):
     platforms = ['Windows', 'Linux', 'Mac']  # the platforms supported
 
     # Changelog
+    # Version 1.4.6 10-02-2025
+    # - Regex for series index search in notes enhanced.
+    # - Search a pub date in the vol/no information if the pub date field only contains a year.
     # Version 1.4.5 09-21-2025
     # - Avoid date conversions if no publishing date is given or publishing date field ccontent is text like "date unknown"
     # Version 1.4.4 09-19-2025

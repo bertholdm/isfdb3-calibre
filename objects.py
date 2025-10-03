@@ -1106,7 +1106,7 @@ class Publication(Record):
                             # or:
                             # Summer 1950 (May-July), Vol 4., No. 11.
                             match = re.search('.*(?:Volume\s|Vol\.\s|Vol\s)([0-9]+|[MDCLXVI]+)(?:.,\s|,\s| *)'
-                                              '(?:No\.\s|No\s|\s)([0-9]+)(\.\sIssue\s)?([0-9]+)?.*|#([0-9]+)',
+                                              '(?:No\.|No\.\s|No\s|\s)([0-9]+)(\.\sIssue\s)?([0-9]+)?.*|#([0-9]+)',
                                               notes, re.IGNORECASE)
                             if match:
                                 volume = number = issue_number = 0
@@ -1148,30 +1148,43 @@ class Publication(Record):
                                 if prefs['log_level'] in ['DEBUG', 'INFO']:
                                     log.debug('Build Series Index from Notes={0}'.format(properties["series_index"]))
 
-                            # Is there a more precise pub date in Notes?
+                            # Is there a more precise pub date in Notes when only year is given in pub date?
                             # Summer 1950 (May-July), Vol 4., No. 11.
-                            match = re.search('(January|February|March|April|May|June|July|August|September|'
-                                              'October|November|December)', notes, re.IGNORECASE)
+                            month_number_from_season = 1
+                            month_number_from_monthname = 1
+                            month_number = 1
+                            match = re.search('(Spring|Summer|Autumn|Winter)', notes, re.IGNORECASE)
                             if match:
                                 if match.group(1):
-                                    # Check if volume is indicated in roman digits
+                                    season_name = str(match.group(1))
+                                    season_names = ['Spring', 'Summer' , 'Autumn', 'Winter']
+                                    season_begins = [2, 5, 8, 11]
+                                    season_number = season_names.index(season_name)
+                                    month_number_from_season = season_begins[season_number]
+                                    if prefs['log_level'] in 'DEBUG':
+                                        log.debug('month_number_from_season={0}'.format(month_number_from_season))
+                            match = re.search('\((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec).*-.*\)', notes, re.IGNORECASE)
+                            if match:
+                                if match.group(1):
                                     month_name = str(match.group(1))
-                                    log.debug('month_name={0}'.format(month_name))
                                     # Does not work with non-english locale!
                                     # month_number = datetime.datetime.strptime(month_name, '%B').month
-                                    month_names = ['January', 'February' , 'March', 'April', 'May', 'June', 'July',
-                                                   'August', 'September', 'October', 'November', 'December']
-                                    month_number = month_names.index(month_name) + 1
-                                    log.debug('month_number={0}'.format(month_number))
-                                    log.debug('properties["pubdate"]={0}'.format(properties["pubdate"]))
-                                    log.debug('properties["pubdate"].month={0}'.format(properties["pubdate"].month))
-                                    if properties["pubdate"].month == 1:
-                                        properties["pubdate"] = (
-                                            datetime.datetime(properties["pubdate"].year,
-                                                              month_number,
-                                                              properties["pubdate"].day,
-                                                              2, 0, 0))
-                                        log.debug('properties["pubdate"]={0}'.format(properties["pubdate"]))
+                                    month_names = \
+                                        ['Jan', 'Feb' , 'Mar', 'Apr', 'May', 'Jun',
+                                         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                                    month_number_from_monthname = month_names.index(month_name) + 1
+                                    if prefs['log_level'] in 'DEBUG':
+                                        log.debug('month_number_from_monthname={0}'.format(month_number_from_monthname))
+                            if month_number_from_season <= month_number_from_monthname:
+                                month_number = month_number_from_monthname
+                            else:
+                                month_number = month_number_from_season
+                            if properties["pubdate"].month == 1 and properties["pubdate"].day == 1:
+                                properties["pubdate"] = (
+                                    datetime.datetime(properties["pubdate"].year,
+                                                      month_number,
+                                                      1,
+                                                      2, 0, 0))
 
                             # Output Notes as is (including html)
                             if "notes" not in properties:

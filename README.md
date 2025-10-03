@@ -1,13 +1,14 @@
-[Metadata Source Plugin] ISFDB3 - Version 1.4.5 09-21-2025
+[Metadata Source Plugin] ISFDB3 - Version 1.4.6 10-02-2025
 
 Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
 
 The ISFDB database provides a lot of data for sf titles and publications (covers, artists, translations, prices, notes, ...) and references to other sources, compiled by volunteers.
 
-A web search form is available under http://www.isfdb.org/cgi-bin/adv_search_menu.cgi
+A web search form is available under http://www.isfdb.org/cgi-bin/adv_search_menu.cgi.
 There is also a web API under http://www.isfdb.org/wiki/index.php/Web_API, but this is not in use yet by the plugin, because the interface only supplies a subset of the data.
 
-The data model distinguishes between titles and publications (connected m:n) and the database has also tables for series, translations, covers, ... A dump for MySQL is available under http://www.isfdb.org/wiki/index.php/ISFDB_Downloads.
+The data model distinguishes between titles and publications (connected m:n) and the database has also tables for series, translations, covers, ... 
+A dump for MySQL is available under http://www.isfdb.org/wiki/index.php/ISFDB_Downloads.
 
 Background:
 
@@ -26,7 +27,7 @@ Therefore, I created the plugin ISFDB3 and submitted it to the plugin repository
 Main changes compared to ISFDB2:
 
 1) Different search strategy for publications
-2) No mixing of identical titles
+2) Avoids mixing of identical titles by Calibre 
 
 To 1): ISFDB2 searches publications (if no ID is available) with the specified title and author. Publications are only found if they have the same search term as the title (i.e. have the same name).
 ISFDB3 uses the list of publications in the title record and follows the links. So it may also find publications that contain the title (usually a short story) but have a different name, i.e. anthologies, magazines, ...
@@ -46,7 +47,7 @@ As a drawback, the qualifier in the title field has to be deleted manually or wi
 And another: You probably need to increase the runtime for the plugin ("Configure Metadata Download" button).
 
 Note for searching by title and author: Since the default search uses the keyword "contains", the title and author name may be shortened. This is always recommended when the spelling is in doubt ("Clark Ashton Smith" vs. "C.A. Smith" or "Eliteeinheit Luna Port" vs. "Eliteeinheit Lunaport").
-Note on searching for magazines, samplers, etc.: If you are unsure about the exact title of such a publication in the ISFDB, search for the title (must) and author (can) of a (not too frequently published) story in it and select the suitable publication from the results display.
+Note on searching for magazines, samplers, etc.: If you are unsure about the exact title of such a publication in the ISFDB, search for the title (must) and author (can) of a (not too frequently published) story in this publication and select the suitable publication from the results display.
 
 Other changes compared to ISFDB2:
 
@@ -71,10 +72,13 @@ Limitations:
 
 - Since there is no language field in publication records, only in title records, following the publication links in a title list may show up publications in not desired languages. However, the publications list in the title page has a button »Not displaying translations«, so some research is already needed.
 - Some time ago, isfdb.org blocked advanced search access for non-logged-in users.
-  ISFDB3 has a fallback to simple search with title only and a filter for record types (INTERIORART, ...).
+  ISFDB3 has a fallback to simple search with title only and a filter for irrelevant record types (INTERIORART, ...) and author(s).
   To avoid large title lists for short or generic titles ("Stars") with the default "contains" search, the search is switched to "exact match", if the first character in the title field is an equal sign ("=").
 
 Version History:
+Version 1.4.6 10-02-2025
+- Regex for series index search in notes enhanced.
+- Search a pub date in the vol/no information if the pub date field only contains a year.
 Version 1.4.5 09-21-2025
 - Avoid date conversions if no publishing date is given or publishing date field ccontent is text like "date unknown"
 Version 1.4.4 09-19-2025
@@ -141,10 +145,8 @@ Version 1.0.0 - 01-31-2022
 - Initial release.
 
 Installation:
-
 Download the attached zip file and install the plugin as described in the Introduction to plugins thread (https://www.mobileread.com/forums/showthread.php?t=118680).
 The plugin is also available in Calibre's plugin updater.
 
 How to report bugs and suggestions:
-
 If you find any issues, please report them in the thread on the MobileRead website or at GitHub: https://github.com/bertholdm/isfdb3-calibre.
