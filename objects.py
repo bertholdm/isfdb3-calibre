@@ -1105,7 +1105,9 @@ class Publication(Record):
                             # Vol 46, No 3, Whole No 274 [...]
                             # or:
                             # Summer 1950 (May-July), Vol 4., No. 11.
-                            match = re.search('.*(?:Volume\s|Vol\.\s|Vol\s)([0-9]+|[MDCLXVI]+)(?:.,\s|,\s| *)'
+                            # or:
+                            # Vol.1, No.11
+                            match = re.search('.*(?:Volume\s|Vol\.\s|Vol\s|Vol\.)([0-9]+|[MDCLXVI]+)(?:.,\s|,\s| *)'
                                               '(?:No\.|No\.\s|No\s|\s)([0-9]+)(\.\sIssue\s)?([0-9]+)?.*|#([0-9]+)',
                                               notes, re.IGNORECASE)
                             if match:
