@@ -39,8 +39,8 @@ class ISFDB3(Source):
     name = 'ISFDB3'
     description = _('Downloads metadata and covers from ISFDB (https://www.isfdb.org/)')
     author = 'Michael Detambel - Forked from Adrianna Pińska\'s ISFDB2 (https://github.com/confluence/isfdb2-calibre)'
-    version = (1, 4, 7)  # the plugin version number
-    release = ('10-05-2025')  # the release date
+    version = (1, 4, 8)  # the plugin version number
+    release = ('10-14-2025')  # the release date
     calibre = (5,0,0)  # the minimum calibre version number
     minimum_calibre_version = (5, 0, 0)
     # From https://manual.calibre-ebook.com/de/_modules/calibre/ebooks/metadata/sources/base.html
@@ -49,6 +49,8 @@ class ISFDB3(Source):
     platforms = ['Windows', 'Linux', 'Mac']  # the platforms supported
 
     # Changelog
+    # Version 1.4.8 10-14-2025
+    # - Corrects a regression that generates a false series index.
     # Version 1.4.7 10-05-2025
     # - Regex for series index search in notes enhanced.
     # Version 1.4.6 10-02-2025
@@ -748,16 +750,21 @@ class ISFDB3(Source):
         # Transfer the search results to the workers
 
         if self.prefs['log_level'] in ('DEBUG', 'INFO'):
-            log.info(_('Matches found (URL, relevance): {0}.').format(matches))
-        # {('http://www.isfdb.org/cgi-bin/title.cgi?41896', 0), ('http://www.isfdb.org/cgi-bin/title.cgi?2946687', 0)}.
-        if self.prefs['log_level'] in ('DEBUG', 'INFO'):
-            log.info(_('Starting workers...'))
+            log.info(_('{0} Matches found (URL, relevance): {1}.').format(len(matches), matches))
+            # {('http://www.isfdb.org/cgi-bin/title.cgi?41896', 0), ('http://www.isfdb.org/cgi-bin/title.cgi?2946687', 0)}.
 
         workers = [Worker(m_url, result_queue, self.browser, log, m_rel, self, self.prefs, timeout) for (m_url, m_rel)
                    in matches]
 
+        if self.prefs['log_level'] in 'DEBUG':
+            log.debug("{0} workers created.".format(len(workers)))
+
+        if self.prefs['log_level'] in ('DEBUG', 'INFO'):
+            log.info(_('Starting workers, if found...'))
         for w in workers:
             w.start()
+            if self.prefs['log_level'] in 'DEBUG':
+                log.debug("Worker started: {0}.".format(w))
             # Don't send all requests at the same time
             time.sleep(0.1)
 
@@ -771,6 +778,10 @@ class ISFDB3(Source):
                     a_worker_is_alive = True
             if not a_worker_is_alive:
                 break
+
+        if self.prefs['log_level'] in 'DEBUG':
+            log.debug('*** All workers ended. timeout={0}'.format(timeout))
+
 
     def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30,
                        get_best_cover=False):

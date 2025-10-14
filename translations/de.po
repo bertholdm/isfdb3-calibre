@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ISFDB3\n"
-"POT-Creation-Date: 2025-09-08 15:12+0200\n"
-"PO-Revision-Date: 2025-09-08 15:17+0200\n"
+"POT-Creation-Date: 2025-10-08 14:39+0200\n"
+"PO-Revision-Date: 2025-10-08 14:41+0200\n"
 "Last-Translator: Michael Detambel <info@michael-detambel.de>\n"
 "Language-Team: Michael Detambel\n"
 "Language: de_DE@formal\n"
@@ -10,7 +10,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.7\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-SearchPath-0: .\n"
 
@@ -18,15 +18,15 @@ msgstr ""
 msgid "Downloads metadata and covers from ISFDB (https://www.isfdb.org/)"
 msgstr "Lädt Metadaten und Buchumschläge von ISFDB (https://www.isfdb.org/)"
 
-#: __init__.py:142
+#: __init__.py:151
 msgid "For further explanations see isfdb3.md file."
 msgstr "Weitere Informationen in der Datei isfdb3.md."
 
-#: __init__.py:168
+#: __init__.py:177
 msgid "Maximum number of search results to download:"
 msgstr "Maximale Anzahl an Suchergebnissen zum Herunterladen:"
 
-#: __init__.py:169
+#: __init__.py:178
 msgid ""
 "This setting only applies to ISBN and title / author searches. Book records "
 "with a valid ISFDB publication and/or title ID will return exactly one "
@@ -35,22 +35,22 @@ msgstr ""
 "Diese Einstellung bezieht sich ausschließlich auf eine Suche mit Titel bzw. "
 "Autor.. Bucheinträge mit einer gültigen ISFDB ID liefern genau ein Ergebnis."
 
-#: __init__.py:176
+#: __init__.py:185
 msgid "Maximum number of covers to download:"
 msgstr "Maximale Anzahl an Titelbildern zum Herunterladen:"
 
-#: __init__.py:177
+#: __init__.py:186
 msgid ""
 "The maximum number of covers to download. This only applies to publication "
 "records with no cover. If there is a cover associated with the record, only "
 "that cover will be downloaded."
 msgstr "Die maximale Anzahl an Titelbildern, die heruntergeladen werden.."
 
-#: __init__.py:184
+#: __init__.py:193
 msgid "Search ISFDB publications?"
 msgstr "Ausgaben in der ISFDB suchen?"
 
-#: __init__.py:185
+#: __init__.py:194
 msgid ""
 "This only applies to title / author searches. A record with a publication ID "
 "will always return a publication."
@@ -58,11 +58,11 @@ msgstr ""
 "Diese Einstellung bezieht sich ausschließlich auf eine Suche mit Titel bzw. "
 "Autor.. Bucheinträge mit einer gültigen ISFDB ID liefern genau ein Ergebnis."
 
-#: __init__.py:192
+#: __init__.py:201
 msgid "Search ISFDB titles?"
 msgstr "Titel in der ISFDB suchen?"
 
-#: __init__.py:193
+#: __init__.py:202
 msgid ""
 "This only applies to title / author searches. A record with a title ID and "
 "no publication ID will always return a title."
@@ -70,19 +70,19 @@ msgstr ""
 "Diese Einstellung bezieht sich ausschließlich auf eine Suche mit Titel bzw. "
 "Autor.. Bucheinträge mit einer gültigen ISFDB ID liefern genau ein Ergebnis."
 
-#: __init__.py:200
+#: __init__.py:209
 msgid "Search options"
 msgstr "Such-Optionen"
 
-#: __init__.py:201
+#: __init__.py:210
 msgid "Choose one of the options for search variants."
 msgstr "Wählen Sie eine der folgenden Optionen als Such-Variante."
 
-#: __init__.py:210
+#: __init__.py:219
 msgid "Title template"
 msgstr "Titelvorlage"
 
-#: __init__.py:211
+#: __init__.py:220
 #, python-brace-format
 msgid ""
 "Allowed placeholders are: {title}, {title_sort}, {authors}, {authors_sort}, "
@@ -97,11 +97,11 @@ msgstr ""
 "{series_index:04d} um die Seriennummer vierstellig mit führenden Nullen "
 "auszugeben. Standard ist der reine Titel."
 
-#: __init__.py:220
+#: __init__.py:229
 msgid "Combine series and sub-series?"
 msgstr "Serie und Unterserie zusammenfassen?"
 
-#: __init__.py:221
+#: __init__.py:230
 msgid ""
 "Choosing this option will set the series field with series and sub-series "
 "(if any)."
@@ -109,11 +109,11 @@ msgstr ""
 "Bei Auswahl dieser Option wird das \"Serie\"-Feld mit einer Kombination aus "
 "Serie und Unter-Serie (falls vorhanden) gefüllt (wenn vorhanden)."
 
-#: __init__.py:227
+#: __init__.py:236
 msgid "Combine series and sub-series with"
 msgstr "Serie und Unterserie trennen mit"
 
-#: __init__.py:228
+#: __init__.py:237
 msgid ""
 "String to concatenate series und sub-series in the series field. Examples: "
 "\".\" (Calibre sort character), \" | \", ..."
@@ -121,19 +121,19 @@ msgstr ""
 "Zeichenkette angeben, mit der Serie und Unterserie getrennt werden sollen. "
 "Beispiele: \".\" (für Calibre Sortierung), \" | \", usw."
 
-#: __init__.py:235
+#: __init__.py:244
 msgid "Unwanted Tags"
 msgstr "Unerwünschte Schlagwörter"
 
-#: __init__.py:236
+#: __init__.py:245
 msgid "Comma-seperated list of tags to ignore."
 msgstr "Komma-separierte Liste von Schlagworten, die ignoriert werden sollen."
 
-#: __init__.py:242
+#: __init__.py:251
 msgid "Note translations in comments"
 msgstr "Hinweis auf Übersetzungen im Kommentar"
 
-#: __init__.py:243
+#: __init__.py:252
 msgid ""
 "Choosing this option will set information and links to ISFDB pages with "
 "translations in the indicated language(s), if provided."
@@ -141,35 +141,35 @@ msgstr ""
 "Durch diese Option werden Informationen zu Übersetzungen eingefügt, falls "
 "vorhanden."
 
-#: __init__.py:250
+#: __init__.py:259
 msgid "Translate ISFDB"
 msgstr "ISFDB übersetzen"
 
-#: __init__.py:251
+#: __init__.py:260
 msgid "Choosing this option will traslate ISFDB texts."
 msgstr "Diese Option wählen, wenn die Texte der ISFDB übersetzt werden sollen."
 
-#: __init__.py:267
+#: __init__.py:276
 msgid "Languages"
 msgstr "Sprachen"
 
-#: __init__.py:268
+#: __init__.py:277
 msgid "Choose one language to filter titles. English is ever set."
 msgstr "Eine Sprache wählen, um Titel zu filtern. Englisch ist immer gesetzt."
 
-#: __init__.py:276
+#: __init__.py:285
 msgid "Logging level"
 msgstr "Logging-Niveau"
 
-#: __init__.py:277
+#: __init__.py:286
 msgid "ERROR = only error messages, DEBUG: all logging messages."
 msgstr "ERROR = Nur Fehlermeldungen, DEBUG: alle Meldungen."
 
-#: __init__.py:285
+#: __init__.py:294
 msgid "Series index build options"
 msgstr "Option zum Erstellen des Serien-Index"
 
-#: __init__.py:286
+#: __init__.py:295
 msgid ""
 "Choose one of the options to build the series index for periodicals from, if "
 "volume and issue number is given in \"Notes\" block.\n"
@@ -205,89 +205,89 @@ msgstr ""
 "Wenn eine Serien-Bezeichnung vorhanden ist, aber keine zur Ausgabe, wird der "
 "Serienindex aus dem Veröffentlchungdatem (Jahr/Monat) erzeugt.\n"
 
-#: __init__.py:429
+#: __init__.py:438
 msgid "ISFDB3 is starting..."
 msgstr "ISFDB3 startet..."
 
-#: __init__.py:430
+#: __init__.py:439
 #, python-brace-format
 msgid "Log level is {0}."
 msgstr "Logging-Niveau  ist {0}."
 
-#: __init__.py:482 __init__.py:521 __init__.py:687 __init__.py:729
+#: __init__.py:491 __init__.py:530 __init__.py:696 __init__.py:738
 msgid "Abort is set."
 msgstr "Abbruch der Verarbeitung."
 
-#: __init__.py:512 __init__.py:586 __init__.py:681
+#: __init__.py:521 __init__.py:595 __init__.py:690
 #, python-brace-format
 msgid "Search for Pubs aborted because max. results are reached: {0}."
 msgstr ""
 "Such nach Veröffentlichungen abgebrochen, da die maximale Anzahl von "
 "Ergebnissen erreicht wurde: {0}."
 
-#: __init__.py:517
+#: __init__.py:526
 #, python-brace-format
 msgid "{0} matches with isbn and/or isfdb-catalog ids."
 msgstr "{0} Treffer mit ISBN und/oder der ISFDB Katalog Id."
 
-#: __init__.py:529
+#: __init__.py:538
 msgid "No id(s) given. Trying a search with title and author(s)."
 msgstr ""
 "Keine IDs vorhanden. Schlüsselwortsuche mit Titel und Autor wird "
 "durchgeführt:."
 
-#: __init__.py:560 __init__.py:642 __init__.py:723
+#: __init__.py:569 __init__.py:651 __init__.py:732
 #, python-brace-format
 msgid "Search for Titles aborted because max. results are reached: {0}."
 msgstr ""
 "Such nach Titeln abgebrochen, da die maximale Anzahl von Ergebnissen "
 "erreicht wurde: {0}."
 
-#: __init__.py:571 __init__.py:667
+#: __init__.py:580 __init__.py:676
 msgid "Fetching all linked pub records..."
 msgstr "Hole alle verknüpften Datensätze mit Veröffentlichungen..."
 
-#: __init__.py:601
+#: __init__.py:610
 #, python-brace-format
 msgid "Searching with author={0}, title={1}."
 msgstr "Searching with author={0}, title={1}."
 
-#: __init__.py:705
+#: __init__.py:714
 #, python-brace-format
 msgid "No publications found with title and author(s) search for »{0}« by {1}."
 msgstr ""
 "Keine Veröffentlichungen gefunden mit der Titel- und Autorensuche für »{0}« "
 "von {1}."
 
-#: __init__.py:742
+#: __init__.py:751
 #, python-brace-format
-msgid "Matches found (URL, relevance): {0}."
-msgstr "Treffer gefunden (URL, relevance): {0}."
+msgid "{0} Matches found (URL, relevance): {1}."
+msgstr "{0} Treffer gefunden (URL, relevance): {1}."
 
-#: __init__.py:745
-msgid "Starting workers..."
-msgstr "Starte Arbeitsprogramme..."
+#: __init__.py:761
+msgid "Starting workers, if found..."
+msgstr "Starte Arbeitsprogramme, falls vorhanden..."
 
-#: __init__.py:779
+#: __init__.py:796
 msgid "Not enough information. Running identify."
 msgstr ""
 "Keine zwischengespeicherte Titelbild URL gefunden. Starte erneut "
 "Identifizierung."
 
-#: __init__.py:823
+#: __init__.py:840
 msgid "We were unable to find any covers."
 msgstr "Es wurden keine Titelbilder gefunden."
 
-#: __init__.py:869
+#: __init__.py:886
 #, python-format
 msgid "Worker parsing ISFDB url: %r"
 msgstr "Das Arbeitsprogramm wertet den ISFDB URL: %r aus"
 
-#: __init__.py:876
+#: __init__.py:893
 msgid "This url is a Publication."
 msgstr "Dieser URL ist eine Publikation."
 
-#: __init__.py:894
+#: __init__.py:911
 msgid ""
 "Could not find title ID in original metadata or on publication page. "
 "Searching for title."
@@ -295,45 +295,45 @@ msgstr ""
 "Konnte keine Titel-ID in den ursprünglichen Metadaten oder auf der "
 "Publikationsseite finden. Starte Titelsuche."
 
-#: __init__.py:896
+#: __init__.py:913
 msgid "Warning: pub[\"author_string\"] is not set."
 msgstr "Warnung: pub[\"author_string\"] ist nicht gefüllt."
 
-#: __init__.py:918
+#: __init__.py:935
 #, python-format
 msgid "Fetching additional title information from %s"
 msgstr "Hole zusätzliche Titel-Informationen aus %s"
 
-#: __init__.py:925
+#: __init__.py:942
 msgid "This is the exact title! Merge title and publication info."
 msgstr "Dies ist der genaue Titel. Mische Titel- und Publikation-Info."
 
-#: __init__.py:946
+#: __init__.py:963
 msgid "This is not the correct title."
 msgstr "Dies ist nicht der richtige Titel."
 
-#: __init__.py:950
+#: __init__.py:967
 msgid "We could not find a title record for this publication."
 msgstr "Es konnte kein Datensatz für diese Veröffentlichung gefunden werden."
 
-#: __init__.py:955
+#: __init__.py:972
 msgid "This url is a Title."
 msgstr "Dieser URL ist ein Titel."
 
-#: __init__.py:982
+#: __init__.py:999
 msgid "Out of cheese error! Unrecognised url!"
 msgstr "Nicht auswertbare URL!"
 
-#: __init__.py:988
+#: __init__.py:1005
 #, python-format
 msgid "Insufficient metadata found for %r"
 msgstr "Nicht genügen Metadaten gefunden für %r"
 
-#: __init__.py:992
+#: __init__.py:1009
 msgid "Unknown"
 msgstr "Unbekannt"
 
-#: __init__.py:1114
+#: __init__.py:1131
 #, python-format
 msgid "Worker failed to fetch and parse url %r with error %r"
 msgstr ""
@@ -783,7 +783,7 @@ msgstr "ist nicht nummeriert"
 msgid "unnumbered"
 msgstr "nicht nummeriert"
 
-#: myglobals.py:378 objects.py:1049
+#: myglobals.py:378 objects.py:1008
 msgid "variant of"
 msgstr "Variante von"
 
@@ -984,7 +984,7 @@ msgstr "vorderes Vorsatzblatt"
 
 #: myglobals.py:427
 msgid "Pp."
-msgstr "Seiten "
+msgstr "Seiten  "
 
 #: myglobals.py:428
 msgid "P."
@@ -1024,16 +1024,20 @@ msgstr ""
 "Die ISFDB Übersichtsseite hat weitergeleitet zur Detailseite {0} (da nur ein "
 "Titel vorhanden). Steht noch auf der To-Do-Liste."
 
-#: objects.py:958 objects.py:1599
+#: objects.py:959 objects.py:1663
 msgid " (Editor)"
 msgstr " (Herausgeber)"
 
-#: objects.py:1013 objects.py:1668
+#: objects.py:1009
+msgid " by "
+msgstr " von "
+
+#: objects.py:1037 objects.py:1736
 #, python-brace-format
 msgid "Series is: \"{0}\". Now searching series index in \"{1}\""
 msgstr "Serie ist: {0}. Suche jetzt den Serien-Index in \"{1}\""
 
-#: objects.py:1023
+#: objects.py:1047
 #, python-brace-format
 msgid ""
 "Reported number was {0} and was reduced to a Calibre compatible format.<br />"
@@ -1041,7 +1045,7 @@ msgstr ""
 "Seriennummer war {0} und wurde in ein Calibre-kompatibles Format umgesetzt."
 "<br />"
 
-#: objects.py:1032 objects.py:1103 objects.py:1687
+#: objects.py:1056 objects.py:1129 objects.py:1755
 #, python-brace-format
 msgid ""
 "Reported number was the roman numeral {0} and was converted to a Calibre "
@@ -1050,78 +1054,74 @@ msgstr ""
 "Seriennummer war {0} und wurde in ein Calibre-kompatibles Format umgesetzt."
 "<br />"
 
-#: objects.py:1040 objects.py:1695
+#: objects.py:1064 objects.py:1763
 #, python-brace-format
 msgid "Could not convert {0} to a Calibre compatible format.<br />"
 msgstr ""
 "Seriennummer war {0} und wurde in ein Calibre-kompatibles Format umgesetzt."
 "<br />"
 
-#: objects.py:1050
-msgid " by "
-msgstr " von "
-
-#: objects.py:1240
+#: objects.py:1307
 msgid "Unknown catalog with more than one link."
 msgstr "Unbekannter Katalog mit mehr als einem Link."
 
-#: objects.py:1297
+#: objects.py:1348
 #, python-format
 msgid "Error parsing section %r for url: %r. Error: %r"
 msgstr "Fehler beim Parsen von Abschnitt %r für die URL: %r. Fehler: %r"
 
-#: objects.py:1340
+#: objects.py:1391
 #, python-format
 msgid "Error parsing the second content box for url: %r. Error: %r"
 msgstr ""
 "Fehler beim Parsen der <i>content box</i> mit der Titelzeile und dem "
 "Inhaltsverzeichnis für die URL: %r. Fehler: %r"
 
-#: objects.py:1347
+#: objects.py:1398
 msgid "Source for publication metadata: "
 msgstr "Quelle für Metadaten der Veröffentlichung "
 
-#: objects.py:1353
+#: objects.py:1404
 msgid "No series found so far. Looking further."
 msgstr "Bisher keine Serie gefunden. Suche weiter."
 
-#: objects.py:1382
+#: objects.py:1446
 msgid "Source for series metadata: "
 msgstr "Quelle für Metadaten der Serie "
 
-#: objects.py:1385
+#: objects.py:1449
 msgid "No series found at all."
 msgstr "Endgültig keine Serie gefunden."
 
-#: objects.py:1392
+#: objects.py:1456
 #, python-format
 msgid "Error parsing cover for url: %r. Error: %r"
 msgstr "Fehler beim Parsen des Titelbildes für die URL: %r. Fehler: %r"
 
-#: objects.py:1456
+#: objects.py:1520
 msgid "Title.stub_from_search(): row is None."
 msgstr "Title.stub_from_search(): row is None."
 
-#: objects.py:1499
+#: objects.py:1563
 msgid "Title.stub_from_simple_search(): row is None."
 msgstr "Title.stub_from_search(): hat keine Daten geliefert."
 
-#: objects.py:1678
+#: objects.py:1746
 #, python-brace-format
 msgid "Reported number was {0} and was reduced to a Calibre compatible format."
 msgstr ""
 "Seriennummer war {0} und wurde in ein Calibre-kompatibles Format umgesetzt."
 
-#: objects.py:1777
+#: objects.py:1845
 #, python-brace-format
 msgid "Error parsing section {0} for url: {1}. Error: {2}"
 msgstr "Fehler beim Parsen von Abschnitt {0} für den URL: {1}. Fehler: {2}"
 
-#: objects.py:1780 objects.py:1782
+#: objects.py:1848 objects.py:1850
 msgid "Source for title metadata: "
 msgstr "Quelle für Metadaten des Titels "
 
-#: objects.py:1813 objects.py:1815
+#: objects.py:1882 objects.py:1884
 msgid "First published in: "
 msgstr "Zuerst veröffentlicht in: "
 
@@ -1209,8 +1209,8 @@ msgstr "Zuerst veröffentlicht in: "
 #~ "Downloads metadata and covers from the science fiction loan book database "
 #~ "(http://www.sf-leihbuch.de/)"
 #~ msgstr ""
-#~ "Lädt Metadaten und Titelbild aus der SF-Leihbuch Datenbank  (http://www."
-#~ "sf-leihbuch.de/)"
+#~ "Lädt Metadaten und Titelbild aus der SF-Leihbuch Datenbank  (http://"
+#~ "www.sf-leihbuch.de/)"
 
 #~ msgid "Search mode"
 #~ msgstr "Such-Modus"

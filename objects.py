@@ -28,16 +28,13 @@ from calibre_plugins.isfdb3.myglobals import (TYPE_TO_TAG, LANGUAGES, LOCALE_LAN
 load_translations()
 # _ = gettext.gettext  # is already done by load_translations()
 
-
 prefs = JSONConfig('plugins/ISFDB3')
-
 
 def get_language_name(search_code):
     # for language_name, language_code in myglobals.LANGUAGES.items():
     for language_name, language_code in LANGUAGES.items():
         if language_code == search_code:
             return language_name
-
 
 def is_roman_numeral(numeral):
     numeral = {c for c in numeral.upper()}
@@ -74,7 +71,6 @@ def roman_to_int(numeral):
             last_count = 1
             last_val = value
     return result + (-1 if subtraction else 1) * last_val * last_count
-
 
 def season_to_int(name):
     season_names = ['Spring', 'Summer', 'Fall', 'Winter']
@@ -883,6 +879,9 @@ class Publication(Record):
             log.debug('*** Enter Publication.from_url().')
             log.debug('url={0}'.format(url))
 
+        # To distinguish series_index quality. Authoritative is the contenht of the field "Pub. Series #"
+        series_index_is_authoritative = None
+
         properties = {"isfdb": cls.id_from_url(url)}
 
         location, root = cls.root_from_url(browser, url, timeout, log, prefs)
@@ -943,6 +942,7 @@ class Publication(Record):
                     # Todo: Get series and series index from pub line, if not otherwise indicated:
                     # Publication: New Worlds,#192 July 1969
                     # Publication: Epic Illustrated, February 1986
+                    # Publication: Vargo Statten British Science Fiction Magazine, Vol 1 No 4
 
                 elif section in ('Author', 'Authors', 'Editor', 'Editors'):
                     properties["authors"] = []
@@ -1045,6 +1045,7 @@ class Publication(Record):
                             properties["series_number_notes"] = \
                                 _("Reported number was {0} and was reduced to a Calibre compatible format.<br />"). \
                                     format(detail_node[0].tail)
+                            series_index_is_authoritative = True
                         elif is_roman_numeral(detail_node[0].tail.strip()):
                             if prefs['log_level'] in 'DEBUG':
                                 log.debug('Roman literal found:{0}'.format(detail_node[0].tail.strip()))
@@ -1054,10 +1055,12 @@ class Publication(Record):
                             properties["series_number_notes"] = \
                                 _("Reported number was the roman numeral {0} and was converted to a Calibre compatible format.<br />"). \
                                     format(detail_node[0].tail.strip())
+                            series_index_is_authoritative = True
                         else:
                             try:
                                 properties["series_index"] = int(
                                     "".join(filter(str.isdigit, detail_node[0].tail.strip())))
+                                series_index_is_authoritative = True
                             except ValueError:
                                 properties["series_number_notes"] = \
                                     _("Could not convert {0} to a Calibre compatible format.<br />"). \
@@ -1091,7 +1094,7 @@ class Publication(Record):
                         # and even this:
                         # Notes:
                         # • Vol. 4, No. 3. Issue 22.
-                        if notes_nodes:
+                        if notes_nodes and not series_index_is_authoritative:
                             # Special treatment for publication series:
                             # Vol 1, No 5. Donald A. Wollheim is credited...
                             # or:
@@ -1426,9 +1429,22 @@ class Publication(Record):
                     log.debug('properties["series"]={0}'.format(properties["series"]))
                 if '#' in properties["title"]:
                     match = re.search('#(\d+)', properties["title"], re.IGNORECASE)
-                    properties["series_index"] = float(int("".join(filter(str.isdigit, match.group(1)))))
-                    if prefs['log_level'] in 'DEBUG':
-                        log.debug('properties["series_index"]={0}'.format(properties["series_index"]))
+                    if match:
+                        # properties["series_index"] = float(int("".join(filter(match.group(1).isdigit, match.group(1)))))
+                        properties["series_index"] = float(match.group(1))
+                        if prefs['log_level'] in 'DEBUG':
+                            log.debug('properties["series_index"]={0}'.format(properties["series_index"]))
+                else:
+                    # Check next content box for series index
+                    # /html/body/div/div[3]/div[2]
+                    # #content > div:nth-child(2)
+                    # //*[@id="content"]/div[2]
+                    # issues = root.xpath('//*[@id="content"]/div[2]/ul/li')
+                    # for issue in issues:
+                    #     log.debug('issue={0}'.format(issue))
+                    #     #.text_content().strip()
+                    pass  # ToDo
+
                 properties["comments"] = properties["comments"] + '<br />' + _('Source for series metadata: ') + series_url
             except (IndexError, KeyError):
                 if prefs['log_level'] in ('DEBUG', 'INFO'):

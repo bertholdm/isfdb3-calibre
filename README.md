@@ -1,4 +1,4 @@
-[Metadata Source Plugin] ISFDB3 - Version 1.4.7 10-05-2025
+[Metadata Source Plugin] ISFDB3 - Version 1.4.8 10-14-2025
 
 Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
 
@@ -48,6 +48,7 @@ And another: You probably need to increase the runtime for the plugin ("Configur
 
 Note for searching by title and author: Since the default search uses the keyword "contains", the title and author name may be shortened. This is always recommended when the spelling is in doubt ("Clark Ashton Smith" vs. "C.A. Smith" or "Eliteeinheit Luna Port" vs. "Eliteeinheit Lunaport").
 Note on searching for magazines, samplers, etc.: If you are unsure about the exact title of such a publication in the ISFDB, search for the title (must) and author (can) of a (not too frequently published) story in this publication and select the suitable publication from the results display.
+If still no matches found (because of timeout or prgramm error) get the pub record # or title record # from a search on the isfdb.org website an put the number in Calibre's IDs field after the appropriate prefix (isfdb: or isfdb-title:). 
 
 Other changes compared to ISFDB2:
 
@@ -74,8 +75,11 @@ Limitations:
 - Some time ago, isfdb.org blocked advanced search access for non-logged-in users.
   ISFDB3 has a fallback to simple search with title only and a filter for irrelevant record types (INTERIORART, ...) and author(s).
   To avoid large title lists for short or generic titles ("Stars") with the default "contains" search, the search is switched to "exact match", if the first character in the title field is an equal sign ("=").
+  However, there is a risk of a timeout, as a simple search often returns thousands of titles (a search for "The House" by H. P. Lovecraft returns 3,124 results, since all titles with this phrase are returned and the author is ignored), so the filters may not work.
 
 Version History:
+Version 1.4.8 10-14-2025
+- Correct a regression that leads to a false series index.
 Version 1.4.7 10-05-2025
 - Regex for series index search in notes enhanced.
 Version 1.4.6 10-02-2025
