@@ -80,6 +80,8 @@ Limitations:
 Version History:
 Version 1.4.9 01-11-2026
 - Don't use title tokens for search yet.
+- Record type COVERART is no longer ignored in title search (Sometimes there is no other record
+  which directs to the pub record.)
 Version 1.4.8 10-14-2025
 - Corrects a regression that generates a false series index.
 Version 1.4.7 10-05-2025

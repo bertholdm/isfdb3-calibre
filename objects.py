@@ -739,7 +739,8 @@ class TitleList(SearchResults):
                 # If simple search: Filter text titles (NOVEL etc.)
                 if row.xpath('td[2]')[0].text_content() not in ('ANTHOLOGY', 'CHAPBOOK', 'COLLECTION', 'ESSAY',
                                                                 'MAGAZINE', 'NONFICTION', 'NOVEL', 'OMNIBUS', 'POEM',
-                                                                'SHORTFICTION'):
+                                                                'SHORTFICTION', 'COVERART'):
+                    # Notabene added COVERART: Sometimes there is no other record which directs to the pub record.
                     if prefs['log_level'] in 'DEBUG':
                         log.debug('Type ignored.')
                     continue
