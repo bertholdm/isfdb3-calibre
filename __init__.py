@@ -39,8 +39,8 @@ class ISFDB3(Source):
     name = 'ISFDB3'
     description = _('Downloads metadata and covers from ISFDB (https://www.isfdb.org/)')
     author = 'Michael Detambel - Forked from Adrianna Pińska\'s ISFDB2 (https://github.com/confluence/isfdb2-calibre)'
-    version = (1, 4, 8)  # the plugin version number
-    release = ('10-14-2025')  # the release date
+    version = (1, 4, 9)  # the plugin version number
+    release = ('01-11-2026')  # the release date
     calibre = (5,0,0)  # the minimum calibre version number
     minimum_calibre_version = (5, 0, 0)
     # From https://manual.calibre-ebook.com/de/_modules/calibre/ebooks/metadata/sources/base.html
@@ -49,6 +49,8 @@ class ISFDB3(Source):
     platforms = ['Windows', 'Linux', 'Mac']  # the platforms supported
 
     # Changelog
+    # Version 1.4.9 01-11-2026
+    # - Don't use title tokens for search yet.
     # Version 1.4.8 10-14-2025
     # - Corrects a regression that generates a false series index.
     # Version 1.4.7 10-05-2025
@@ -543,11 +545,11 @@ class ISFDB3(Source):
             # Title:The Magazine of Fantasy and Science Fiction Year:1955 Month:03 Week: Vol:8 No:3
             possible_keywords = ['Title:', 'Year:', 'Month:', 'Week:', 'Vol:', 'No:']
             found_keywords = []
-            for x in possible_keywords:
-                if x in title:
-                    found_keywords.append(x)
+            for keyword in possible_keywords:
+                if keyword in title:
+                    found_keywords.append(keyword)
             if any(found_keywords):
-                # Special search for magazine
+                # Special search for magazines
                 query = TitleList.url_from_title_with_keywords(title, found_keywords, log, self.prefs)
                 stubs = TitleList.from_url(self.browser, query, timeout, log, self.prefs)
                 if self.prefs['log_level'] in 'DEBUG':
@@ -606,9 +608,15 @@ class ISFDB3(Source):
                 authors = authors or []
                 author_tokens = self.get_author_tokens(authors, only_first_author=True)
                 author = ' '.join(author_tokens)
-                title_tokens = self.get_title_tokens(title, strip_joiners=False, strip_subtitle=True)
-                title = ' '.join(title_tokens)
+                # get_title_tokens() returns an iterator, not list!
+                # (see https://manual.calibre-ebook.com/de/_modules/calibre/ebooks/metadata/sources/base.html)
+                title_iterator = self.get_title_tokens(title, strip_joiners=False, strip_subtitle=True)
+                title_tokens = []
+                for token in title_iterator:
+                    title_tokens.append(token)
+                # These tokens are not used yet! (Perhaps with an option in config.)
                 if self.prefs['log_level'] in ('DEBUG', 'INFO'):
+                    log.info(_('title_tokens={0}.').format(title_tokens))
                     log.info(_('Searching with author={0}, title={1}.').format(author, title))
 
                 ##################################################
