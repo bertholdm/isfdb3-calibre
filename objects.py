@@ -647,7 +647,7 @@ class TitleList(SearchResults):
                         tooltip.getparent().remove(
                             tooltip)  # We grab the parent of the element to call the remove directly on it
                 except Exception as e:
-                    log.debug('Exception ignored:{0}'.format(e))
+                    log.debug('Exception ignored while deleting tooltips: {0}'.format(e))
 
                 # //*[@id="main"]/table
                 rows = root.xpath('//div[@id="main"]/table/tr')
@@ -888,10 +888,13 @@ class Publication(Record):
         location, root = cls.root_from_url(browser, url, timeout, log, prefs)
 
         # Get rid of tooltips
-        for tooltip in root.xpath('//sup[@class="mouseover"]'):
-            tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
-        for tooltip in root.xpath('//span[@class="tooltiptext tooltipnarrow tooltipright"]'):
-            tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
+        try:
+            for tooltip in root.xpath('//sup[@class="mouseover"]'):
+                tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
+            for tooltip in root.xpath('//span[@class="tooltiptext tooltipnarrow tooltipright"]'):
+                tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
+        except Exception as e:
+            log.debug('Exception ignored while deleting tooltips: {0}'.format(e))
 
         # Records with a cover image (most pages)
         # //*[@id="content"]/div[1]/table/tr/td[2]/ul
@@ -1353,15 +1356,18 @@ class Publication(Record):
         # The second content box, if present, contains the pub title (extended) and the table of contents
         try:
             # Get rid of tooltips
-            for tooltip in root.xpath('//sup[@class="mouseover"]'):
-                # We grab the parent of the element to call the remove directly on it
-                tooltip.getparent().remove(tooltip)
-            for tooltip in root.xpath('//span[@class="tooltiptext tooltipnarrow tooltipright"]'):
-                # We grab the parent of the element to call the remove directly on it
-                tooltip.getparent().remove(tooltip)
-            for tooltip in root.xpath('//div[@class="tooltip tooltipright"]'):
-                # We grab the parent of the element to call the remove directly on it
-                remove_node(tooltip, keep_content=True)  # but save the author's name
+            try:
+                for tooltip in root.xpath('//sup[@class="mouseover"]'):
+                    # We grab the parent of the element to call the remove directly on it
+                    tooltip.getparent().remove(tooltip)
+                for tooltip in root.xpath('//span[@class="tooltiptext tooltipnarrow tooltipright"]'):
+                    # We grab the parent of the element to call the remove directly on it
+                    tooltip.getparent().remove(tooltip)
+                for tooltip in root.xpath('//div[@class="tooltip tooltipright"]'):
+                    # We grab the parent of the element to call the remove directly on it
+                    remove_node(tooltip, keep_content=True)  # but save the author's name
+            except Exception as e:
+                log.debug('Exception ignored while deleting tooltips: {0}'.format(e))
             # contents_node = root.xpath('//div[@class="ContentBox"][2]/ul')
             # Contents (view Concise Listing)
             number_of_content_boxes = len(root.findall('.//div[@class="ContentBox"]'))
@@ -1483,10 +1489,13 @@ class TitleCovers(Record):
         location, root = cls.root_from_url(browser, url, timeout, log, prefs)
 
         # Get rid of tooltips
-        for tooltip in root.xpath('//sup[@class="mouseover"]'):
-            tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
-        for tooltip in root.xpath('//span[@class="tooltiptext tooltipnarrow tooltipright"]'):
-            tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
+        try:
+            for tooltip in root.xpath('//sup[@class="mouseover"]'):
+                tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
+            for tooltip in root.xpath('//span[@class="tooltiptext tooltipnarrow tooltipright"]'):
+                tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
+        except Exception as e:
+            log.debug('Exception ignored while deleting tooltips: {0}'.format(e))
 
         covers = root.xpath('//div[@id="main"]/a/img/@src')
         if prefs['log_level'] in 'DEBUG':
@@ -1608,40 +1617,101 @@ class Title(Record):
         location, root = cls.root_from_url(browser, url, timeout, log, prefs)
 
         # Get rid of tooltips
-        for tooltip in root.xpath('//sup[@class="mouseover"]'):
-            tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
-        for tooltip in root.xpath('//span[@class="tooltiptext tooltipnarrow tooltipright"]'):
-            tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
+        try:
+            for tooltip in root.xpath('//sup[@class="mouseover"]'):
+                tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
+            for tooltip in root.xpath('//span[@class="tooltiptext tooltipnarrow tooltipright"]'):
+                tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
+            # Kills the author link and link text:
+            # for tooltip in root.xpath('//div[@class="tooltip tooltipright"]'):
+            #     tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
+        except Exception as e:
+            log.debug('Exception ignored while deleting tooltips: {0}'.format(e))
 
         detail_div = root.xpath('//div[@class="ContentBox"]')[0]
+        if prefs['log_level'] in 'DEBUG':
+            log.debug('detail_div={0}'.format(etree.tostring(detail_div)))
+            # b'<div class="ContentBox">\n
+            # <b>Title:</b> Don\'t Wash the Carats\n
+            # <span class="recordID"><b>Title Record # </b>58153</span>\n
+            # <br/><b>Author:</b>\n
+            # <div class="tooltip tooltipright"><a href="https://www.isfdb.org/cgi-bin/ea.cgi?26" dir="ltr">Philip Jos&#233; Farmer</a></div>\n
+            # <br/>\n
+            # <b>Date:</b>  1968-00-00\n<br/>\n
+            # <b>Type:</b> SHORTFICTION\n<br/>\n
+            # <b>Length:</b>\nshort story\n
+            # <br/><b>Language:</b> English\n<br/>\n
+            # <b>User Rating:</b>\nThis title has no votes.\n
+            # <a class="inverted bold" href="https://www.isfdb.org/cgi-bin/edit/vote.cgi?58153" dir="ltr">VOTE</a>\n
+            # <br/>\n
+            # <b>Current Tags:</b>\n
+            # None\n
+            # <a class="inverted bold" href="https://www.isfdb.org/cgi-bin/edit/edittags.cgi?58153" dir="ltr">Add Tags</a> \n
+            # </div>\n'
 
         detail_nodes = []
-        detail_node = []
-        for e in detail_div:
-            if e.tag in ['br', '/div']:
-                detail_nodes.append(detail_node)
-                detail_node = []
+        author_title = author_link = author_alias = author_alias_link = series_title = series_link = ''
+        # Loop trough the title infos
+        for child in detail_div.iter():
+            if prefs['log_level'] in 'DEBUG':
+                log.debug(f'tag: {child.tag}')
+                log.debug(f'attrib: {child.attrib}')
+                log.debug(f'text: {child.text!r}')
+                log.debug(f'tail: {child.tail!r}')
+            if child.text == 'Title:':
+                detail_nodes.append(['Title', child.tail.strip()])
+            elif child.text in ['Author:', 'Authors:', 'Editor:', 'Editors:']:
+                author_title = child.text.rstrip(':')
+            elif child.text == 'Variant Title of:':
+                author_alias = child.text.rstrip(':')
+            elif child.text == 'Series Number:':
+                detail_nodes.append(['Series Number', child.tail.strip()])
+            elif 'href' in child.attrib:
+                if child.attrib['href'].startswith('https://www.isfdb.org/cgi-bin/ea.cgi?'):
+                    # Author child
+                    if author_alias:
+                        author_alias_link = child.attrib['href']  # for future purposes (author info in metadata)
+                        detail_nodes.append([author_alias, child.text.strip()])
+                    else:
+                        author_link = child.attrib['href']  # for future purposes (author info in metadata)
+                        detail_nodes.append([author_title, child.text.strip()])
+                elif child.attrib['href'].startswith('https://www.isfdb.org/cgi-bin/pe.cgi?'):
+                    # Series child
+                    series_title = child.text.strip()
+                    series_link = child.attrib['href']  # for future purposes (series info in metadata)
+                    detail_nodes.append(['Series', series_title])
+                else:
+                    if prefs['log_level'] in 'DEBUG':
+                        log.debug('Unknown link type. Child ignored.')
+            elif child.text == 'Date:':
+                detail_nodes.append(['Date', child.tail.strip()])
+            elif child.text == 'Type:':
+                detail_nodes.append(['Type', child.tail.strip()])
+            elif child.text == 'Length:':
+                detail_nodes.append(['Length', child.tail.strip()])
+            elif child.text == 'Language:':
+                detail_nodes.append(['Language', child.tail.strip()])
+            elif child.text == 'User Rating:':
+                detail_nodes.append(['User Rating', child.tail.strip()])
+            elif child.text == 'Current Tags:':
+                detail_nodes.append(['Current Tags', child.tail.strip()])
+            elif child.text == 'Webpages:':
+                detail_nodes.append(['Webpages', child.tail.strip()])
+            elif child.text == 'Synopsis:':
+                detail_nodes.append(['Synopsis', child.tail.strip()])
+            elif child.text == 'Note:':
+                detail_nodes.append(['Note', child.tail.strip()])
             else:
-                detail_node.append(e)
-        detail_nodes.append(detail_node)
+                if prefs['log_level'] in 'DEBUG':
+                    # Known childs:
+                    # - Variant Title of:
+                    log.debug('Child ignored.')
 
         for detail_node in detail_nodes:
             if prefs['log_level'] in 'DEBUG':
-                if len(detail_node) > 0:
-                    for ni in range(len(detail_node) - 1):
-                        log.debug('detail_node={0}'.format(etree.tostring(detail_node[ni])))
-                else:
-                    log.debug('detail_node={0}'.format(etree.tostring(detail_node)))
-            section = detail_node[0].text_content().strip().rstrip(':')
-            if prefs['log_level'] in 'DEBUG':
-                log.debug('section={0}'.format(section))
-            section_text_content = detail_node[0].tail.strip()
-            if section_text_content == '':
-                try:
-                    section_text_content = detail_node[1].xpath('text()')  # extract link text
-                except Exception as e:
-                    if prefs['log_level'] in ('DEBUG', 'INFO', 'ERROR'):
-                        log.error('Error: {0}.'.format(e))
+                log.debug('detail_node={0}'.format(detail_node))
+            section = detail_node[0]
+            section_text_content = detail_node[1]
             if prefs['log_level'] in 'DEBUG':
                 log.debug('section={0}, section_text_content={1}.'.format(section, section_text_content))
 
@@ -1650,27 +1720,31 @@ class Title(Record):
             try:
 
                 if section == 'Title':
-                    properties["title"] = detail_node[0].tail.strip()
-                    if not properties["title"]:
-                        # assume an extra span with a transliterated title tooltip
-                        properties["title"] = detail_node[1].text_content().split('?')[0].strip()
+                    properties["title"] = detail_node[1]  # detail_node[0].tail.strip()
+                    # if not properties["title"]:
+                    #     # assume an extra span with a transliterated title tooltip
+                    #     properties["title"] = detail_node[1].text_content().split('?')[0].strip()
 
                 elif section in ('Author', 'Authors', 'Editor', 'Editors'):
                     properties["authors"] = []
-                    author_links = [e for e in detail_node if e.tag == 'a']
-                    for a in author_links:
-                        author = a.text_content().strip()
-                        if author != 'uncredited':
-                            if section.startswith('Editor'):
-                                if prefs["translate_isfdb"]:
-                                    properties["authors"].append(author + _(' (Editor)'))
-                                else:
-                                    properties["authors"].append(author + ' (Editor)')
+                    # author_links = [e for e in detail_node if e.tag == 'a']
+                    # # for a in author_links:
+                    # for a in detail_node.xpath('.//a'):
+                    #     author = a.text_content().strip()
+                    #     if prefs['log_level'] in 'DEBUG':
+                    #         log.debug('a={0}, author={1}.'.format(a, author))
+                    author = detail_node[1]
+                    if author != 'uncredited':
+                        if section.startswith('Editor'):
+                            if prefs["translate_isfdb"]:
+                                properties["authors"].append(author + _(' (Editor)'))
                             else:
-                                properties["authors"].append(author)
+                                properties["authors"].append(author + ' (Editor)')
+                        else:
+                            properties["authors"].append(author)
 
                 elif section == 'Type':
-                    properties["type"] = detail_node[0].tail.strip()
+                    properties["type"] = detail_node[1]
                     # Copy title type to tags
                     if "tags" not in properties:
                         properties["tags"] = []
@@ -1684,14 +1758,14 @@ class Title(Record):
                         pass
 
                 elif section == 'Length':
-                    properties["length"] = detail_node[0].tail.strip()
+                    properties["length"] = detail_node[1]
                     if "tags" not in properties:
                         properties["tags"] = []
                     properties["tags"].append(properties["length"])
 
                 elif section == 'Date':
                     # In a title record, the date points always to the first publishing date (copyright)
-                    date_text = detail_node[0].tail.strip()
+                    date_text = detail_node[1]
                     # Make sure if date text is suitable to build a date object (empty string or "date unknown" etc)
                     try:
                         # We use this instead of strptime to handle dummy days and months
@@ -1707,16 +1781,15 @@ class Title(Record):
 
                 elif section == 'Series':
                     if prefs['log_level'] in 'DEBUG':
-                        log.debug('Section "Series" found: {0}'.format(detail_node[0].tail.strip()))
-                        log.debug('Section "Series" found: {0}'.format(detail_node[1].text_content().strip()))
+                        log.debug('Section "Series" found: {0}'.format(detail_node))
                     # If series is an url, open series page and search for "Sub-series of:"
                     # https://www.isfdb.org/cgi-bin/pe.cgi?45706
                     # Scan series record
                     # Testen: Titel:War of the Maelstrom (Pub #2)Autoren:Jack L. Chalker
-                    properties["series"] = detail_node[0].tail.strip()
+                    properties["series"] = detail_node[1]
                     if properties["series"] == '':
-                        properties["series"] = detail_node[1].text_content().strip()
-                        url = str(detail_node[1].xpath('./@href')[0])
+                        properties["series"] = detail_node[1]
+                        url = series_link  # str(detail_node[1].xpath('./@href')[0])
                         if prefs['log_level'] in 'DEBUG':
                             log.debug('Properties "Series" is a url: {0} - {1}'.format(properties["series"], url))
                         properties["series"] = Series.from_url(browser, url, timeout, log, prefs)
@@ -1726,49 +1799,49 @@ class Title(Record):
                     if prefs['log_level'] in 'DEBUG':
                         log.debug('Properties "Series"={0}'.format(properties["series"]))
                     if properties["series"] == '':
-                        properties["series"] = detail_node[1].text_content().strip()
+                        properties["series"] = detail_node[1]  # .text_content().strip()
                         if prefs['log_level'] in 'DEBUG':
                             log.debug('Properties "Series"={0}'.format(properties["series"]))
 
                 elif section == 'Series Number':
                     if prefs['log_level'] in 'DEBUG':
-                        log.debug('Section "Series Number" found: {0}'.format(detail_node[0].tail.strip()))
+                        log.debug('Section "Series Number" found: {0}'.format(detail_node[1]))
                     if properties["series"] != '':
                         if prefs['log_level'] in ('DEBUG', 'INFO'):
                             log.info(
                                 _('Series is: "{0}". Now searching series index in "{1}"'.
-                                  format(properties["series"], detail_node[0].tail.strip())))
-                        if detail_node[0].tail.strip() == '':
+                                  format(properties["series"], detail_node[1])))  # .tail.strip())))
+                        if detail_node[1] == '':
                             properties["series_index"] = 0.0
-                        elif '/' in detail_node[0].tail:
+                        elif '/' in detail_node[1]:
                             # Calibre accepts only float format compatible numbers, not e. g. "61/62"
-                            series_index_list = detail_node[0].tail.split('/')
+                            series_index_list = detail_node[1].split('/')
                             # properties["series_index"] = float(series_index_list[0].strip())
                             properties["series_index"] = float(int("".join(filter(str.isdigit, series_index_list[0])).strip()))
                             properties["series_number_notes"] = \
                                 _("Reported number was {0} and was reduced to a Calibre compatible format."). \
-                                    format(detail_node[0].tail)
-                        elif is_roman_numeral(detail_node[0].tail.strip()):
+                                    format(detail_node[1])
+                        elif is_roman_numeral(detail_node[1].strip()):
                             if prefs['log_level'] in 'DEBUG':
-                                log.debug('Roman literal found:{0}'.format(detail_node[0].tail.strip()))
+                                log.debug('Roman literal found:{0}'.format(detail_node[1].strip()))
                             # Calibre accepts only float format compatible arabic numbers, not roman numerals e. g. "IV"
                             # https://www.isfdb.org/cgi-bin/pl.cgi?243949
-                            properties["series_index"] = float(roman_to_int(detail_node[0].tail.strip()))
+                            properties["series_index"] = float(roman_to_int(detail_node[1].strip()))
                             properties["series_number_notes"] = \
                                 _("Reported number was the roman numeral {0} and was converted to a Calibre compatible format.<br />"). \
-                                    format(detail_node[0].tail.strip())
+                                    format(detail_node[1].strip())
                         else:
                             try:
                                 properties["series_index"] = float(int(
-                                    "".join(filter(str.isdigit, detail_node[0].tail.strip()))))
+                                    "".join(filter(str.isdigit, detail_node[1].strip()))))
                             except ValueError:
                                 properties["series_number_notes"] = \
                                     _("Could not convert {0} to a Calibre compatible format.<br />"). \
-                                        format(detail_node[0].tail.strip())
+                                        format(detail_node[1].strip())
                                 properties["series_index"] = 0.0
                                 if prefs['log_level'] in ('DEBUG', 'INFO', 'ERROR'):
                                     log.error('"Could not convert {0} to a Calibre compatible format.<br />"'.format(
-                                        detail_node[0].tail.strip()))
+                                        detail_node[1].strip()))
                         if prefs['log_level'] in 'DEBUG':
                             log.debug('properties["series_index"]={0}'.format(properties["series_index"]))
 
@@ -1778,7 +1851,7 @@ class Title(Record):
                         log.debug('properties["webpages"]={0}'.format(properties["webpages"]))
 
                 elif section == 'Language':
-                    properties["language"] = detail_node[0].tail.strip()
+                    properties["language"] = detail_node[1].strip()
                     # For calibre, the strings must be in the language of the current locale
                     # Both Calibre and ISFDB use ISO 639-2 language codes,
                     # but in the ISFDB web page only the language names are shown
@@ -1789,13 +1862,13 @@ class Title(Record):
                         pass
 
                 elif section == 'Synopsis':
-                    properties["synopsis"] = detail_node[0].tail.strip()
+                    properties["synopsis"] = detail_node[1].strip()
 
                 elif section == 'Note':
                     if "notes" not in properties:
-                        properties["notes"] = detail_node[0].tail.strip()
+                        properties["notes"] = detail_node[1].strip()
                     else:
-                        properties["notes"] = properties["notes"] + '<br />' + detail_node[0].tail.strip()
+                        properties["notes"] = properties["notes"] + '<br />' + detail_node[1].strip()
 
                 # Test with: https://www.isfdb.org/cgi-bin/title.cgi?1360234
                 # ISFDB: user rating is float between 1 and 10. Meanings are:
@@ -1939,10 +2012,13 @@ class Series(Record):
             return ''
 
         # Get rid of tooltips
-        for tooltip in root.xpath('//sup[@class="mouseover"]'):
-            tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
-        for tooltip in root.xpath('//span[@class="tooltiptext tooltipnarrow tooltipright"]'):
-            tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
+        try:
+            for tooltip in root.xpath('//sup[@class="mouseover"]'):
+                tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
+            for tooltip in root.xpath('//span[@class="tooltiptext tooltipnarrow tooltipright"]'):
+                tooltip.getparent().remove(tooltip)  # We grab the parent of the element to call the remove directly on it
+        except Exception as e:
+            log.debug('Exception ignored while deleting tooltips: {0}'.format(e))
 
         detail_nodes = root.xpath('//div[@id="content"]/div[@class="ContentBox"][1]/ul/li')
         if prefs['log_level'] in 'DEBUG':

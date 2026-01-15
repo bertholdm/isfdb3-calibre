@@ -1,4 +1,4 @@
-[Metadata Source Plugin] ISFDB3 - Version 1.4.9 01-11-2026
+[Metadata Source Plugin] ISFDB3 - Version 1.4.10 01-15-2026
 
 Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
 
@@ -78,6 +78,8 @@ Limitations:
   However, there is a risk of a timeout, as a simple search often returns thousands of titles (a search for "The House" by H. P. Lovecraft returns 3,124 results, since all titles with this phrase are returned and the author is ignored), so the filters may not work.
 
 Version History:
+Version 1.4.10 01-15-2026
+- Author not found in title record when embedded in link (a tag) with tooltip. (Thanks to RealLactar.)
 Version 1.4.9 01-11-2026
 - Don't use title tokens for search yet.
 - Record type COVERART is no longer ignored in title search (Sometimes there is no other record
