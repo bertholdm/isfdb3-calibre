@@ -41,7 +41,6 @@ def is_roman_numeral(numeral):
     valid_roman_numerals = {c for c in "MDCLXVI"}
     return not numeral - valid_roman_numerals
 
-
 # Alternate approach:
 # def is_roman_numeral(numeral):
 #     pattern = re.compile(r"^M{0,3}(CM|CD|D?C{0,3})?(XC|XL|L?X{0,3})?(IX|IV|V?I{0,3})?$", re.VERBOSE)
@@ -614,7 +613,7 @@ class TitleList(SearchResults):
                 simple_search_url = url[:30]
                 simple_search_url = simple_search_url + "se.cgi?arg="
                 # url=https://www.isfdb.org/cgi-bin/adv_search_results.cgi?ORDERBY=title_title&START=0&TYPE=Title&USE_1=title_title&OPERATOR_1=contains&TERM_1=Ring+of+Destiny
-                simple_search_url = simple_search_url + re.search('&TERM_1=(.*)?(&|$)', url).group(1)
+                simple_search_url = simple_search_url + re.search(r'&TERM_1=(.*)?(&|$)', url).group(1)
                 simple_search_url = simple_search_url + "&type=All+Titles"
                 if prefs['exact_search']:
                     simple_search_url = simple_search_url.replace('contains', 'exact')  # ToDo: Exact search only for title???
@@ -702,14 +701,14 @@ class TitleList(SearchResults):
                         properties = {}
                         properties["url"] = location
                         title = re.search(r'<title>Title: (.*)</title>', root_str).group(1).strip()
-                        title = re.sub('<.*?>', '', title)  # Get rid of html tags
+                        title = re.sub(r'<.*?>', '', title)  # Get rid of html tags
                         title = title.replace('Title:', '').strip()
                         properties["title"] = [title]
                         properties["date"] = datetime.date
                         try:
                             properties["author"] = [re.search(r'<b>Author:</b>(.*)\\r\\n<br><b>Date:</b>', root_str,
                                                               re.MULTILINE).group(1).strip()]
-                            properties["author"] = [re.sub('<.*?>', '', properties["author"])]  # Get rid of html tags
+                            properties["author"] = [re.sub(r'<.*?>', '', properties["author"])]  # Get rid of html tags
                         except AttributeError:
                             properties["author"] = []
                         # content_box = root.xpath('//*[@id="content"]/div[1])')
@@ -762,11 +761,11 @@ class TitleList(SearchResults):
                 # TERM_2=Herbert+W.+Franke&CONJUNCTION_1=AND
                 if prefs['exact_search']:
                     # TERM_1=Sph%E4renkl%E4nge
-                    title = re.search('TERM_1=(.+?)$', url)  # test case 1
+                    title = re.search(r'TERM_1=(.+?)$', url)  # test case 1
                     if title:
                         title_str = str(title.group(1))
                         if '&' in title_str:  # case 2
-                            title = re.search('TERM_1=(.+?)&', url)
+                            title = re.search(r'TERM_1=(.+?)&', url)
                             title_str = str(title.group(1))
                         title_str = title_str.replace('+', ' ')
                         title_str = title_str.lower()
@@ -781,7 +780,7 @@ class TitleList(SearchResults):
                         log.debug('Title not found in url???')
                 # If simple search: Filter authors from title list)
                 # TERM_2=Gene+Wolfe&
-                author = re.search('TERM_2=(.+?)&', url)
+                author = re.search(r'TERM_2=(.+?)&', url)
                 if author:
                     author_str = str(author.group(1))
                     author_str = author_str.replace('+', ' ')
@@ -832,6 +831,7 @@ class Record(ISFDBObject):
             log.debug('type={0}'.format(type))
         return type
 
+
 class Publication(Record):
     # URL = 'http://www.isfdb.org/cgi-bin/pl.cgi?'
     URL = 'https://www.isfdb.org/cgi-bin/pl.cgi?'
@@ -842,7 +842,7 @@ class Publication(Record):
 
     @classmethod
     def id_from_url(cls, url):
-        return re.search('(\d+)$', url).group(1)
+        return re.search(r'(\d+)$', url).group(1)
 
     @classmethod
     def stub_from_search(cls, row, log, prefs):
@@ -1072,6 +1072,65 @@ class Publication(Record):
                                 properties["series_index"] = 0.0
                         # log.info('properties["series_index"]={0}'.format(properties["series_index"]))
 
+                elif section == 'Webpages':
+                    # If we do not have an series number yet, try the webpage for such information
+                    # Note: There are possible multiple pages!
+                    if not series_index_is_authoritative:
+                        webpage_name = webpage_url = ''
+                        webpage_name = detail_node.text_content().lstrip('Webpages:').strip()
+                        try:
+                            webpage_url = detail_node.xpath('./a/@href')[0]
+                        except IndexError:
+                            # url is embedded in a tooltip div:  //*[@id="content"]/div[1]/ul/li[5]/div/a
+                            webpage_url = detail_node.xpath('./div/a/@href')[0]
+                        if prefs['log_level'] in ['DEBUG']:
+                            log.debug('webpage_name={0}, webpage_url={1}'.format(webpage_name, webpage_url))
+                        if webpage_name == 'archive.org':
+                            # Get the archive page
+                            try:
+                                webpage_response = browser.open_novisit(webpage_url, timeout=timeout)
+                                webpage_raw = webpage_response.read()
+                                webpage_root = fromstring(clean_ascii_chars(webpage_raw))
+                                identifier_info = webpage_root.xpath('//span[@itemprop="identifier"]/text()')[0]
+                                if identifier_info is not None:
+                                    # Examples:
+                                    # Science_Fiction_Adventure_Classics_03_1967-Winter
+                                    # Amazing_Stories_Quarterly_v03n01_1930-Winter_Missing_ifcibcbc
+                                    # Amazing_Stories_Quarterly_v04n02_1931-Spring_frankenscan
+                                    if prefs['log_level'] in ['DEBUG']:
+                                        log.debug('identifier_info={0}'.format(identifier_info))
+                                    match = re.search(r'.*_v([0-9]+)n([0-9]+)_.*', identifier_info, re.IGNORECASE)
+                                    if match:
+                                        volume = number = issue_number = 0
+                                        if match.group(1):
+                                            # Check if volume is indicated in roman digits
+                                            volume = int(str(match.group(1)))
+                                        if match.group(2):
+                                            number = int(str(match.group(2)))
+                                        if prefs['log_level'] in ['DEBUG']:
+                                            log.debug('series_index_options={0}'.format(prefs["series_index_options"]))
+                                            log.debug('volume={0}, number={1}'.format(volume, number))
+                                        if prefs["series_index_options"] == 'vol_and_no':
+                                            if number < 100:
+                                                properties["series_index"] = float(volume) + float(number) * .01
+                                            else:
+                                                properties["series_index"] = float(volume) + 0.99
+                                        elif prefs["series_index_options"] == 'issue_no_only':
+                                            pass
+                                        else:
+                                            log.debug('Unknown series index option.')
+                                        if prefs['log_level'] in ['DEBUG', 'INFO']:
+                                            log.debug('Build Series Index from archive.org webpage={0}'.
+                                                      format(properties["series_index"]))
+                                else:
+                                    log.debug('Could not get an identifier info from archive.org')
+                            except Exception as e:
+                                log.debug('Failed to get series index from archive.org webpage={0} with error={1}'.
+                                          format(webpage_url, e))
+                        else:
+                            if prefs['log_level'] in ['DEBUG']:
+                                log.debug('Webpage link ignored.')
+
                 elif section == 'Notes':
                     # notes_nodes = detail_node.xpath('./div[@class="notes"]/ul')  # /li
                     # notes = detail_node[0].tail.strip()
@@ -1116,7 +1175,7 @@ class Publication(Record):
                             # Vol.1, No.11
                             # or:
                             # Volume 1, Number 1
-                            match = re.search('.*(?:Volume\s|Vol\.\s|Vol\s|Vol\.)([0-9]+|[MDCLXVI]+)(?:.,\s|,\s| *)'
+                            match = re.search(r'.*(?:Volume\s|Vol\.\s|Vol\s|Vol\.)([0-9]+|[MDCLXVI]+)(?:.,\s|,\s| *)'
                                               '(?:No\.|No\.\s|No\s|Number\s)([0-9]+)(\.\sIssue\s)?([0-9]+)?.*|#([0-9]+)',
                                               notes, re.IGNORECASE)
                             if match:
@@ -1164,7 +1223,7 @@ class Publication(Record):
                             month_number_from_season = 1
                             month_number_from_monthname = 1
                             month_number = 1
-                            match = re.search('(Spring|Summer|Autumn|Winter)', notes, re.IGNORECASE)
+                            match = re.search(r'(Spring|Summer|Autumn|Winter)', notes, re.IGNORECASE)
                             if match:
                                 if match.group(1):
                                     season_name = str(match.group(1))
@@ -1174,7 +1233,7 @@ class Publication(Record):
                                     month_number_from_season = season_begins[season_number]
                                     if prefs['log_level'] in 'DEBUG':
                                         log.debug('month_number_from_season={0}'.format(month_number_from_season))
-                            match = re.search('\((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec).*-.*\)', notes, re.IGNORECASE)
+                            match = re.search(r'\((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec).*-.*\)', notes, re.IGNORECASE)
                             if match:
                                 if match.group(1):
                                     month_name = str(match.group(1))
@@ -1222,7 +1281,7 @@ class Publication(Record):
                     # detail_node=b'<li><b>ISBN:</b> 978-1-61287-013-7 [<small>1-61287-013-9</small>]\n</li>'
                     if prefs['log_level'] in 'DEBUG':
                         log.debug('detail_node.text_content()={0}'.format(detail_node.text_content()))
-                    match = re.search('([0-9X\-]+) \[([0-9X\-]+)\]', detail_node.text_content(), re.IGNORECASE)
+                    match = re.search(r'([0-9X\-]+) \[([0-9X\-]+)\]', detail_node.text_content(), re.IGNORECASE)
                     if match:
                         if match.group(1):
                             isbn1 = match.group(1)
@@ -1435,7 +1494,7 @@ class Publication(Record):
                 if prefs['log_level'] in 'DEBUG':
                     log.debug('properties["series"]={0}'.format(properties["series"]))
                 if '#' in properties["title"]:
-                    match = re.search('#(\d+)', properties["title"], re.IGNORECASE)
+                    match = re.search(r'#(\d+)', properties["title"], re.IGNORECASE)
                     if match:
                         # properties["series_index"] = float(int("".join(filter(match.group(1).isdigit, match.group(1)))))
                         properties["series_index"] = float(match.group(1))
@@ -1481,7 +1540,7 @@ class TitleCovers(Record):
 
     @classmethod
     def id_from_url(cls, url):
-        return re.search('(\d+)$', url).group(1)
+        return re.search(r'(\d+)$', url).group(1)
 
     @classmethod
     def from_url(cls, browser, url, timeout, log, prefs):
@@ -1516,7 +1575,7 @@ class Title(Record):
 
     @classmethod
     def id_from_url(cls, url):
-        return re.search('(\d+)$', url).group(1)
+        return re.search(r'(\d+)$', url).group(1)
 
     @classmethod
     def stub_from_search(cls, row, log, prefs):
@@ -1888,17 +1947,17 @@ class Title(Record):
                 # Author: Fredric Brown
                 # User Rating: 5.60 (5 votes) Your vote: Not cast VOTE
                 elif section == 'User Rating':
-                    if 'This title has no votes' not in detail_node[0].tail.strip():
+                    if 'This title has no votes' not in detail_node[1].strip():
                         # 9.49 (45 votes)
                         # Number of votes don't exist in Calibre, so put it in comments.
-                        properties["user_rating"] = detail_node[0].tail.strip()
+                        properties["user_rating"] = detail_node[1].strip()
                         rating = properties["user_rating"]
-                        rating = float(re.search('(\d+\.\d+)', rating).group(1)) * 0.5  # Convert to five-star system
+                        rating = float(re.search(r'(\d+\.\d+)', rating).group(1)) * 0.5  # Convert to five-star system
                         properties["rating"] = rating  # Calibre rating field
 
                 elif section == 'Current Tags':
                     # Current Tags: None
-                    if detail_node[0].tail.strip() != 'None':
+                    if detail_node[1].strip() != 'None':
                         if "tags" not in properties:
                             properties["tags"] = []
                         # Current Tags: enhanced intelligence (1), genetics (1), Daniel Keyes (1)
@@ -1912,7 +1971,7 @@ class Title(Record):
 
                 elif section == 'Variant Title of':
                     if "notes" not in properties:
-                        properties["notes"] = 'Variant Title of ' + detail_node[0].tail.strip()
+                        properties["notes"] = 'Variant Title of ' + detail_node[0].strip()
                     else:
                         properties["notes"] = properties["notes"] + '<br />' + 'Variant Title of ' + detail_node[
                             0].tail.strip()
@@ -1987,7 +2046,7 @@ class Series(Record):
 
     @classmethod
     def id_from_url(cls, url):
-        return re.search('(\d+)$', url).group(1)
+        return re.search(r'(\d+)$', url).group(1)
 
     @classmethod
     def from_url(cls, browser, url, timeout, log, prefs):
@@ -2108,7 +2167,7 @@ class Series(Record):
                 if prefs['log_level'] in 'DEBUG':
                     log.debug('series_tags={0}'.format(series_tags))
                 # fantasy (3), horror (3), necromancers (1), sword and sorcery (1), heroic fantasy (1)
-                series_tags_clean = re.sub('\([0-9]*\)]', '', series_tags)
+                series_tags_clean = re.sub(r'\([0-9]*\)]', '', series_tags)
                 properties["series_tags"] = [x.strip() for x in series_tags_clean.split(',')]
                 if prefs['log_level'] in 'DEBUG':
                     log.debug('properties["series_tags"]={0}'.format(properties["series_tags"]))

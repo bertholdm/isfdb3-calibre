@@ -39,8 +39,8 @@ class ISFDB3(Source):
     name = 'ISFDB3'
     description = _('Downloads metadata and covers from ISFDB (https://www.isfdb.org/)')
     author = 'Michael Detambel - Forked from Adrianna Pińska\'s ISFDB2 (https://github.com/confluence/isfdb2-calibre)'
-    version = (1, 4, 10)  # the plugin version number
-    release = ('01-15-2026')  # the release date
+    version = (1, 4, 11)  # the plugin version number
+    release = ('02-06-2026')  # the release date
     calibre = (5,0,0)  # the minimum calibre version number
     minimum_calibre_version = (5, 0, 0)
     # From https://manual.calibre-ebook.com/de/_modules/calibre/ebooks/metadata/sources/base.html
@@ -49,6 +49,9 @@ class ISFDB3(Source):
     platforms = ['Windows', 'Linux', 'Mac']  # the platforms supported
 
     # Changelog
+    # Version 1.4.11 02-06-2026
+    # - If no volume/number found in isfdb.org pub page, try the resource web page, if given (at the moment only for archive.org)
+    # - Avoid warnings for invalid escape sequences, if strings not declared as raw.
     # Version 1.4.10 01-15-2026
     # - Author not found in title record when embedded in link (a tag) with tooltip. (Thanks to RealLactar.)
     # Version 1.4.9 01-11-2026
@@ -423,7 +426,7 @@ class ISFDB3(Source):
             if mi.series_index is None:
                 custom_title = custom_title.replace('{series_index}', '')
             else:
-                pattern = '(\{series_index:.*?\})'
+                pattern = r'(\{series_index:.*?\})'
                 match = re.search(pattern, custom_title)
                 if match:
                     f_string = match.group().replace('series_index', '')
