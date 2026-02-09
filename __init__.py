@@ -623,7 +623,7 @@ class ISFDB3(Source):
                     title_tokens.append(token)
                 # These tokens are not used yet! (Perhaps with an option in config.)
                 if self.prefs['log_level'] in ('DEBUG', 'INFO'):
-                    log.info(_('title_tokens={0}.').format(title_tokens))
+                    log.info('title_tokens={0}.'.format(title_tokens))
                     log.info(_('Searching with author={0}, title={1}.').format(author, title))
 
                 ##################################################
