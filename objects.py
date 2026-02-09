@@ -1175,8 +1175,10 @@ class Publication(Record):
                             # Vol.1, No.11
                             # or:
                             # Volume 1, Number 1
-                            match = re.search(r'.*(?:Volume\s|Vol\.\s|Vol\s|Vol\.)([0-9]+|[MDCLXVI]+)(?:.,\s|,\s| *)'
-                                              '(?:No\.|No\.\s|No\s|Number\s)([0-9]+)(\.\sIssue\s)?([0-9]+)?.*|#([0-9]+)',
+                            # or
+                            # May 2008 ←Jun. 2008→ Jul.-Aug. 2008 Vol CXXVIII No. 6
+                            match = re.search(r'.*(?:Volume |Vol\\. |Vol |Vol\\.)([0-9]+|[MDCLXVI]+).*'
+                                              r'(?:No\.|No\. |No |Number )([0-9]+).*(?: Issue | #)?([0-9]+)?.*',
                                               notes, re.IGNORECASE)
                             if match:
                                 volume = number = issue_number = 0
@@ -1191,7 +1193,7 @@ class Publication(Record):
                                         # https://www.isfdb.org/cgi-bin/pl.cgi?243949
                                         volume = roman_to_int(volume_text)
                                         properties["series_number_notes"] = \
-                                            _("Reported number was the roman numeral {0} and was converted to "
+                                            _("Reported volume was the roman numeral {0} and was converted to "
                                               "a Calibre compatible format.<br />").format(volume_text)
                                     else:
                                         volume = int(str(volume_text))
@@ -1200,8 +1202,8 @@ class Publication(Record):
                                 if match.group(3) and match.group(4):
                                     issue_number = int(str(match.group(4)))
                                     prefs["series_index_options"] = 'issue_no_only'
-                                if match.group(5):
-                                    volume = int(str(match.group(5)))
+                                # if match.group(5):
+                                #     volume = int(str(match.group(5)))
                                 if prefs['log_level'] in ['DEBUG']:
                                     log.debug('series_index_options={0}'.format(prefs["series_index_options"]))
                                     log.debug('volume={0}, number={1}, issue_number={2}'.
@@ -1217,6 +1219,9 @@ class Publication(Record):
                                     log.debug('Unknown series index option.')
                                 if prefs['log_level'] in ['DEBUG', 'INFO']:
                                     log.debug('Build Series Index from Notes={0}'.format(properties["series_index"]))
+                            else:
+                                if prefs['log_level'] in ['DEBUG']:
+                                    log.debug('Notes string not matched by pattern={0}'.format(notes))
 
                             # Is there a more precise pub date in Notes when only year is given in pub date?
                             # Summer 1950 (May-July), Vol 4., No. 11.
