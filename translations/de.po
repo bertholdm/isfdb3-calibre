@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ISFDB3\n"
-"POT-Creation-Date: 2026-02-09 11:53+0100\n"
-"PO-Revision-Date: 2026-02-09 11:54+0100\n"
+"POT-Creation-Date: 2026-02-09 12:05+0100\n"
+"PO-Revision-Date: 2026-02-09 12:06+0100\n"
 "Last-Translator: Michael Detambel <info@michael-detambel.de>\n"
 "Language-Team: Michael Detambel\n"
 "Language: de_DE@formal\n"
@@ -1001,6 +1001,10 @@ msgid ""
 "Truncate the search string at the error position and search with the "
 "substring: {0}."
 msgstr "Der Suchtext wird an der Fehlerstelle abgeschnitten: {0}."
+
+#: objects.py:577
+msgid "No root found with this url. Abort."
+msgstr "Keine Daten gefunden mit diesem URL. Abbruch."
 
 #: objects.py:599
 msgid ""

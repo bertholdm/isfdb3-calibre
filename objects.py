@@ -573,8 +573,8 @@ class TitleList(SearchResults):
         simple_search_url = None
 
         location, root = cls.root_from_url(browser, url, timeout, log, prefs)  # site encoding is iso-8859-1
-        if not root:
-            log.debug('No root found with this url!. Abort.')
+        if root is None:
+            log.debug(_('No root found with this url. Abort.'))
             abort = True
             return []
 
