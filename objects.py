@@ -1177,8 +1177,8 @@ class Publication(Record):
                             # Volume 1, Number 1
                             # or
                             # May 2008 ←Jun. 2008→ Jul.-Aug. 2008 Vol CXXVIII No. 6
-                            match = re.search(r'.*(?:Volume |Vol\\. |Vol |Vol\\.)([0-9]+|[MDCLXVI]+).*'
-                                              r'(?:No\.|No\. |No |Number )([0-9]+).*(?: Issue | #)?([0-9]+)?.*',
+                            match = re.search(r'.*(?:Volume |Vol\. |Vol |Vol\.)([0-9]+|[MDCLXVI]+).*'
+                                              r'(?:No\.|No\.[ ]+|No[ ]+|Number[ ]+)([0-9]+).*(?: Issue | #)?([0-9]+)?.*',
                                               notes, re.IGNORECASE)
                             if match:
                                 volume = number = issue_number = 0
@@ -1221,7 +1221,7 @@ class Publication(Record):
                                     log.debug('Build Series Index from Notes={0}'.format(properties["series_index"]))
                             else:
                                 if prefs['log_level'] in ['DEBUG']:
-                                    log.debug('Notes string not matched by pattern={0}'.format(notes))
+                                    log.debug('Notes string not matched by pattern.')
 
                             # Is there a more precise pub date in Notes when only year is given in pub date?
                             # Summer 1950 (May-July), Vol 4., No. 11.
