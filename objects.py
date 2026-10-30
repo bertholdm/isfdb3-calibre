@@ -114,6 +114,19 @@ def remove_node(child, keep_content=False):
     parent.remove(child)
 
 
+class UrlNotFound(ValueError):
+
+    def __init__(self, url):
+        ValueError.__init__(self, 'The URL {} was not found (HTTP 404)'.format(url))
+
+class UrlTimedOut(ValueError):
+
+    def __init__(self, url):
+        ValueError.__init__(self, 'Timed out fetching {} try again later'.format(url))
+
+class DownloadDenied(ValueError):
+    pass
+
 class ISFDBObject(object):
 
     @classmethod
@@ -121,9 +134,35 @@ class ISFDBObject(object):
         if prefs['log_level'] in 'DEBUG':
             log.debug('*** Enter ISFDBObject.root_from_url().')
             log.debug('url={0}'.format(url))
-        response = browser.open_novisit(url, timeout=timeout)
+        try:
+            response = browser.open_novisit(url, timeout=timeout)
+        except Exception as e:
+            # if hasattr(e, 'getcode') and e.getcode() == 403:
+            # # != http.HTTPStatus.OK
+            if callable(getattr(e, 'getcode', None)) and e.getcode() == 404:
+                log.error('URL not found: %r' % url)
+                raise UrlNotFound(url)
+            elif callable(getattr(e, 'getcode', None)) and e.getcode() == 403:
+                msg = _('isfdb.org returns "forbidden" (http 403), most certainly because the browser string '
+                'is identified as bot. Since Calibre has an built-in random algorithm for browser strings, '
+                'you can in a few seconds give a try with more luck.')
+                log.error(msg)
+                raise Exception (msg)
+            elif isinstance(attr[0], socket.timeout):
+                attr = getattr(e, 'args', [None])
+                attr = attr if attr else [None]
+                msg = 'Details page timed out. Try again later.'
+                log.error(msg)
+                raise UrlTimedOut(url)
+            else:
+                msg = 'Not yet handled error: {0}'.format(e.getcode())
+                log.error(msg)
+                raise
+
         location = response.geturl()  # guess url in case of redirection
-        raw = response.read()
+        if prefs['log_level'] in 'DEBUG':
+            log.debug('response.geturl()={0}'.format(location))
+        raw = response.read().strip()
         raw = raw.decode('iso_8859_1', 'ignore')  # site encoding is iso-8859-1
         return location, fromstring(clean_ascii_chars(raw))
 

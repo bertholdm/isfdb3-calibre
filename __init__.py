@@ -39,16 +39,20 @@ class ISFDB3(Source):
     name = 'ISFDB3'
     description = _('Downloads metadata and covers from ISFDB (https://www.isfdb.org/)')
     author = 'Michael Detambel - Forked from Adrianna Pińska\'s ISFDB2 (https://github.com/confluence/isfdb2-calibre)'
-    version = (1, 4, 12)  # the plugin version number
-    release = ('02-09-2026')  # the release date
-    calibre = (5,0,0)  # the minimum calibre version number
-    minimum_calibre_version = (5, 0, 0)
+    version = (1, 5, 0)  # the plugin version number
+    release = ('10-30-2026')  # the release date
+    calibre = (9,17,0)  # the minimum calibre version number
+    minimum_calibre_version = (9, 17, 0)
     # From https://manual.calibre-ebook.com/de/_modules/calibre/ebooks/metadata/sources/base.html
     #: Set this to True to ignore HTTPS certificate errors when connecting to this source.
     history = True  # the History flag
     platforms = ['Windows', 'Linux', 'Mac']  # the platforms supported
 
     # Changelog
+    # Version 1.5.0 10-30-2026
+    # - Using of Calibre's Camoufox browser engine to not be rejected as bot by Cloudflare.
+    # Version 1.4.13 03-15-2026
+    # - If isfdb.org returns "forbidden" (http 403), display a message with the hint to retry in aq few seconds.
     # Version 1.4.12 02-09-2026
     # - Regex for series index search in notes enhanced.
     # Version 1.4.11 02-06-2026
@@ -148,6 +152,8 @@ class ISFDB3(Source):
     #: If set to True, and this source returns multiple results for a query, some of which have ISBNs and some of which
     # do not, the results without ISBNs will be ignored
     prefer_results_with_isbn = False
+    # Using of Calibre's Camoufox browser engine to not be rejected as bot by Cloudflare.
+    users_camoufox_worker = True
 
     # Set of capabilities supported by this plugin. Useful capabilities are: 'identify', 'cover'
     capabilities = frozenset(['identify', 'cover'])
@@ -1109,7 +1115,7 @@ class Worker(Thread):
             # (To be honest, only stub #2 contains really a book title. Vorwort (preface) and excerpt are not what we want)
             # And all(!) pubs are crumbled in one!
 
-            # So, if we want not to merge metadata results on title and/or author(s) as coded alin Calibre's merge_metadata_results()
+            # So, if we want not to merge metadata results on title and/or author(s) as coded in Calibre's merge_metadata_results()
 
             # (See https://github.com/kovidgoyal/calibre/blob/master/src/calibre/ebooks/metadata/sources/identify.py and
             # as stated in help text for check box "more than one entry per source":

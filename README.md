@@ -1,4 +1,4 @@
-[Metadata Source Plugin] ISFDB3 - Version Version Version 1.4.12 02-09-2026
+[Metadata Source Plugin] ISFDB3 - Version Version Version 1.5.0 10-30-2026
 
 Downloads metadata and covers from the Internet Speculative Fiction Database (http://www.isfdb.org/)
 
@@ -78,6 +78,8 @@ Limitations:
   However, there is a risk of a timeout, as a simple search often returns thousands of titles (a search for "The House" by H. P. Lovecraft returns 3,124 results, since all titles with this phrase are returned and the author is ignored), so the filters may not work.
 
 Version History:
+Version 1.5.0 10-30-2026
+- Using of Calibre's Camoufox browser engine to not be rejected as bot by Cloudflare.
 Version 1.4.12 02-09-2026
 - Regex for series index search in notes enhanced.
 Version 1.4.11 02-06-2026
